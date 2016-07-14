@@ -27,7 +27,7 @@ public class AgileCafe362 extends Application {
             
             @Override
             public void handle(ActionEvent event) {
-System.out.println("Hello Wordsfsdfsdfdsfdsld!");
+System.out.println("Hello !");
             }
         });
         
