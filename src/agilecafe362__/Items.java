@@ -12,6 +12,7 @@ import java.text.NumberFormat;
  * @author Dragon
  */
 public class Items {
+    int number;
     private double price;
     private int itemID;
     private String name;
