@@ -17,28 +17,39 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import java.util.ArrayList;
 
 public class AgileCafe362 extends Application {
     
     Button AccessAdminButton;
     BorderPane mainPane;
     Scene mainScene;
+
+    private ArrayList<Item> itemsList;
     
     @Override
     public void init() throws Exception {
         //init() runs before application starts
         //Connect to database
+        SQL_DB mysqlDB = new SQL_DB();
+        mysqlDB.connect(); 
         
         //Query info from database into application
+        this.itemsList = mysqlDB.getAllItems(); 
         
+        mysqlDB.closeConn();
     }
     
     @Override
     public void stop() throws Exception {
         //stop() runs after application stops
+
+        //Close mysql connection  
         //Save info into database
+        SQL_DB mysqlDB = new SQL_DB();
+        mysqlDB.connect(); 
         
-        //Close connection to database
+        //Save info from application into database
     }
     
     @Override
