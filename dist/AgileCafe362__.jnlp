@@ -11,7 +11,8 @@
   </resources>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="AgileCafe362__.jar" size="18552" download="eager" />
+    <jar href="AgileCafe362__.jar" size="19780" download="eager" />
+    <jar href="lib/mysql-connector-java-5.1.23-bin.jar" size="827921" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="AgileCafe362__" >
     <param name="requiredFXVersion" value="2.2+"/>
