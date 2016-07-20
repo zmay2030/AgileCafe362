@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cafe;
+package agilecafe362__;
 
 import java.text.NumberFormat;
 
@@ -11,29 +11,30 @@ import java.text.NumberFormat;
  *
  * @author Dragon
  */
-public class Items {
-    int number;
+public class Item {
     private double price;
     private int itemID;
     private String name;
     private String description;
-    private String category;
-    private String image;
-    public Items(int itemID, String name, String description, String category, double price){
+    private int type;
+    private String image_path;
+    private Boolean deleted;
+    public Item(int itemID, String name, String description, int type, double price){
         this.name = name;
         this.itemID = itemID;
-        this.category = category;
+        this.type = type;
         this.description = description;
         this.price = price;
+        deleted = false;
     }
     
-    public Items(int itemID, String name, String description, String category, double price, String image){
+    public Item(int itemID, String name, String description, int type, double price, String image_path){
         this.name = name;
         this.itemID = itemID;
-        this.category = category;
+        this.type = type;
         this.description = description;
         this.price = price;
-        this.image = image;
+        this.image_path = image_path;
     }
     
     public int getItemID(){
@@ -44,12 +45,12 @@ public class Items {
         this.itemID = itemID;
     }
     
-    public String getCategory(){
-        return category;
+    public int getType(){
+        return type;
     }
     
-    public void setCategory(String category){
-        this.category = category;
+    public void setCategory(int category){
+        this.type = category;
     }
     
     public double getPrice(){
@@ -71,18 +72,27 @@ public class Items {
         this.description = description;
     }
     public String getImage(){
-        return image;
+        return image_path;
     }
-    public void setImage(String image){
-        this.image = image;
+    public Boolean isDeleted()
+    {
+        return deleted;
+    }
+    public void SetDelete()
+    {
+        deleted = true;
+    }
+    public void setImage(String image_path){
+        this.image_path = image_path;
     }
     public String toString(){
         NumberFormat fcurr = NumberFormat.getCurrencyInstance();
-        if(image == null)
-            return name + "(" + category + ")" +"\t" + description + "\t" + fcurr.format(price);
+        if(image_path == null)
+            return name + "(" + type + ")" +"\t" + description + "\t" + fcurr.format(price);
         else
-            return name + "(" + category + ")" +"\t" + description + "\t" + fcurr.format(price) + "\t" + image;
+            return name + "(" + type + ")" +"\t" + description + "\t" + fcurr.format(price) + "\t" + image_path;
     }
+    
     
     
 }
