@@ -88,12 +88,13 @@ public class AgileCafe362 extends Application {
         
         //Layout for Main Menu -> BorderPane layout
         mainPane = new BorderPane();
-        mainScene = new Scene(mainPane, 700, 700);
+        mainScene = new Scene(mainPane, 800, 680);
         
         //Create checkout Button
         addCartButton = new Button("Add to Cart");
         addCartButton.setMinWidth(100);
         rightBox = new VBox(10);
+        rightBox.setPadding(new Insets(0,10,0,0));
         rightBox.getChildren().add(addCartButton);
         mainPane.setRight(rightBox);
         
@@ -135,14 +136,14 @@ public class AgileCafe362 extends Application {
         //Displays "Food" and "Beverage" Labels
         foodMenuGrid.add(food,0,0,2,1);
         bevMenuGrid.add(bev,0,0,2,1);
-        //foodMenuGrid.setGridLinesVisible(true);
-        //bevMenuGrid.setGridLinesVisible(true);
+        foodMenuGrid.setGridLinesVisible(true);
+        bevMenuGrid.setGridLinesVisible(true);
         
         //Display each item w/ their info onto GUI
         addItemGUI();
         
-        menuSection.getChildren().add(0,foodMenuGrid);
-        menuSection.getChildren().add(1,bevMenuGrid); 
+        menuSection.getChildren().add(foodMenuGrid);
+        menuSection.getChildren().add(bevMenuGrid); 
     }
     
     //Purpose: Display each item with their info onto GUI
@@ -167,11 +168,11 @@ public class AgileCafe362 extends Application {
             j = j+2;
         }
         
-        j = 1; //j=1 represents the 1st entry to add into for the menu section
+        j = -3; 
         //Adds each Beverage form list into GUI
         for (int i=0; i< itemsList.size(); i++)
         {
-            if (itemsList.get(i).getType() == 0)
+            if (itemsList.get(i).getType() == 1)
             {
                 bevMenuGrid.add(new Label(itemsList.get(i).getName()), 0, j);
                 bevMenuGrid.add(new Label(itemsList.get(i).getDescription()), 0, j+1);
