@@ -5,7 +5,6 @@
  */
 package agilecafe362__;
 
-import static com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type.Int;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
