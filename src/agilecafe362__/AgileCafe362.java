@@ -18,8 +18,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.ArrayList;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -107,10 +107,10 @@ public class AgileCafe362 extends Application {
         //Creates two sections of menu
         foodMenuGrid = new GridPane();
         bevMenuGrid = new GridPane();
-        foodMenuGrid.setHgap(50);
+        foodMenuGrid.setHgap(10);
         foodMenuGrid.setVgap(10);
         bevMenuGrid.setVgap(10);
-        bevMenuGrid.setHgap(50);
+        bevMenuGrid.setHgap(10);
         
         //Creates section labels
         Label food = new Label("Food");
@@ -136,8 +136,8 @@ public class AgileCafe362 extends Application {
         //Displays "Food" and "Beverage" Labels
         foodMenuGrid.add(food,0,0,2,1);
         bevMenuGrid.add(bev,0,0,2,1);
-        foodMenuGrid.setGridLinesVisible(true);
-        bevMenuGrid.setGridLinesVisible(true);
+        //foodMenuGrid.setGridLinesVisible(true);
+        //bevMenuGrid.setGridLinesVisible(true);
         
         //Display each item w/ their info onto GUI
         addItemGUI();
@@ -164,6 +164,9 @@ public class AgileCafe362 extends Application {
                 foodMenuGrid.add(new Label(itemsList.get(i).getName()), 0, j);
                 foodMenuGrid.add(new Label(itemsList.get(i).getDescription()), 0, j+1);
                 foodMenuGrid.add(new Label(Double.toString(itemsList.get(i).getPrice())), 1, j+1);
+                Spinner temp = new Spinner(0,10,0);
+                temp.setMaxWidth(65);
+                foodMenuGrid.add(temp,2,j+1);
                 j = j+2;
             }
             
@@ -175,9 +178,15 @@ public class AgileCafe362 extends Application {
         {
             if (itemsList.get(i).getType() == 1)
             {
+                //add Name, description, and price
                 bevMenuGrid.add(new Label(itemsList.get(i).getName()), 0, j);
                 bevMenuGrid.add(new Label(itemsList.get(i).getDescription()), 0, j+1);
                 bevMenuGrid.add(new Label(Double.toString(itemsList.get(i).getPrice())), 1, j+1);
+                
+                //Add spinner box
+                Spinner temp = new Spinner(0,10,0);
+                temp.setMaxWidth(65);
+                bevMenuGrid.add(temp,2,j+1);
                 j = j+2;
             }
             
