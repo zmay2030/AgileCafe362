@@ -7,15 +7,12 @@
     <offline-allowed/>
   </information>
   <resources>
-    <jfx:javafx-runtime version="2.2+" href="http://javadl.sun.com/webapps/download/GetFile/javafx-latest/windows-i586/javafx2.jnlp"/>
-  </resources>
-  <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="AgileCafe362__.jar" size="18632" download="eager" />
+    <jar href="AgileCafe362__.jar" size="4346" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="AgileCafe362__" >
-    <param name="requiredFXVersion" value="2.2+"/>
+    <param name="requiredFXVersion" value="8.0+"/>
   </applet-desc>
-  <jfx:javafx-desc  width="800" height="600" main-class="agilecafe362.AgileCafe362"  name="AgileCafe362__" />
+  <jfx:javafx-desc  width="800" height="600" main-class="agilecafe362__.AgileCafe362"  name="AgileCafe362__" />
   <update check="always"/>
 </jnlp>
