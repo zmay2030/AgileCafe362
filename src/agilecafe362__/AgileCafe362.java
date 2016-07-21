@@ -164,11 +164,12 @@ public class AgileCafe362 extends Application {
                 foodMenuGrid.add(new Label(itemsList.get(i).getName()), 0, j);
                 foodMenuGrid.add(new Label(itemsList.get(i).getDescription()), 0, j+1);
                 foodMenuGrid.add(new Label(Double.toString(itemsList.get(i).getPrice())), 1, j+1);
+                j = j+2;
             }
-            j = j+2;
+            
         }
         
-        j = -3; 
+        j = 1; //j=1 represents the 1st entry to add for the menu section
         //Adds each Beverage form list into GUI
         for (int i=0; i< itemsList.size(); i++)
         {
@@ -177,8 +178,9 @@ public class AgileCafe362 extends Application {
                 bevMenuGrid.add(new Label(itemsList.get(i).getName()), 0, j);
                 bevMenuGrid.add(new Label(itemsList.get(i).getDescription()), 0, j+1);
                 bevMenuGrid.add(new Label(Double.toString(itemsList.get(i).getPrice())), 1, j+1);
+                j = j+2;
             }
-            j = j+2;
+            
         }
     }
     
