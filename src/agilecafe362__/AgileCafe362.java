@@ -5,6 +5,7 @@
  */
 package agilecafe362__;
 
+import static com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type.Int;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -36,7 +37,7 @@ public class AgileCafe362 extends Application {
     private Scene mainScene;
     private GridPane foodMenuGrid;
     private GridPane bevMenuGrid; //bev is short for beverage
-    
+     
     //Elements for Admin Login Stage
     private Label userName;
     private Label password;
@@ -47,7 +48,6 @@ public class AgileCafe362 extends Application {
     private Stage logInStage;
     
     private ArrayList<Item> itemsList;
-    //private ArrayList<itemMenuGUI> itemsListGUI;
     
     @Override
     public void init() throws Exception {
@@ -192,30 +192,7 @@ public class AgileCafe362 extends Application {
             
         }
     }
-    
-    /* --------WORK IN PROGRESS--------
-    private class itemMenuGUI {
-        Item itemGUI;
-        private CheckBox cb;
-        private int itemCount;
-        
-        itemMenuGUI() {
-            
-        }
-        public void setItem(Item item){ itemGUI = item; }
-        public Item getItem(){ return itemGUI; }
-        
-    }
-    
-    private void loadListGUI(){
-        
-        for(int i=0; i<itemsList.size();i++)
-        {
-           itemsListGUI.get(i).setItem(itemsList.get(i));
-        }
-    }
-        --------WORK IN PROGRESS--------*/
-    
+
     private void buildLogInStage(){
         
         //Set up grid

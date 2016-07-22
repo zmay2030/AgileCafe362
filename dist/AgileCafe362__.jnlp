@@ -8,7 +8,11 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+<<<<<<< HEAD
     <jar href="AgileCafe362__.jar" size="8226" download="eager" />
+=======
+    <jar href="AgileCafe362__.jar" size="8940" download="eager" />
+>>>>>>> 31e4d6fce8e99c843558d8b99a2fb5f2349065d1
     <jar href="lib\mysql-connector-java-5.1.39-bin.jar" size="989497" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="AgileCafe362__" >
