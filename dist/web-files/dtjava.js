@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (c) 2006, 2015, Oracle and/or its affiliates. All rights reserved.
+=======
+ * Copyright (c) 2006, 2016, Oracle and/or its affiliates. All rights reserved.
+>>>>>>> Ahmad
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
@@ -168,6 +172,27 @@ var dtjava = function() {
             ie = false;
         }
 
+        var edge = false;
+        var noActiveX = false;
+        edge = (navigator.userAgent.match(/Edge/i) != null);
+        
+        // If IE and Windows 8 or Windows 8.1 then check for Metro mode
+        if(ie && navigator.userAgent.match(/Windows NT 6\.[23]/i) != null) {
+            try {
+                // try to create a known ActiveX object
+                new ActiveXObject("htmlfile");
+            } catch(e) {
+		// ActiveX is disabled or not supported. 
+                noActiveX = true;
+            } 
+        }
+
+        if(edge || noActiveX) {
+            ie = false;
+	}
+
+	var noPluginWebBrowser = edge || chrome || noActiveX;
+
         //we are not required to detect everything and can leave values null as
         // long as we later treat them accordingly.
         //We use "cputype" to detect if given hardware is supported,
@@ -191,6 +216,18 @@ var dtjava = function() {
            }
         }
 
+<<<<<<< HEAD
+=======
+        // startsWith() is not supported by IE
+        if(typeof String.prototype.startsWith !== 'function') {
+           String.prototype.startsWith = function(searchString, position) {
+               position = position || 0;
+               return this.indexOf(searchString, position) === position;
+           }
+        }
+
+
+>>>>>>> Ahmad
         // Check mime types. Works with netscape family browsers and checks latest installed plugin only
         var mm = navigator.mimeTypes;
         var jre = null;
@@ -235,11 +272,31 @@ var dtjava = function() {
         }
 		
         return {haveDom:dom, wk:webkit, ie:ie, win:windows,
+<<<<<<< HEAD
                 linux:linux, mac:mac, op: opera, chrome:chrome,
                 jre:jre, deploy:deploy, fx:fx,
+=======
+                linux:linux, mac:mac, op: opera, chrome:chrome, edge:edge,
+                jre:jre, deploy:deploy, fx:fx, noPluginWebBrowser:noPluginWebBrowser,
+>>>>>>> Ahmad
                 cputype: cputype, osVersion: osVersion, override: override};
     }
 
+   function showMessageBox() {
+        var message = 'Java Plug-in is not supported by this browser. <a href="http://java.com/dt-redirect">More info</a>';
+        var mbStyle = 'background-color: #ffffce;text-align: left;border: solid 1px #f0c000; padding: 1.65em 1.65em .75em 0.5em; font-family: Helvetica, Arial, sans-serif; font-size: 75%; top:5;left:5;position:absolute; opacity:0.9; width:600px;';
+        var messageStyle = "border: .85px; margin:-2.2em 0 0.55em 2.5em;";
+
+        var messageBox = '<img src="http://java.com/js/alert_16.png"><div style="'+ messageStyle +'"><p>'+ message + '</p>';
+
+
+        var divTag = document.createElement("div");
+        divTag.id = "messagebox";
+        divTag.setAttribute('style', mbStyle);
+        divTag.innerHTML = messageBox;
+        document.body.appendChild(divTag);              
+
+    }
     //partially derived from swfobject.js
     var initDone = false;
 
@@ -345,6 +402,35 @@ var dtjava = function() {
             installNativePlugin();
         }
     }
+    
+   function getAbsoluteUrl(jnlp){
+        var absoluteUrl;
+        if(isAbsoluteUrl(jnlp)) {
+            absoluteUrl = jnlp;
+        } else {
+            var location = window.location.href;
+            var pos = location.lastIndexOf('/');
+            var docbase =  pos > -1 ? location.substring(0, pos + 1) : location + '/';
+	    absoluteUrl = docbase + jnlp;
+        }
+        return absoluteUrl;
+    }
+
+    function launchWithJnlpProtocol(jnlp) {
+        document.location="jnlp:"+ getAbsoluteUrl(jnlp);
+    }
+  
+
+    function isAbsoluteUrl(url){
+       var protocols = ["http://", "https://", "file://"];
+       for (var i=0; i < protocols.length; i++){
+         if(url.toLowerCase().startsWith(protocols[i])){
+         	return true;;
+	 }
+       }
+       return false;
+     }
+
 
     /**
      This class provides details on why current platform does not meet
@@ -548,6 +634,10 @@ var dtjava = function() {
 
     function doLaunch(ld, platform, cb) {
         var app = normalizeApp(ld, true);
+        if(ua.noPluginWebBrowser){
+            launchWithJnlpProtocol(app.url);
+            return;
+	}
 
         //required argument is missing
         if (!(notNull(app) && notNull(app.url))) {
@@ -748,7 +838,15 @@ var dtjava = function() {
     //returns same mismatch event if not resolved, null if resolved
     function resolveAndLaunch(app, platform, v, cb, launchFunction) {
         var p = getPlugin();
-
+        if( p == null && ua.noPluginWebBrowser){
+            var readyStateCheck = setInterval(function() {
+                    if(document.readyState  == "complete"){
+                        clearInterval(readyStateCheck);
+                        showMessageBox();
+                    }
+                }, 15);
+            return;
+        }
         //Special case: Chrome/Windows
         // (Note: IE may also block activeX control but then it will block attempts to use it too)
         if (ua.chrome && ua.win && p != null && !isDTInitialized(p)) {
@@ -2015,7 +2113,7 @@ var dtjava = function() {
         return doValidate(p);
     }
 
-    function doValidate(platform) {
+    function doValidate(platform, noPluginWebBrowser) {
         //ensure some platform is set (we could get array too!)
         platform = new dtjava.Platform(platform);
 
@@ -2036,34 +2134,23 @@ var dtjava = function() {
             if (details.os) {
                 jre = "unsupported";
                 os = true;
-            }
-            browser = details.browser;
-        }
-/*        if (notNull(platform.plugin) && jre == "ok") {
-            try {
-                p = getPlugin();
-                //TEMPORARY DISABLE because isPlugin2() is broken in 1.7.0
-                // it is not fixed in 7-client but if FX is enabled then
-                // it must be new plugin anyways
-                //=> keep this disabled for now until we find use case
-                if (false && (p == null || !p.isPlugin2())) {
-                    //TODO: FIXME: seem to get here always because isPlugin2() returns 0?
-                    jre = "oldplugin";
-                    relaunch = true;
-                }
-            } catch (err) { //pre 6u10 or no DT
-                jre = "oldplugin";
-                relaunch = true;
+            } else if(noPluginWebBrowser) {
+		jre = "ok";
+	    } else {
+                browser = details.browser;
             }
         }
-*/
+
         //check FX
         if (notNull(platform.javafx)) {
             details = checkFXSupport();
-            if (details.os || details.browser) { //FX is not supported,
-                                                  //do not even try
+            if (details.os) { //FX is not supported,
+                              //do not even try
                 fx = "unsupported";
                 os = os || details.os;
+            } else if(noPluginWebBrowser) {
+                fx = "ok";
+	    } else if( details.browser) {
                 browser = browser || details.browser;
             } else {
                 //on non windows platforms automated install is not possible
@@ -2120,7 +2207,11 @@ var dtjava = function() {
                     platform: platform});
         } else {
             //if all looks good check JRE again, it could be false positive
+<<<<<<< HEAD
             if (ua.override == false && !doublecheckJrePresence()) {
+=======
+            if (ua.override == false && !noPluginWebBrowser && !doublecheckJrePresence()) {
+>>>>>>> Ahmad
                return new PlatformMismatchEvent(
                  {fx: fx, jre: "none", relaunch: restart, os: os,
                      browser: browser, platform: platform});
@@ -2387,6 +2478,7 @@ var dtjava = function() {
 
         var codes, status;
         if (isMissingComponent(s)) { //otherwise nothing to install
+<<<<<<< HEAD
             if (s.canAutoInstall()) {
                 var p = getPlugin();
                 //helper function to launch FX installer
@@ -2598,7 +2690,16 @@ var dtjava = function() {
                     startManualFXInstall();
                 } else { //what it could be??
                   reportPlatformError(app, s, cb);
+=======
+            if (s.jre != "ok") {
+                if (isDef(cb.onInstallStarted)) {
+                    cb.onInstallStarted(placeholder, "Java",
+                                        false, getPlugin() != null);
+>>>>>>> Ahmad
                 }
+                startManualJREInstall();
+            } else { //what it could be??
+              reportPlatformError(app, s, cb);
             }
         } else {
             //nothing to install
@@ -3499,7 +3600,7 @@ var dtjava = function() {
          Return PlatformMismatchEvent describing the problem otherwise.
          */
         validate: function(platform) {
-            return doValidate(platform);
+            return doValidate(platform, ua.noPluginWebBrowser);
         },
 
         /**
