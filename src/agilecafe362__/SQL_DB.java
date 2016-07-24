@@ -36,6 +36,34 @@ public class SQL_DB  {
     	     
     	   }//end try
     }
+    public void addAddonsList(Item item)
+    { 
+        Statement stmt = null;
+        try
+        { 
+            stmt = (this.conn).createStatement();
+            int itemId = item.getItemID();
+            ResultSet rs = stmt.executeQuery("SELECT * from addon where item_id="+itemId);
+            while(rs.next()){   
+                int addonId = rs.getInt("addon_id");
+                double price = rs.getInt("addon_price");
+                String name  = rs.getString("addon_name");
+                addOn newAddon = new addOn(name,price);
+                newAddon.setAddOnID(addonId);
+                item.addAddOn(newAddon);
+            }  
+             
+        }catch(SQLException se){
+    	      //Handle errors for JDBC
+    	      se.printStackTrace();
+    	   }catch(Exception e){
+    	      //Handle errors for Class.forName
+    	      e.printStackTrace();
+    	   }finally{
+    	      //finally block used to close resources
+    	       
+    	   }//end try 
+    }
     public ArrayList<Item> getAllItems()
     {
         // Initialize list
@@ -46,7 +74,7 @@ public class SQL_DB  {
         { 
             stmt = (this.conn).createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * from items"); 
-            while(rs.next()){
+            while(rs.next()){ 
     	         //Retrieve by column name
     	         int itemId  = rs.getInt("item_id"); 
     	         String itemName = rs.getString("item_name"); 
@@ -57,7 +85,8 @@ public class SQL_DB  {
                  System.out.println(itemName+"\n");
                  // Create new Item Class
                  Item newItem = new Item(itemId,itemName,itemDesc,itemType,itemPrice,itemImgPath);
-                 itemsList.add(newItem);
+                 addAddonsList(newItem);
+                 itemsList.add(newItem); 
             } 
              
         }catch(SQLException se){

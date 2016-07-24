@@ -10,38 +10,40 @@ package agilecafe362__;
  * @author Dragon
  */
 public class addOn {
-    private String addName;
-    private double Price;
-    private String addOn;
+    private String name;
+    private double Price; 
     private int addOnID;
     private Boolean checked;
     
     public addOn(String addName, double Price){
-        this.addName = addName;
+        this.name = addName;
         this.Price = Price;
+    }
+    public String getName()
+    {
+        return name;
+    }
+    public double getPrice()
+    {
+        return Price;
+    }
+    public int getAddOnID()
+    {
+        return addOnID;
     }
     public Boolean isChecked(){
         return checked;
     }
     public void setChecked(){
         checked = true;
-    }
-    public int getID(){
-        return addOnID;
-    }
-    public String getAddOn(){
-        return addOn;
-    }
+    } 
+    public void setAddOnID(int id)
+    {
+        addOnID = id;
+    }    
     
-    public void setAddOn(String addOn){
-        this.addOn = addOn;
-    }
-    public String getAddName(){
-        return addName;
-    }
-    
-    public void setAddName(String addName){
-        this.addName = addName;
+    public void setName(String addName){
+        name = addName;
     }
     
     public double getAddPrice(){
