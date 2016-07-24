@@ -5,6 +5,7 @@
  */
 package agilecafe362__;
 
+import java.math.BigDecimal;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -19,7 +20,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -47,12 +47,23 @@ public class AgileCafe362 extends Application {
     private Stage logInStage;
     
     //Elements for Cart Stage
+    private GridPane cartGrid;
     private Button checkoutButton;
     private ArrayList<Item> itemsList;
+    private Label subtotal;
+    private Label total;
+    private Label taxRate;
+    private Scene cartScene;
+    private Label subtotalLabel = new Label();
+    private Label taxRateLabel = new Label();
+    private Label totalLabel = new Label();
+    private BorderPane cartBorderPane;
     
-    //Cart details
-    private Cart cart;
-    private ArrayList<menuItemGUI> itemsListGUI = new ArrayList<menuItemGUI>();
+    //Cart lists
+    private Cart cart = new Cart();
+    private ArrayList<cartItem> cartList = new ArrayList<cartItem>();
+    
+
     
     @Override
     public void init() throws Exception {
@@ -93,15 +104,15 @@ public class AgileCafe362 extends Application {
         
         //Layout for Main Menu -> BorderPane layout
         mainPane = new BorderPane();
-        mainScene = new Scene(mainPane, 900, 680);
+        mainScene = new Scene(mainPane, 1000, 680);
         
-        //Create checkout Button
+        //Create "Add to Cart" Button
         addCartButton = new Button("Add to Cart");
         addCartButton.setMinWidth(100);
         addCartButton.setOnAction(e->{
-            loadSpinValues();
+            loadQuantityToCart();
             buildCartStage(primaryStage);
-                });
+        });
         rightBox = new VBox(10);
         rightBox.setPadding(new Insets(0,10,0,0));
         rightBox.getChildren().add(addCartButton);
@@ -148,120 +159,94 @@ public class AgileCafe362 extends Application {
         //foodMenuGrid.setGridLinesVisible(true);
         //bevMenuGrid.setGridLinesVisible(true);
         
+        //Loads items list and make a "cart item" for each item in the list
+        loadCartItem();
         //Display each item w/ their info onto GUI
         addItemGUI();
         
         menuSection.getChildren().add(foodMenuGrid);
         menuSection.getChildren().add(bevMenuGrid); 
     }
+    public void loadCartItem(){
+        for(int i=0;i<itemsList.size();i++){
+            cartItem temp = new cartItem();
+            temp.id.setText(Integer.toString(itemsList.get(i).getItemID()));
+            temp.name.setText(itemsList.get(i).getName());
+            temp.desc.setText(itemsList.get(i).getDescription());
+            temp.price.setText(Double.toString(itemsList.get(i).getPrice()));
+            temp.item = itemsList.get(i);
+            temp.spinBox.setId(temp.id.getText());
+            temp.cb.setId(temp.id.getText());
+            cartList.add(temp);
+        }
+    }
     
-    //Purpose: Display each item with their info onto GUI
-    private void addItemGUI(){
-        //Note1: j is the row counter for the grid layout, used for adding items to their
-        //correct row.
-        //Note2: j = 0 is the 1st row, which contains the label Food or Beverage,
-        //depending if it is in foodMenuGrid or bevMenuGrid
-        int j = 1; //j=1 represents the 1st entry to add for the menu section
-        
-        //Adds each Food from list into GUI
+    //Extract the quantity ordered and add to cart
+    public void loadQuantityToCart(){
+        for(int i=0;i<cartList.size();i++){
+            if(cartList.get(i).spinBox.getValue()>0)
+            {
+                cartList.get(i).quantityOrdered += cartList.get(i).spinBox.getValue();
+                cart.getCartItems().add(cartList.get(i));
+            }
+        }
+        /*----DEBUG Purposes-------------------
+        for(int i=0;i<cart.getCartItems().size();i++){
+        System.out.println(cart.getCartItems().get(i).id);
+        System.out.println(cart.getCartItems().get(i).quantityOrdered);
+        }-------------------------------------*/
+    }
+    
+    public void addItemGUI(){
         //Type 0 = Food
         //Type 1 = Beverage
-        for (int i=0; i< itemsList.size(); i++)
+        int j=1; //Refers to initial row to start populating data.
+        for (int i=0;i<itemsList.size();i++)
         {
-            if (itemsList.get(i).getType() == 0)
+            //If food, add to food section
+            if(itemsList.get(i).getType()==0)
             {
-                //Create name,des,price label
-                Label nameLabel = new Label(itemsList.get(i).getName());
-                Label descLabel = new Label(itemsList.get(i).getDescription());
-                Label priceLabel = new Label(Double.toString(itemsList.get(i).getPrice()));
-                foodMenuGrid.add(nameLabel, 0, j);
-                foodMenuGrid.add(descLabel, 0, j+1);
-                foodMenuGrid.add(priceLabel, 1, j+1);
-                
-                //Create spinner
-                Spinner<Integer> spinBox = new Spinner(0,10,0);
-                spinBox.setMaxWidth(65);
-                foodMenuGrid.add(spinBox,2,j+1);
-                
-                //Place item into list of GUI items
-                menuItemGUI temp = new menuItemGUI(
-                itemsList.get(i).getItemID(),
-                nameLabel,
-                descLabel,
-                priceLabel,
-                spinBox);
-                itemsListGUI.add(temp);
-                j = j+2;
+                foodMenuGrid.add(cartList.get(i).name,0,j);
+                foodMenuGrid.add(cartList.get(i).desc, 0, j+1);
+                foodMenuGrid.add(cartList.get(i).price, 1, j+1);
+                foodMenuGrid.add(cartList.get(i).spinBox, 2, j+1);
+                j=j+2;
             }
-            
+        }
+        j=1; //Refers to initial row to start populating data.
+        for(int i=0; i<itemsList.size();i++)
+        {
+            //If beverage, add to beverage section
+            if(itemsList.get(i).getType()==1)
+            {
+                bevMenuGrid.add(cartList.get(i).name,0,j);
+                bevMenuGrid.add(cartList.get(i).desc, 0, j+1);
+                bevMenuGrid.add(cartList.get(i).price, 1, j+1);
+                bevMenuGrid.add(cartList.get(i).spinBox, 2, j+1);
+                j=j+2;
+            }
         }
         
-        j = 1; //j=1 represents the 1st entry to add for the menu section
-        //Adds each Beverage form list into GUI
-        for (int i=0; i< itemsList.size(); i++)
-        {
-            if (itemsList.get(i).getType() == 1)
-            {
-                //Create name,des,price label
-                Label nameLabel = new Label(itemsList.get(i).getName());
-                Label descLabel = new Label(itemsList.get(i).getDescription());
-                Label priceLabel = new Label(Double.toString(itemsList.get(i).getPrice()));
-                bevMenuGrid.add(nameLabel, 0, j);
-                bevMenuGrid.add(descLabel, 0, j+1);
-                bevMenuGrid.add(priceLabel, 1, j+1);
-                
-                //Create spinner
-                Spinner<Integer> spinBox = new Spinner(0,10,0);
-                spinBox.setMaxWidth(65);
-                bevMenuGrid.add(spinBox,2,j+1);
-                
-                //Place item into list of GUI items
-                menuItemGUI temp = new menuItemGUI(
-                itemsList.get(i).getItemID(),
-                nameLabel,
-                descLabel,
-                priceLabel,
-                spinBox);
-                itemsListGUI.add(temp);
-                j = j+2; 
-            }
-            
-        }
     }
-    
-    private class menuItemGUI{
-        public int id;
-        public Label name;
-        public Label description;
-        public Label price;
-        public Spinner<Integer> spinner;
-        public int spinValue;
-        
-        menuItemGUI(int varid, Label varname, Label vardesc, Label varprice,Spinner<Integer> varspinner){
-            id = varid;
-            name = varname;
-            description = vardesc;
-            price = varprice;
-            spinner = varspinner;
-            spinValue =0; //total quantity ordered on cart
-        }
-    }
-    
-    //Updates quantity selected
-    private void loadSpinValues(){
-        for (int i=0;i<itemsList.size();i++){
-            itemsListGUI.get(i).spinValue += itemsListGUI.get(i).spinner.getValue();
-        }
-    }
-    
+ 
     private void buildCartStage(Stage primaryStage){
-        BorderPane cartBorderPane = new BorderPane();
-        GridPane cartGrid = new GridPane();
+        //Create layouts to organize elements
+        cartBorderPane = new BorderPane();
+        cartGrid = new GridPane();
         cartGrid.setPadding(new Insets(15,20,15,20));
         cartGrid.setHgap(50);
         cartBorderPane.setCenter(cartGrid);
+
+        //Create title box on top
+        HBox titleHBox = new HBox();
+        titleHBox.setAlignment(Pos.TOP_LEFT);
+        titleHBox.setPadding(new Insets(20,20,5,20));
+        Label cartTitle = new Label("Shopping Cart");
+        cartTitle.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,25));
+        titleHBox.getChildren().add(cartTitle);
+        cartBorderPane.setTop(titleHBox);
         
-        //Create category row
+        //Create category labels
         Label nameTitle = new Label("Name");
         Label descTitle = new Label ("Description");
         Label priceTitle = new Label ("Price");
@@ -276,42 +261,27 @@ public class AgileCafe362 extends Application {
         cartGrid.add(quantityTitle, 3, 0);
         cartGrid.setVgap(10);
         
-        cart = new Cart();
-        int row = 1;
-        for (int i=0;i<itemsList.size();i++)
+        int j=1;
+        for(int i=0;i<cart.getCartItems().size();i++)
         {
-            if(itemsListGUI.get(i).spinner.getValue() > 0){
-            cartGrid.add(itemsListGUI.get(i).name, 0, row);
-            cartGrid.add(itemsListGUI.get(i).description, 1, row);
-            cartGrid.add(itemsListGUI.get(i).price, 2, row);
-            cartGrid.add(new Label(Integer.toString(itemsListGUI.get(i).spinner.getValue())),3,row);
-            cart.getCartItems().add(itemsListGUI.get(i).id);
-            row++;
-            }
+            cartGrid.add(cart.getCartItems().get(i).name, 0, j);
+            cartGrid.add(cart.getCartItems().get(i).desc, 1, j);
+            cartGrid.add(cart.getCartItems().get(i).price,2,j);
+            cart.getCartItems().get(i).cb.setValue(cart.getCartItems().get(i).quantityOrdered);
+            cartGrid.add(cart.getCartItems().get(i).cb, 3, j);
+            j++;
         }
-        
-        cartCalculations();
-        
-        //Create top box for Title
-        HBox titleHBox = new HBox();
-        titleHBox.setAlignment(Pos.TOP_LEFT);
-        titleHBox.setPadding(new Insets(20,20,5,20));
-        Label cartTitle = new Label("Shopping Cart");
-        cartTitle.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,25));
-        titleHBox.getChildren().add(cartTitle);
-        cartBorderPane.setTop(titleHBox);
+        //Calculates totals and sets appropriate labels
+        calcCartTotals();
         
         //Create bottom box for total summary
         VBox total_VBox = new VBox();
-        Label subtotal = new Label("Subtotal:   "+cart.getSubTotal());
-        Label taxRate = new Label("Tax rate:   "+(cart.getTaxRate()*100)+"%");
-        Label total = new Label("Total:      "+cart.getTotal());
-        int font_size = 25;
-        subtotal.setFont(Font.font("Arial",FontWeight.BOLD,font_size));
-        taxRate.setFont(Font.font("Arial",FontWeight.BOLD,font_size));
-        total.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,font_size));
+        int font_size = 20;
+        subtotalLabel.setFont(Font.font("Arial",FontWeight.BOLD,font_size));
+        totalLabel.setFont(Font.font("Arial",FontWeight.BOLD,font_size));
+        taxRateLabel.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,font_size));
         total_VBox.setSpacing(20);
-        total_VBox.getChildren().addAll(subtotal,taxRate,total);
+        total_VBox.getChildren().addAll(subtotalLabel,taxRateLabel,totalLabel);
         total_VBox.setAlignment(Pos.BOTTOM_RIGHT);
         total_VBox.setPadding(new Insets(0,50,50,0));
         cartBorderPane.setBottom(total_VBox);
@@ -319,27 +289,31 @@ public class AgileCafe362 extends Application {
         //Create "Proceed to checkout" Button
         checkoutButton = new Button("Proceed to checkout");
         total_VBox.getChildren().add(checkoutButton);
-        //checkoutButton.setOnAction(e->);
-
-        Scene cartScene = new Scene(cartBorderPane,900,680);
+        //checkoutButton.setOnAction(e->); 
+        
+        //Display the scene
+        cartScene = new Scene(cartBorderPane,1000,680);
         primaryStage.setScene(cartScene);
         primaryStage.setTitle("Shopping Cart - Agile's Cafe");
     }
     
-    //Calculates subtotal and total in Cart
-    private void cartCalculations()
-    {
-        for(int i=0; i< cart.getCartItems().size();i++)
-        {
-            for(int j=0; j<itemsListGUI.size();j++)
-            {
-                if(cart.getCartItems().get(i)== itemsListGUI.get(j).id)
-                {
-                cart.calcSubTotal(Double.parseDouble(itemsListGUI.get(j).price.getText()),itemsListGUI.get(j).spinValue);
-                }
-            }
+    //Calculates totals and sets appropriate labels
+    private void calcCartTotals(){
+        double totalC=0;
+        double subtotalC=0;
+        for(int i=0;i<cart.getCartItems().size();i++){
+            subtotalC+= cart.getCartItems().get(i).item.getPrice()* cart.getCartItems().get(i).quantityOrdered;
         }
-        cart.calcTotal();
+        totalC=subtotalC+(subtotalC*cart.getTaxRate());
+        
+        //Sets precision for values and sets text
+        Double toBeTruncated = new Double(totalC);
+        totalC = new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+        toBeTruncated = new Double(subtotalC);
+        subtotalC= new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+        subtotalLabel.setText("Subtotal:   "+subtotalC);
+        totalLabel.setText("Total: "+totalC);
+        taxRateLabel.setText("Tax rate:    "+Double.toString(cart.getTaxRate()));
     }
     
     private void buildLogInStage(){
