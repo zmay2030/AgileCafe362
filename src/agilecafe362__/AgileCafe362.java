@@ -19,6 +19,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.ArrayList;
+import javafx.event.ActionEvent;
+import javafx.scene.control.Control;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -177,6 +179,7 @@ public class AgileCafe362 extends Application {
             temp.item = itemsList.get(i);
             temp.spinBox.setId(temp.id.getText());
             temp.cb.setId(temp.id.getText());
+            temp.removeButton.setId(temp.id.getText());
             cartList.add(temp);
         }
     }
@@ -269,6 +272,11 @@ public class AgileCafe362 extends Application {
             cartGrid.add(cart.getCartItems().get(i).price,2,j);
             cart.getCartItems().get(i).cb.setValue(cart.getCartItems().get(i).quantityOrdered);
             cartGrid.add(cart.getCartItems().get(i).cb, 3, j);
+            cartGrid.add(cart.getCartItems().get(i).removeButton, 4, j);
+            cart.getCartItems().get(i).removeButton.setOnAction(e->{
+                removeFromCart(e);
+                buildCartStage(primaryStage);
+                    });
             j++;
         }
         //Calculates totals and sets appropriate labels
@@ -315,7 +323,17 @@ public class AgileCafe362 extends Application {
         totalLabel.setText("Total: "+totalC);
         taxRateLabel.setText("Tax rate:    "+Double.toString(cart.getTaxRate()));
     }
-    
+    private void removeFromCart(ActionEvent e){
+        for(int i=0; i<cart.getCartItems().size();i++)
+        {
+            if(((Control)e.getSource()).getId().compareTo(Integer.toString(cart.getCartItems().get(i).item.getItemID()))==0)
+                    {
+                        cart.getCartItems().get(i).quantityOrdered=0;
+                        cart.getCartItems().remove(i);
+                        break;
+                    }
+        }
+    }
     private void buildLogInStage(){
         
         //Set up grid

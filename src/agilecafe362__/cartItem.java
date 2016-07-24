@@ -5,6 +5,7 @@
  */
 package agilecafe362__;
 
+import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
@@ -18,6 +19,7 @@ import javafx.scene.control.Spinner;
         Label name = new Label();
         Label desc = new Label();
         Label price = new Label();
+        Button removeButton = new Button("Remove");
         Spinner<Integer> spinBox = new Spinner<Integer>(0,10,0);
         ChoiceBox cb = new ChoiceBox();
         Item item;
@@ -26,4 +28,5 @@ import javafx.scene.control.Spinner;
             spinBox.setMaxWidth(65);
             cb.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
         }
+
     }
