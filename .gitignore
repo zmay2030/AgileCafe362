@@ -4,3 +4,8 @@ dist
 build.xml
 manifest.mf
 README.md
+test
+nbproject/*
+build/*
+dist/*
+test/*
