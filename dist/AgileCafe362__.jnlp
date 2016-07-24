@@ -8,7 +8,16 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+<<<<<<< HEAD
     <jar href="AgileCafe362__.jar" size="13400" download="eager" />
+=======
+<<<<<<< HEAD
+    <jar href="AgileCafe362__.jar" size="12551" download="eager" />
+=======
+    <jar href="AgileCafe362__.jar" size="9717" download="eager" />
+    <jar href="lib\mysql-connector-java-5.1.23-bin.jar" size="827921" download="eager" />
+>>>>>>> Ahmad
+>>>>>>> 485d1b7ba9c5593dd9b551c3671ca7fb610a729d
     <jar href="lib\mysql-connector-java-5.1.39-bin.jar" size="989497" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="AgileCafe362__" >
