@@ -19,6 +19,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.ArrayList;
+import javafx.beans.property.IntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Control;
 import javafx.scene.control.PasswordField;
@@ -179,6 +180,7 @@ public class AgileCafe362 extends Application {
         menuSection.getChildren().add(foodMenuGrid);
         menuSection.getChildren().add(bevMenuGrid); 
     }
+    public int changeQuantity;
     public void loadCartItem(){
         for(int i=0;i<itemsList.size();i++){
             cartItem temp = new cartItem();
@@ -192,6 +194,23 @@ public class AgileCafe362 extends Application {
             temp.removeButton.setId(temp.id.getText());
             cartList.add(temp);
         }
+        for(int i=0;i<cartList.size();i++)
+        {
+            cartList.get(i).cb.setOnAction(e->comboBoxHandler(e));
+        }
+    }
+    
+    private void comboBoxHandler(ActionEvent e)
+    {
+        for(int i=0;i<cart.getCartItems().size();i++)
+        {
+            if(((Control)e.getSource()).getId().compareTo(cart.getCartItems().get(i).id.getText())==0)
+            {
+                cart.getCartItems().get(i).quantityOrdered=cart.getCartItems().get(i).cb.getValue();
+                calcCartTotals();
+            }
+        }
+        
     }
     
     //Extract the quantity ordered and add to cart
@@ -324,7 +343,7 @@ public class AgileCafe362 extends Application {
     }
     
     //Calculates totals and sets appropriate labels
-    private void calcCartTotals(){
+    public void calcCartTotals(){
         double totalC=0;
         double subtotalC=0;
         for(int i=0;i<cart.getCartItems().size();i++){
@@ -339,7 +358,7 @@ public class AgileCafe362 extends Application {
         subtotalC= new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
         subtotalLabel.setText("Subtotal:   "+subtotalC);
         totalLabel.setText("Total: "+totalC);
-        taxRateLabel.setText("Tax rate:    "+Double.toString(cart.getTaxRate()));
+        taxRateLabel.setText("Tax rate:    "+Double.toString(cart.getTaxRate()*100)+"%");
     }
     private void removeFromCart(ActionEvent e){
         for(int i=0; i<cart.getCartItems().size();i++)
