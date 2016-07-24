@@ -1,4 +1,9 @@
-*
-*/
+!src/agilecafe362__/*.java
 !.gitignore
-!src/*
+README.md
+build.xml
+dist
+build/
+build
+manifest.mf
+nbproject/
