@@ -1,6 +1,12 @@
+build/built-jar.properties
+build/classes/agilecafe362__/AgileCafe362.class
+build/classes/agilecafe362__/Cart.class
+dist/AgileCafe362__.html
+dist/AgileCafe362__.jnlp
+dist/AgileCafe362__.html
 nbproject
-build
-dist
+build/
+dist/
 build.xml
 manifest.mf
 README.md
