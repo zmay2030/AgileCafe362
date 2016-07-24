@@ -15,12 +15,14 @@ public class Cart {
     private ArrayList<cartItem> cartItems;
     private double subTotal;
     private double total;
+    public Boolean cartPageToggle;
     
     public Cart(){
     cartItems = new ArrayList<cartItem>();
     subTotal = 0;
     total = 0;
     taxRate = .1;
+    cartPageToggle=false;
     }
     
     public ArrayList<cartItem> getCartItems(){

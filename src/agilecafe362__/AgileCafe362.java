@@ -29,7 +29,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 
 public class AgileCafe362 extends Application {
-    
+    //Reference to primary stage
+    Stage theStage; 
     //Elements for Main Menu Stage
     private Button AccessAdminButton;
     private Button addCartButton;
@@ -52,6 +53,7 @@ public class AgileCafe362 extends Application {
     private GridPane cartGrid;
     private Button checkoutButton;
     private ArrayList<Item> itemsList;
+    private Button backButton;
     private Label subtotal;
     private Label total;
     private Label taxRate;
@@ -94,15 +96,15 @@ public class AgileCafe362 extends Application {
     
     @Override
     public void start(Stage primaryStage) {
-  
-        buildMainMenuStage(primaryStage);
+        theStage = primaryStage;
+        buildMainMenuStage();
         
         primaryStage.setTitle("Agile's Cafe Menu");
         primaryStage.setScene(mainScene);
         primaryStage.show();
     }
     
-    private void buildMainMenuStage(Stage primaryStage){
+    private void buildMainMenuStage(){
         
         //Layout for Main Menu -> BorderPane layout
         mainPane = new BorderPane();
@@ -113,7 +115,15 @@ public class AgileCafe362 extends Application {
         addCartButton.setMinWidth(100);
         addCartButton.setOnAction(e->{
             loadQuantityToCart();
-            buildCartStage(primaryStage);
+            if(cart.cartPageToggle==true)
+            {
+                theStage.setScene(cartScene);
+            }
+            else
+            {
+                cart.cartPageToggle=true;
+                buildCartStage();
+            }
         });
         rightBox = new VBox(10);
         rightBox.setPadding(new Insets(0,10,0,0));
@@ -232,14 +242,14 @@ public class AgileCafe362 extends Application {
         
     }
  
-    private void buildCartStage(Stage primaryStage){
+    private void buildCartStage(){
         //Create layouts to organize elements
         cartBorderPane = new BorderPane();
         cartGrid = new GridPane();
         cartGrid.setPadding(new Insets(15,20,15,20));
         cartGrid.setHgap(50);
         cartBorderPane.setCenter(cartGrid);
-
+        
         //Create title box on top
         HBox titleHBox = new HBox();
         titleHBox.setAlignment(Pos.TOP_LEFT);
@@ -248,6 +258,14 @@ public class AgileCafe362 extends Application {
         cartTitle.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,25));
         titleHBox.getChildren().add(cartTitle);
         cartBorderPane.setTop(titleHBox);
+        
+        //Create back to main menu button
+        backButton = new Button("Back to Menu");
+        titleHBox.getChildren().add(backButton);
+        titleHBox.setSpacing(670);
+        backButton.setOnAction(e->{
+            theStage.setScene(mainScene);
+        });
         
         //Create category labels
         Label nameTitle = new Label("Name");
@@ -275,7 +293,7 @@ public class AgileCafe362 extends Application {
             cartGrid.add(cart.getCartItems().get(i).removeButton, 4, j);
             cart.getCartItems().get(i).removeButton.setOnAction(e->{
                 removeFromCart(e);
-                buildCartStage(primaryStage);
+                buildCartStage();
                     });
             j++;
         }
@@ -301,8 +319,8 @@ public class AgileCafe362 extends Application {
         
         //Display the scene
         cartScene = new Scene(cartBorderPane,1000,680);
-        primaryStage.setScene(cartScene);
-        primaryStage.setTitle("Shopping Cart - Agile's Cafe");
+        theStage.setScene(cartScene);
+        theStage.setTitle("Shopping Cart - Agile's Cafe");
     }
     
     //Calculates totals and sets appropriate labels
