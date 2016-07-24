@@ -64,6 +64,19 @@ public class AgileCafe362 extends Application {
         //Query info from database into application
         this.itemsList = mysqlDB.getAllItems(); 
         
+        // Get each item and output each of its addons
+        for(Item item: itemsList)
+        {
+            System.out.print("*** NAME: "+item.getName()+"\n");
+            // Get all addon list for the current item
+            ArrayList<addOn> addonList = item.getAddonList();
+            for(addOn adn: addonList)
+            {
+                System.out.print(adn.getName()+" "); 
+            }
+            System.out.print("\n\n");
+            
+        }
         mysqlDB.closeConn();
     }
     

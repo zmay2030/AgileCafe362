@@ -9,10 +9,14 @@
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <jar href="AgileCafe362__.jar" size="12551" download="eager" />
 =======
     <jar href="AgileCafe362__.jar" size="9717" download="eager" />
     <jar href="lib\mysql-connector-java-5.1.23-bin.jar" size="827921" download="eager" />
+>>>>>>> Ahmad
+=======
+    <jar href="AgileCafe362__.jar" size="10812" download="eager" />
 >>>>>>> Ahmad
     <jar href="lib\mysql-connector-java-5.1.39-bin.jar" size="989497" download="eager" />
   </resources>
