@@ -1,10 +1,6 @@
-!src/agilecafe362__/*.java
-!.gitignore
-README.md
+build/built-jar.properties
 build.xml
-dist
-build/
-build
-manifest.mf
+dist/
 nbproject/
-build/classes/agilecafe362__/Cart.class
+build/classes/agilecafe362__/AgileCafe362.class
+build/

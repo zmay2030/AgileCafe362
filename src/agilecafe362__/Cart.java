@@ -12,12 +12,12 @@ import java.util.ArrayList;
  */
 public class Cart {
     private double taxRate;
-    private ArrayList<cartItem> cartItems;
+    private final ArrayList<cartItem> cartItems;
     private double subTotal;
     private double total;
     
     public Cart(){
-    cartItems = new ArrayList<cartItem>();
+    cartItems = new ArrayList<>();
     subTotal = 0;
     total = 0;
     taxRate = .1;
