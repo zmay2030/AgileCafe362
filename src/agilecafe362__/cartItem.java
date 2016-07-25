@@ -6,7 +6,6 @@
 package agilecafe362__;
 
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
@@ -24,9 +23,11 @@ import javafx.scene.control.Spinner;
         Spinner<Integer> spinBox = new Spinner<Integer>(0,10,0);
         ComboBox<Integer> cb = new ComboBox<Integer>();
         Item item;
-        int quantityOrdered=0;
+        Boolean isInCart = false;
+        int quantityOrdered;
 
         cartItem(){ 
+            quantityOrdered=0;
             spinBox.setMaxWidth(65);
             cb.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
         }

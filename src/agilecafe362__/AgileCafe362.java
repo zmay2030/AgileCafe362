@@ -19,10 +19,10 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.ArrayList;
-import javafx.beans.property.IntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Control;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -30,7 +30,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 
 public class AgileCafe362 extends Application {
-    //Reference to primary stage
+    //Used as a reference to primary stage
     Stage theStage; 
     //Elements for Main Menu Stage
     private Button AccessAdminButton;
@@ -63,12 +63,11 @@ public class AgileCafe362 extends Application {
     private Label taxRateLabel = new Label();
     private Label totalLabel = new Label();
     private BorderPane cartBorderPane;
+    private Boolean isCartStageBuilt = false;
     
     //Cart lists
     private Cart cart = new Cart();
     private ArrayList<cartItem> cartList = new ArrayList<cartItem>();
-    
-
     
     @Override
     public void init() throws Exception {
@@ -116,13 +115,13 @@ public class AgileCafe362 extends Application {
         addCartButton.setMinWidth(100);
         addCartButton.setOnAction(e->{
             loadQuantityToCart();
-            if(cart.cartPageToggle==true)
-            {
-                theStage.setScene(cartScene);
+            //If stage hasn't been built, then load quantity to cart, and build cart stage as usual.
+            if(isCartStageBuilt==false || cart.getCartItems().isEmpty()){
+                buildCartStage();
+                isCartStageBuilt=true;
             }
-            else
+            else if(isCartStageBuilt==true)
             {
-                cart.cartPageToggle=true;
                 buildCartStage();
             }
         });
@@ -172,15 +171,20 @@ public class AgileCafe362 extends Application {
         //foodMenuGrid.setGridLinesVisible(true);
         //bevMenuGrid.setGridLinesVisible(true);
         
-        //Loads items list and make a "cart item" for each item in the list
-        loadCartItem();
+        //Loads items list and make a "cart item" for each item in the list.
+        //If cart stage is already built, then no need to convert list of items again.
+        if(isCartStageBuilt==false){
+            loadCartItem();
+        }
+        
         //Display each item w/ their info onto GUI
         addItemGUI();
         
         menuSection.getChildren().add(foodMenuGrid);
         menuSection.getChildren().add(bevMenuGrid); 
     }
-    public int changeQuantity;
+
+    //Makes the itemsList(items from database) into cartList(displayable list of items).
     public void loadCartItem(){
         for(int i=0;i<itemsList.size();i++){
             cartItem temp = new cartItem();
@@ -200,6 +204,8 @@ public class AgileCafe362 extends Application {
         }
     }
     
+    //In cart stage, this handles the event when someone changes quantity using combo box, and 
+    //automatically updates the summary amount labels
     private void comboBoxHandler(ActionEvent e)
     {
         for(int i=0;i<cart.getCartItems().size();i++)
@@ -213,15 +219,39 @@ public class AgileCafe362 extends Application {
         
     }
     
-    //Extract the quantity ordered and add to cart
+    //Extract the quantity ordered in the main menu and add to cart
     public void loadQuantityToCart(){
-        for(int i=0;i<cartList.size();i++){
+        //If cart stage hasn't been built or if cart is empty, add the items to the cart.
+        if(isCartStageBuilt==false || cart.getCartItems().isEmpty())
+        {
+            for(int i=0;i<cartList.size();i++){
             if(cartList.get(i).spinBox.getValue()>0)
             {
-                cartList.get(i).quantityOrdered += cartList.get(i).spinBox.getValue();
+                cartList.get(i).quantityOrdered = cartList.get(i).spinBox.getValue();
+                cartList.get(i).isInCart = true;
                 cart.getCartItems().add(cartList.get(i));
             }
         }
+        }
+        //If cart stage has been built and if there are items in the cart, update the quantity value.
+        else if(isCartStageBuilt == true && cart.getCartItems().size()>0)
+        {
+            for(int i=0;i<cartList.size();i++)
+            {
+                //If item is already in cart, just add the quantity to existing cart item.
+                if(cartList.get(i).isInCart){
+                    cartList.get(i).quantityOrdered += cartList.get(i).spinBox.getValue();
+                }
+                //If item is not already in the cart, then add the item to the cart with its quantity selected.
+                else
+                {
+                    cartList.get(i).quantityOrdered += cartList.get(i).spinBox.getValue();
+                    cartList.get(i).isInCart = true;
+                    cart.getCartItems().add(cartList.get(i));
+                }
+            }
+        }
+
         /*----DEBUG Purposes-------------------
         for(int i=0;i<cart.getCartItems().size();i++){
         System.out.println(cart.getCartItems().get(i).id);
@@ -229,10 +259,12 @@ public class AgileCafe362 extends Application {
         }-------------------------------------*/
     }
     
+    //Populates the items on the main menu
     public void addItemGUI(){
         //Type 0 = Food
         //Type 1 = Beverage
         int j=1; //Refers to initial row to start populating data.
+        //Adds the items into the "Food" section of the menu.
         for (int i=0;i<itemsList.size();i++)
         {
             //If food, add to food section
@@ -246,6 +278,7 @@ public class AgileCafe362 extends Application {
             }
         }
         j=1; //Refers to initial row to start populating data.
+        //Adds the items into the "Beverage" section of the menu.
         for(int i=0; i<itemsList.size();i++)
         {
             //If beverage, add to beverage section
@@ -267,7 +300,9 @@ public class AgileCafe362 extends Application {
         cartGrid = new GridPane();
         cartGrid.setPadding(new Insets(15,20,15,20));
         cartGrid.setHgap(50);
+        cartGrid.setAlignment(Pos.TOP_LEFT);
         cartBorderPane.setCenter(cartGrid);
+        cartGrid.setGridLinesVisible(true);
         
         //Create title box on top
         HBox titleHBox = new HBox();
@@ -283,9 +318,17 @@ public class AgileCafe362 extends Application {
         titleHBox.getChildren().add(backButton);
         titleHBox.setSpacing(670);
         backButton.setOnAction(e->{
-            theStage.setScene(mainScene);
+            for(int i=0;i<cartList.size();i++)
+            {
+                //When user goes back to main menu, reset the spin box to 0.
+                cartList.get(i).spinBox= new Spinner(0,10,0);
+                cartList.get(i).spinBox.setMaxWidth(65);
+                cartList.get(i).spinBox.setId(cartList.get(i).id.getText());
+            }
+            //Rebuilds the main menu
+            start(theStage);
         });
-        
+
         //Create category labels
         Label nameTitle = new Label("Name");
         Label descTitle = new Label ("Description");
@@ -301,9 +344,22 @@ public class AgileCafe362 extends Application {
         cartGrid.add(quantityTitle, 3, 0);
         cartGrid.setVgap(10);
         
+        //Diplays the items from cart into summary page.
         int j=1;
         for(int i=0;i<cart.getCartItems().size();i++)
         {
+            //Double check to make sure conditions are true before displaying into cart.
+            //Item in the cart must actually belong in the cart, and the quantity ordered must be greater than 0.
+            //If check is correct, then add the item to the display.
+            if(cart.getCartItems().get(i).isInCart==true && cart.getCartItems().get(i).quantityOrdered>0){
+                //Since cart scene has already been built, remove existing children if it exists and then add updated one.
+                if(isCartStageBuilt==true){
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).name);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).desc);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).price);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).cb);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).removeButton);
+                }
             cartGrid.add(cart.getCartItems().get(i).name, 0, j);
             cartGrid.add(cart.getCartItems().get(i).desc, 1, j);
             cartGrid.add(cart.getCartItems().get(i).price,2,j);
@@ -311,11 +367,14 @@ public class AgileCafe362 extends Application {
             cartGrid.add(cart.getCartItems().get(i).cb, 3, j);
             cartGrid.add(cart.getCartItems().get(i).removeButton, 4, j);
             cart.getCartItems().get(i).removeButton.setOnAction(e->{
+                //When user presses "Remove", then remove item from cart and refresh the page.
                 removeFromCart(e);
                 buildCartStage();
                     });
             j++;
+            }
         }
+
         //Calculates totals and sets appropriate labels
         calcCartTotals();
         
@@ -344,14 +403,17 @@ public class AgileCafe362 extends Application {
     
     //Calculates totals and sets appropriate labels
     public void calcCartTotals(){
-        double totalC=0;
+        double totalC;
         double subtotalC=0;
         for(int i=0;i<cart.getCartItems().size();i++){
             subtotalC+= cart.getCartItems().get(i).item.getPrice()* cart.getCartItems().get(i).quantityOrdered;
         }
         totalC=subtotalC+(subtotalC*cart.getTaxRate());
         
-        //Sets precision for values and sets text
+        cart.setSubTotal(subtotalC);
+        cart.setTotal(totalC);
+        //Sets the text for the subtotal, tax rate, and total labels,
+        //and also sets the precision of the values.
         Double toBeTruncated = new Double(totalC);
         totalC = new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
         toBeTruncated = new Double(subtotalC);
@@ -359,18 +421,25 @@ public class AgileCafe362 extends Application {
         subtotalLabel.setText("Subtotal:   "+subtotalC);
         totalLabel.setText("Total: "+totalC);
         taxRateLabel.setText("Tax rate:    "+Double.toString(cart.getTaxRate()*100)+"%");
+        
     }
+    
+    //Event handler for when user clicks "Remove" in the cart scene.
+    //NOTE: This function doesn't refresh the page, only updates the internal values.
     private void removeFromCart(ActionEvent e){
         for(int i=0; i<cart.getCartItems().size();i++)
         {
+            //If "Remove" button matches the item the user wants to remove, then remove the item from cart.
             if(((Control)e.getSource()).getId().compareTo(Integer.toString(cart.getCartItems().get(i).item.getItemID()))==0)
                     {
                         cart.getCartItems().get(i).quantityOrdered=0;
+                        cart.getCartItems().get(i).isInCart=false;
                         cart.getCartItems().remove(i);
                         break;
                     }
         }
     }
+    
     private void buildLogInStage(){
         
         //Set up grid
@@ -426,7 +495,7 @@ public class AgileCafe362 extends Application {
         logInStage.showAndWait();
     }
 
-        //Method to handle action
+    //Checks if the user enters the correct user/pw.
     private void errorLogin(){
         if (userTextField.getText().equals("123") 
                  && pwBox.getText().equals("123"))
@@ -442,9 +511,7 @@ public class AgileCafe362 extends Application {
             errorLogin.setText("Error: Wrong User/PW\nHINT: 123");
         }
     }
-    
-    public static void main(String[] args) {
-        launch(args);
-    }
+   
+    public static void main(String[] args) { launch(args); }
     
 }

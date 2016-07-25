@@ -15,21 +15,19 @@ public class Cart {
     private ArrayList<cartItem> cartItems;
     private double subTotal;
     private double total;
-    public Boolean cartPageToggle;
     
     public Cart(){
     cartItems = new ArrayList<cartItem>();
     subTotal = 0;
     total = 0;
     taxRate = .1;
-    cartPageToggle=false;
     }
     
     public ArrayList<cartItem> getCartItems(){
         return cartItems;
     }
     public void clear(){
-        
+        cartItems.clear();
     }
     
     public void setTaxRate(double taxRate){
@@ -44,16 +42,8 @@ public class Cart {
         return subTotal;
     }
     
-    public void calcSubTotal(double price, int quantity){
-        this.subTotal += price*quantity;
-    }
-    
     public double getTotal(){
         return total;
-    }
-    
-    public void calcTotal(){
-        total = subTotal+subTotal*taxRate;
     }
     
     public void setSubTotal(double subTotal){ this.subTotal = subTotal; }
