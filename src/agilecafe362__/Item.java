@@ -5,6 +5,7 @@
  */
 package agilecafe362__;
 
+import java.util.ArrayList;
 import java.text.NumberFormat;
 
 /**
@@ -18,6 +19,7 @@ public class Item {
     private String description;
     private int type;
     private String image_path;
+    private ArrayList<addOn> addOnList = new ArrayList<addOn>(0);;
     private Boolean deleted;
     public Item(int itemID, String name, String description, int type, double price){
         this.name = name;
@@ -26,6 +28,7 @@ public class Item {
         this.description = description;
         this.price = price;
         deleted = false;
+         
     }
     
     public Item(int itemID, String name, String description, int type, double price, String image_path){
@@ -84,6 +87,14 @@ public class Item {
     }
     public void setImage(String image_path){
         this.image_path = image_path;
+    }
+    public void addAddOn(addOn addon)
+    {
+        addOnList.add(addon);
+    }
+    public ArrayList<addOn> getAddonList()
+    {
+        return addOnList;
     }
     public String toString(){
         NumberFormat fcurr = NumberFormat.getCurrencyInstance();
