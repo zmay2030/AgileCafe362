@@ -5,6 +5,7 @@
  */
 package agilecafe362__;
 
+import java.math.BigDecimal;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,6 +19,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.ArrayList;
+import javafx.event.ActionEvent;
+import javafx.scene.control.Control;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
@@ -27,7 +30,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 
 public class AgileCafe362 extends Application {
-    
+    //Used as a reference to primary stage
+    Stage theStage; 
     //Elements for Main Menu Stage
     private Button AccessAdminButton;
     private Button addCartButton;
@@ -47,12 +51,20 @@ public class AgileCafe362 extends Application {
     private Stage logInStage;
     
     //Elements for Cart Stage
+    private GridPane cartGrid;
     private Button checkoutButton;
     private ArrayList<Item> itemsList;
+    private Button backButton;
+    private Scene cartScene;
+    private final Label subtotalLabel = new Label();
+    private final Label taxRateLabel = new Label();
+    private final Label totalLabel = new Label();
+    private BorderPane cartBorderPane;
+    private Boolean isCartStageBuilt = false;
     
-    //Cart details
-    private Cart cart;
-    private ArrayList<menuItemGUI> itemsListGUI = new ArrayList<menuItemGUI>();
+    //Cart lists
+    private final Cart cart = new Cart();
+    private final ArrayList<cartItem> cartList = new ArrayList<>();
     
     @Override
     public void init() throws Exception {
@@ -94,27 +106,24 @@ public class AgileCafe362 extends Application {
     
     @Override
     public void start(Stage primaryStage) {
-  
-        buildMainMenuStage(primaryStage);
+        theStage = primaryStage;
+        buildMainMenuStage();
         
         primaryStage.setTitle("Agile's Cafe Menu");
         primaryStage.setScene(mainScene);
         primaryStage.show();
     }
     
-    private void buildMainMenuStage(Stage primaryStage){
+    private void buildMainMenuStage(){
         
         //Layout for Main Menu -> BorderPane layout
         mainPane = new BorderPane();
-        mainScene = new Scene(mainPane, 900, 680);
+        mainScene = new Scene(mainPane, 1000, 680);
         
-        //Create checkout Button
+        //Create "Add to Cart" Button
         addCartButton = new Button("Add to Cart");
         addCartButton.setMinWidth(100);
-        addCartButton.setOnAction(e->{
-            loadSpinValues();
-            buildCartStage(primaryStage);
-                });
+        addCartButton.setOnAction(e->addToCartHandler());
         rightBox = new VBox(10);
         rightBox.setPadding(new Insets(0,10,0,0));
         rightBox.getChildren().add(addCartButton);
@@ -161,120 +170,176 @@ public class AgileCafe362 extends Application {
         //foodMenuGrid.setGridLinesVisible(true);
         //bevMenuGrid.setGridLinesVisible(true);
         
+        //Loads items list and make a "cart item" for each item in the list.
+        //If cart stage is already built, then no need to convert list of items again.
+        if(isCartStageBuilt==false){
+            loadCartItem();
+        }
+        
         //Display each item w/ their info onto GUI
         addItemGUI();
         
         menuSection.getChildren().add(foodMenuGrid);
         menuSection.getChildren().add(bevMenuGrid); 
     }
+
+    private void addToCartHandler(){
+            loadQuantityToCart();
+            //If stage hasn't been built, then load quantity to cart, and build cart stage as usual.
+            if(isCartStageBuilt==false || cart.getCartItems().isEmpty()){
+                buildCartStage();
+                isCartStageBuilt=true;
+            }
+            else if(isCartStageBuilt==true)
+            {
+                buildCartStage();
+            }
+    }
+    //Makes the itemsList(items from database) into cartList(displayable list of items).
+    public void loadCartItem(){
+        for(int i=0;i<itemsList.size();i++){
+            //Adds general item information into the "cartItem" object and plces it into a list.
+            cartItem temp = new cartItem();
+            temp.id.setText(Integer.toString(itemsList.get(i).getItemID()));
+            temp.name.setText(itemsList.get(i).getName());
+            temp.desc.setText(itemsList.get(i).getDescription());
+            temp.price.setText(Double.toString(itemsList.get(i).getPrice()));
+            temp.item = itemsList.get(i);
+            temp.spinBox.setId(temp.id.getText());
+            temp.cb.setId(temp.id.getText());
+            temp.removeButton.setId(temp.id.getText());
+            cartList.add(temp);
+        }
+        for(int i=0;i<cartList.size();i++)
+        {
+            cartList.get(i).cb.setOnAction(e->comboBoxHandler(e));
+        }
+    }
     
-    //Purpose: Display each item with their info onto GUI
-    private void addItemGUI(){
-        //Note1: j is the row counter for the grid layout, used for adding items to their
-        //correct row.
-        //Note2: j = 0 is the 1st row, which contains the label Food or Beverage,
-        //depending if it is in foodMenuGrid or bevMenuGrid
-        int j = 1; //j=1 represents the 1st entry to add for the menu section
+    //In cart stage, this handles the event when someone changes quantity using combo box, and 
+    //automatically updates the summary amount labels
+    private void comboBoxHandler(ActionEvent e)
+    {
+        for(int i=0;i<cart.getCartItems().size();i++)
+        {
+            if(((Control)e.getSource()).getId().compareTo(cart.getCartItems().get(i).id.getText())==0)
+            {
+                cart.getCartItems().get(i).quantityOrdered=cart.getCartItems().get(i).cb.getValue();
+                calcCartTotals();
+            }
+        }
         
-        //Adds each Food from list into GUI
+    }
+    
+    //Extract the quantity ordered in the main menu and add to cart
+    public void loadQuantityToCart(){
+        //If cart stage hasn't been built or if cart is empty, add the items to the cart.
+        if(isCartStageBuilt==false || cart.getCartItems().isEmpty())
+        {
+            for(int i=0;i<cartList.size();i++){
+            if(cartList.get(i).spinBox.getValue()>0)
+            {
+                cartList.get(i).quantityOrdered = cartList.get(i).spinBox.getValue();
+                cartList.get(i).isInCart = true;
+                cart.getCartItems().add(cartList.get(i));
+            }
+        }
+        }
+        //If cart stage has been built and if there are items in the cart, update the quantity value.
+        else if(isCartStageBuilt == true && cart.getCartItems().size()>0)
+        {
+            for(int i=0;i<cartList.size();i++)
+            {
+                //If item is already in cart, just add the quantity to existing cart item.
+                if(cartList.get(i).isInCart){
+                    cartList.get(i).quantityOrdered += cartList.get(i).spinBox.getValue();
+                }
+                //If item is not already in the cart, then add the item to the cart with its quantity selected.
+                else
+                {
+                    cartList.get(i).quantityOrdered += cartList.get(i).spinBox.getValue();
+                    cartList.get(i).isInCart = true;
+                    cart.getCartItems().add(cartList.get(i));
+                }
+            }
+        }
+
+        /*----DEBUG Purposes-------------------
+        for(int i=0;i<cart.getCartItems().size();i++){
+        System.out.println(cart.getCartItems().get(i).id);
+        System.out.println(cart.getCartItems().get(i).quantityOrdered);
+        }-------------------------------------*/
+    }
+    
+    //Populates the items on the main menu
+    public void addItemGUI(){
         //Type 0 = Food
         //Type 1 = Beverage
-        for (int i=0; i< itemsList.size(); i++)
+        int j=1; //Refers to initial row to start populating data.
+        //Adds the items into the "Food" section of the menu.
+        for (int i=0;i<itemsList.size();i++)
         {
-            if (itemsList.get(i).getType() == 0)
+            //If food, add to food section
+            if(itemsList.get(i).getType()==0)
             {
-                //Create name,des,price label
-                Label nameLabel = new Label(itemsList.get(i).getName());
-                Label descLabel = new Label(itemsList.get(i).getDescription());
-                Label priceLabel = new Label(Double.toString(itemsList.get(i).getPrice()));
-                foodMenuGrid.add(nameLabel, 0, j);
-                foodMenuGrid.add(descLabel, 0, j+1);
-                foodMenuGrid.add(priceLabel, 1, j+1);
+                foodMenuGrid.add(cartList.get(i).name,0,j);
+                foodMenuGrid.add(cartList.get(i).desc, 0, j+1);
+                foodMenuGrid.add(cartList.get(i).price, 1, j+1);
+                foodMenuGrid.add(cartList.get(i).spinBox, 2, j+1);
                 
-                //Create spinner
-                Spinner<Integer> spinBox = new Spinner(0,10,0);
-                spinBox.setMaxWidth(65);
-                foodMenuGrid.add(spinBox,2,j+1);
-                
-                //Place item into list of GUI items
-                menuItemGUI temp = new menuItemGUI(
-                itemsList.get(i).getItemID(),
-                nameLabel,
-                descLabel,
-                priceLabel,
-                spinBox);
-                itemsListGUI.add(temp);
-                j = j+2;
+                //Display Addon for food item
+                int skipVar=0;
+                for(int m=0; m<cartList.get(i).item.getAddonList().size();m++){
+                    foodMenuGrid.add(cartList.get(i).item.getAddonList().get(m).checkBox,0,m+2+j);
+                    skipVar++;
+                }
+                j+=skipVar;
+                j=j+2;
             }
-            
+        }
+        j=1; //Refers to initial row to start populating data.
+        //Adds the items into the "Beverage" section of the menu.
+        for(int i=0; i<itemsList.size();i++)
+        {
+            //If beverage, add to beverage section
+            if(itemsList.get(i).getType()==1)
+            {
+                bevMenuGrid.add(cartList.get(i).name,0,j);
+                bevMenuGrid.add(cartList.get(i).desc, 0, j+1);
+                bevMenuGrid.add(cartList.get(i).price, 1, j+1);
+                bevMenuGrid.add(cartList.get(i).spinBox, 2, j+1);
+                j=j+2;
+            }
         }
         
-        j = 1; //j=1 represents the 1st entry to add for the menu section
-        //Adds each Beverage form list into GUI
-        for (int i=0; i< itemsList.size(); i++)
-        {
-            if (itemsList.get(i).getType() == 1)
-            {
-                //Create name,des,price label
-                Label nameLabel = new Label(itemsList.get(i).getName());
-                Label descLabel = new Label(itemsList.get(i).getDescription());
-                Label priceLabel = new Label(Double.toString(itemsList.get(i).getPrice()));
-                bevMenuGrid.add(nameLabel, 0, j);
-                bevMenuGrid.add(descLabel, 0, j+1);
-                bevMenuGrid.add(priceLabel, 1, j+1);
-                
-                //Create spinner
-                Spinner<Integer> spinBox = new Spinner(0,10,0);
-                spinBox.setMaxWidth(65);
-                bevMenuGrid.add(spinBox,2,j+1);
-                
-                //Place item into list of GUI items
-                menuItemGUI temp = new menuItemGUI(
-                itemsList.get(i).getItemID(),
-                nameLabel,
-                descLabel,
-                priceLabel,
-                spinBox);
-                itemsListGUI.add(temp);
-                j = j+2; 
-            }
-            
-        }
     }
-    
-    private class menuItemGUI{
-        public int id;
-        public Label name;
-        public Label description;
-        public Label price;
-        public Spinner<Integer> spinner;
-        public int spinValue;
-        
-        menuItemGUI(int varid, Label varname, Label vardesc, Label varprice,Spinner<Integer> varspinner){
-            id = varid;
-            name = varname;
-            description = vardesc;
-            price = varprice;
-            spinner = varspinner;
-            spinValue =0; //total quantity ordered on cart
-        }
-    }
-    
-    //Updates quantity selected
-    private void loadSpinValues(){
-        for (int i=0;i<itemsList.size();i++){
-            itemsListGUI.get(i).spinValue += itemsListGUI.get(i).spinner.getValue();
-        }
-    }
-    
-    private void buildCartStage(Stage primaryStage){
-        BorderPane cartBorderPane = new BorderPane();
-        GridPane cartGrid = new GridPane();
+ 
+    private void buildCartStage(){
+        //Create layouts to organize elements
+        cartBorderPane = new BorderPane();
+        cartGrid = new GridPane();
         cartGrid.setPadding(new Insets(15,20,15,20));
         cartGrid.setHgap(50);
+        cartGrid.setAlignment(Pos.TOP_LEFT);
         cartBorderPane.setCenter(cartGrid);
+        //cartGrid.setGridLinesVisible(true);
         
-        //Create category row
+        //Create title box on top
+        HBox titleHBox = new HBox();
+        titleHBox.setAlignment(Pos.TOP_LEFT);
+        titleHBox.setPadding(new Insets(20,20,5,20));
+        Label cartTitle = new Label("Shopping Cart");
+        cartTitle.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,25));
+        titleHBox.getChildren().add(cartTitle);
+        cartBorderPane.setTop(titleHBox);
+        
+        //Create back to main menu button
+        backButton = new Button("Back to Menu");
+        titleHBox.getChildren().add(backButton);
+        titleHBox.setSpacing(670);
+        backButton.setOnAction(e->backButtonHandler());
+
+        //Create category labels
         Label nameTitle = new Label("Name");
         Label descTitle = new Label ("Description");
         Label priceTitle = new Label ("Price");
@@ -289,42 +354,60 @@ public class AgileCafe362 extends Application {
         cartGrid.add(quantityTitle, 3, 0);
         cartGrid.setVgap(10);
         
-        cart = new Cart();
-        int row = 1;
-        for (int i=0;i<itemsList.size();i++)
+        //Diplays the items from cart into summary page.
+        int j=1;
+        for(int i=0;i<cart.getCartItems().size();i++)
         {
-            if(itemsListGUI.get(i).spinner.getValue() > 0){
-            cartGrid.add(itemsListGUI.get(i).name, 0, row);
-            cartGrid.add(itemsListGUI.get(i).description, 1, row);
-            cartGrid.add(itemsListGUI.get(i).price, 2, row);
-            cartGrid.add(new Label(Integer.toString(itemsListGUI.get(i).spinner.getValue())),3,row);
-            cart.getCartItems().add(itemsListGUI.get(i).id);
-            row++;
+            //Double check to make sure conditions are true before displaying into cart.
+            //Item in the cart must actually belong in the cart, and the quantity ordered must be greater than 0.
+            //If check is correct, then add the item to the display.
+            if(cart.getCartItems().get(i).isInCart==true && cart.getCartItems().get(i).quantityOrdered>0){
+                //Since cart scene has already been built, remove existing children if it exists and then add updated one.
+                if(isCartStageBuilt==true){
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).name);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).desc);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).price);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).cb);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).removeButton);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).addonInfo);
+                }
+                cartGrid.add(cart.getCartItems().get(i).name, 0, j);
+                cartGrid.add(cart.getCartItems().get(i).desc, 1, j);
+                cartGrid.add(cart.getCartItems().get(i).price,2,j);
+                cart.getCartItems().get(i).cb.setValue(cart.getCartItems().get(i).quantityOrdered);
+                cartGrid.add(cart.getCartItems().get(i).cb, 3, j);
+                cartGrid.add(cart.getCartItems().get(i).removeButton, 4, j);
+                cart.getCartItems().get(i).removeButton.setOnAction(e->{
+                //When user presses "Remove", then remove item from cart and refresh the page.
+                removeFromCart(e);
+                buildCartStage();
+                    });
+                //Create the addon for the item if checked in the main menu
+                int skipValue=0;
+                for(int m=0;m<cart.getCartItems().get(i).item.getAddonList().size();m++){
+                    //If addon is checked, add it to the summary page.
+                    if(cart.getCartItems().get(i).item.getAddonList().get(m).checkBox.isSelected())
+                    {
+                        cart.getCartItems().get(i).setAddonLabelInfo();
+                        cartGrid.add(cart.getCartItems().get(i).addonInfo, 0, j+skipValue+1);
+                        skipValue++;
+                    }
+                }
+                j=2+skipValue;
             }
         }
-        
-        cartCalculations();
-        
-        //Create top box for Title
-        HBox titleHBox = new HBox();
-        titleHBox.setAlignment(Pos.TOP_LEFT);
-        titleHBox.setPadding(new Insets(20,20,5,20));
-        Label cartTitle = new Label("Shopping Cart");
-        cartTitle.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,25));
-        titleHBox.getChildren().add(cartTitle);
-        cartBorderPane.setTop(titleHBox);
+
+        //Calculates totals and sets appropriate labels
+        calcCartTotals();
         
         //Create bottom box for total summary
         VBox total_VBox = new VBox();
-        Label subtotal = new Label("Subtotal:   "+cart.getSubTotal());
-        Label taxRate = new Label("Tax rate:   "+(cart.getTaxRate()*100)+"%");
-        Label total = new Label("Total:      "+cart.getTotal());
-        int font_size = 25;
-        subtotal.setFont(Font.font("Arial",FontWeight.BOLD,font_size));
-        taxRate.setFont(Font.font("Arial",FontWeight.BOLD,font_size));
-        total.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,font_size));
+        int font_size = 20;
+        subtotalLabel.setFont(Font.font("Arial",FontWeight.BOLD,font_size));
+        totalLabel.setFont(Font.font("Arial",FontWeight.BOLD,font_size));
+        taxRateLabel.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,font_size));
         total_VBox.setSpacing(20);
-        total_VBox.getChildren().addAll(subtotal,taxRate,total);
+        total_VBox.getChildren().addAll(subtotalLabel,taxRateLabel,totalLabel);
         total_VBox.setAlignment(Pos.BOTTOM_RIGHT);
         total_VBox.setPadding(new Insets(0,50,50,0));
         cartBorderPane.setBottom(total_VBox);
@@ -332,27 +415,82 @@ public class AgileCafe362 extends Application {
         //Create "Proceed to checkout" Button
         checkoutButton = new Button("Proceed to checkout");
         total_VBox.getChildren().add(checkoutButton);
-        //checkoutButton.setOnAction(e->);
-
-        Scene cartScene = new Scene(cartBorderPane,900,680);
-        primaryStage.setScene(cartScene);
-        primaryStage.setTitle("Shopping Cart - Agile's Cafe");
+        //checkoutButton.setOnAction(e->); 
+        
+        //Display the scene
+        cartScene = new Scene(cartBorderPane,1100,680);
+        theStage.setScene(cartScene);
+        theStage.setTitle("Shopping Cart - Agile's Cafe");
     }
     
-    //Calculates subtotal and total in Cart
-    private void cartCalculations()
-    {
-        for(int i=0; i< cart.getCartItems().size();i++)
+    public void backButtonHandler() {
+        for(int i=0;i<cartList.size();i++)
         {
-            for(int j=0; j<itemsListGUI.size();j++)
-            {
-                if(cart.getCartItems().get(i)== itemsListGUI.get(j).id)
-                {
-                cart.calcSubTotal(Double.parseDouble(itemsListGUI.get(j).price.getText()),itemsListGUI.get(j).spinValue);
-                }
-            }
+            //When user goes back to main menu, reset the spin box to 0.
+            //Also reset checked addons
+            cartList.get(i).spinBox= new Spinner(0,10,0);
+            cartList.get(i).spinBox.setMaxWidth(65);
+            cartList.get(i).spinBox.setId(cartList.get(i).id.getText());
+            cartList.get(i).setAddonListUnchecked();
         }
-        cart.calcTotal();
+        //Rebuilds the main menu
+        start(theStage);
+    }
+    
+    //Calculates totals and sets appropriate labels
+    public void calcCartTotals(){
+        double totalC;
+        double subtotalC=0;
+        for(int i=0;i<cart.getCartItems().size();i++){
+            subtotalC+= cart.getCartItems().get(i).item.getPrice()* cart.getCartItems().get(i).quantityOrdered;
+        }
+        for(int i=0;i<cart.getCartItems().size();i++)
+        {
+            for(int m=0;m<cart.getCartItems().get(i).item.getAddonList().size();m++)
+            {
+                if(cart.getCartItems().get(i).item.getAddonList().get(m).checkBox.isSelected())
+                {
+                    for(int j=0;j<cart.getCartItems().get(i).item.getAddonList().size();j++)
+                    {
+                        subtotalC+=cart.getCartItems().get(i).item.getAddonList().get(j).getPrice()* cart.getCartItems().get(i).quantityOrdered;
+                    }
+                }
+
+            }
+
+        }
+        
+        totalC=subtotalC+(subtotalC*cart.getTaxRate());
+        
+        cart.setSubTotal(subtotalC);
+        cart.setTotal(totalC);
+        //Sets the text for the subtotal, tax rate, and total labels,
+        //and also sets the precision of the values.
+        Double toBeTruncated = new Double(totalC);
+        totalC = new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+        toBeTruncated = new Double(subtotalC);
+        subtotalC= new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+        subtotalLabel.setText("Subtotal:   "+subtotalC);
+        totalLabel.setText("Total: "+totalC);
+        taxRateLabel.setText("Tax rate:    "+Double.toString(cart.getTaxRate()*100)+"%");
+        
+    }
+    
+    //Event handler for when user clicks "Remove" in the cart scene.
+    //NOTE: This function doesn't refresh the page, only updates the internal values.
+    private void removeFromCart(ActionEvent e){
+        for(int i=0; i<cart.getCartItems().size();i++)
+        {
+            //If "Remove" button matches the item the user wants to remove, then remove the item from cart.
+            if(((Control)e.getSource()).getId().compareTo(Integer.toString(cart.getCartItems().get(i).item.getItemID()))==0)
+                    {
+                        cart.getCartItems().get(i).quantityOrdered=0;
+                        cart.getCartItems().get(i).isInCart=false;
+                        cart.getCartItems().get(i).setAddonListUnchecked();
+                        cart.getCartItems().remove(i);
+                        break;
+                    }
+        }
     }
     
     private void buildLogInStage(){
@@ -410,7 +548,7 @@ public class AgileCafe362 extends Application {
         logInStage.showAndWait();
     }
 
-        //Method to handle action
+    //Checks if the user enters the correct user/pw.
     private void errorLogin(){
         if (userTextField.getText().equals("123") 
                  && pwBox.getText().equals("123"))
@@ -426,9 +564,6 @@ public class AgileCafe362 extends Application {
             errorLogin.setText("Error: Wrong User/PW\nHINT: 123");
         }
     }
-    
-    public static void main(String[] args) {
-        launch(args);
-    }
-    
+   
+    public static void main(String[] args) { launch(args); }
 }

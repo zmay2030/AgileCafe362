@@ -5,19 +5,30 @@
  */
 package agilecafe362__;
 
+import javafx.event.ActionEvent;
+import javafx.scene.control.CheckBox;
+
 /**
  *
  * @author Dragon
  */
 public class addOn {
     private String name;
-    private double Price; 
+    private double price; 
     private int addOnID;
     private Boolean checked;
+    public final CheckBox checkBox;
     
-    public addOn(String addName, double Price){
+    public addOn(String addName, double price){
         this.name = addName;
-        this.Price = Price;
+        this.price = price;
+        checkBox = new CheckBox("+ $"+Double.toString(price)+" "+addName);
+        checkBox.setIndeterminate(false);
+        checkBox.setOnAction(e->checkBoxHandler(e));
+    }
+    private void checkBoxHandler(ActionEvent e)
+    {
+        this.setChecked(this.checkBox.isSelected());
     }
     public String getName()
     {
@@ -25,7 +36,7 @@ public class addOn {
     }
     public double getPrice()
     {
-        return Price;
+        return price;
     }
     public int getAddOnID()
     {
@@ -34,8 +45,8 @@ public class addOn {
     public Boolean isChecked(){
         return checked;
     }
-    public void setChecked(){
-        checked = true;
+    public void setChecked(Boolean bool){
+        checked = bool;
     } 
     public void setAddOnID(int id)
     {
@@ -46,13 +57,12 @@ public class addOn {
         name = addName;
     }
     
-    public double getAddPrice(){
-        return Price;
+    public double getAddOnPrice(){
+        return price;
     }
     
-    public void setAddPrice(double addPrice){
-        this.Price = addPrice;
+    public void setAddOnPrice(double addPrice){
+        this.price = addPrice;
     }
-    
-    
+   
 }
