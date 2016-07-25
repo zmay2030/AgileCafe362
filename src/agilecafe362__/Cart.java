@@ -12,17 +12,22 @@ import java.util.ArrayList;
  */
 public class Cart {
     private double taxRate;
-    private ArrayList<Item> cartItems = new ArrayList<Item>();
+    private ArrayList<Integer> cartItems;
     private double subTotal;
     private double total;
     
-    public Cart(){}
+    public Cart(){
+    cartItems = new ArrayList<Integer>();
+    subTotal = 0;
+    total = 0;
+    taxRate = .1;
+    }
     
-    public ArrayList<Item> getCartItems(){
+    public ArrayList<Integer> getCartItems(){
         return cartItems;
     }
     public void clear(){
-        cartItems.clear();
+        
     }
     
     public void setTaxRate(double taxRate){
@@ -37,15 +42,15 @@ public class Cart {
         return subTotal;
     }
     
-    public void setSubTotal(double subTotal){
-        this.subTotal = subTotal;
+    public void calcSubTotal(double price, int quantity){
+        this.subTotal += price*quantity;
     }
     
     public double getTotal(){
         return total;
     }
     
-    public void setTotal(double total){
-        this.total = total;
+    public void calcTotal(){
+        total = subTotal+subTotal*taxRate;
     }
 }
