@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="AgileCafe362__.jnlp">
+  <information>
+    <title>AgileCafe362__</title>
+    <vendor>Aven</vendor>
+    <description>null</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="AgileCafe362__.jar" size="10812" download="eager" />
+    <jar href="lib\mysql-connector-java-5.1.39-bin.jar" size="989497" download="eager" />
+  </resources>
+  <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="AgileCafe362__" >
+    <param name="requiredFXVersion" value="8.0+"/>
+  </applet-desc>
+  <jfx:javafx-desc  width="800" height="600" main-class="agilecafe362__.AgileCafe362"  name="AgileCafe362__" />
+  <update check="always"/>
+</jnlp>
