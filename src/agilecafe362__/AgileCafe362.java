@@ -24,6 +24,7 @@ import javafx.scene.control.Control;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -142,6 +143,8 @@ public class AgileCafe362 extends Application {
         foodMenuGrid.setVgap(10);
         bevMenuGrid.setVgap(10);
         bevMenuGrid.setHgap(10);
+        foodMenuGrid.getColumnConstraints().add(new ColumnConstraints(550));
+        bevMenuGrid.getColumnConstraints().add(new ColumnConstraints(550));
         
         //Creates section labels
         Label food = new Label("Food");
@@ -322,7 +325,6 @@ public class AgileCafe362 extends Application {
         cartGrid.setHgap(50);
         cartGrid.setAlignment(Pos.TOP_LEFT);
         cartBorderPane.setCenter(cartGrid);
-        //cartGrid.setGridLinesVisible(true);
         
         //Create title box on top
         HBox titleHBox = new HBox();
@@ -353,50 +355,10 @@ public class AgileCafe362 extends Application {
         cartGrid.add(priceTitle, 2, 0);
         cartGrid.add(quantityTitle, 3, 0);
         cartGrid.setVgap(10);
+        //cartGrid.setGridLinesVisible(true);
         
         //Diplays the items from cart into summary page.
-        int j=1;
-        for(int i=0;i<cart.getCartItems().size();i++)
-        {
-            //Double check to make sure conditions are true before displaying into cart.
-            //Item in the cart must actually belong in the cart, and the quantity ordered must be greater than 0.
-            //If check is correct, then add the item to the display.
-            if(cart.getCartItems().get(i).isInCart==true && cart.getCartItems().get(i).quantityOrdered>0){
-                //Since cart scene has already been built, remove existing children if it exists and then add updated one.
-                if(isCartStageBuilt==true){
-                cartGrid.getChildren().remove(cart.getCartItems().get(i).name);
-                cartGrid.getChildren().remove(cart.getCartItems().get(i).desc);
-                cartGrid.getChildren().remove(cart.getCartItems().get(i).price);
-                cartGrid.getChildren().remove(cart.getCartItems().get(i).cb);
-                cartGrid.getChildren().remove(cart.getCartItems().get(i).removeButton);
-                cartGrid.getChildren().remove(cart.getCartItems().get(i).addonInfo);
-                }
-                cartGrid.add(cart.getCartItems().get(i).name, 0, j);
-                cartGrid.add(cart.getCartItems().get(i).desc, 1, j);
-                cartGrid.add(cart.getCartItems().get(i).price,2,j);
-                cart.getCartItems().get(i).cb.setValue(cart.getCartItems().get(i).quantityOrdered);
-                cartGrid.add(cart.getCartItems().get(i).cb, 3, j);
-                cartGrid.add(cart.getCartItems().get(i).removeButton, 4, j);
-                cart.getCartItems().get(i).removeButton.setOnAction(e->{
-                //When user presses "Remove", then remove item from cart and refresh the page.
-                removeFromCart(e);
-                buildCartStage();
-                    });
-                //Create the addon for the item if checked in the main menu
-                int skipValue=0;
-                for(int m=0;m<cart.getCartItems().get(i).item.getAddonList().size();m++){
-                    //If addon is checked, add it to the summary page.
-                    if(cart.getCartItems().get(i).item.getAddonList().get(m).checkBox.isSelected())
-                    {
-                        cart.getCartItems().get(i).setAddonLabelInfo();
-                        cartGrid.add(cart.getCartItems().get(i).addonInfo, 0, j+skipValue+1);
-                        skipValue++;
-                    }
-                }
-                j=2+skipValue;
-            }
-        }
-
+        displaySummaryItems();
         //Calculates totals and sets appropriate labels
         calcCartTotals();
         
@@ -421,6 +383,53 @@ public class AgileCafe362 extends Application {
         cartScene = new Scene(cartBorderPane,1100,680);
         theStage.setScene(cartScene);
         theStage.setTitle("Shopping Cart - Agile's Cafe");
+    }
+    
+    //Diplays the items from cart into summary page.
+    private void displaySummaryItems(){
+        int j=1;
+        for(int i=0;i<cart.getCartItems().size();i++)
+        {
+            //Double check to make sure conditions are true before displaying into cart.
+            //Item in the cart must actually belong in the cart, and the quantity ordered must be greater than 0.
+            //If check is correct, then add the item to the display.
+            if(cart.getCartItems().get(i).isInCart==true && cart.getCartItems().get(i).quantityOrdered>0){
+                //Since cart scene has already been built, remove existing children if it exists and then add updated one.
+                if(isCartStageBuilt==true){
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).name);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).desc);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).price);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).cb);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).removeButton);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).addonInfo);
+                }
+                cartGrid.add(cart.getCartItems().get(i).name, 0, j+1);
+                cartGrid.add(cart.getCartItems().get(i).desc, 1, j+1);
+                cartGrid.add(cart.getCartItems().get(i).price,2,j+1);
+                cart.getCartItems().get(i).cb.setValue(cart.getCartItems().get(i).quantityOrdered);
+                cartGrid.add(cart.getCartItems().get(i).cb, 3, j+1);
+                cartGrid.add(cart.getCartItems().get(i).removeButton, 4, j+1);
+
+                cart.getCartItems().get(i).removeButton.setOnAction(e->{
+                //When user presses "Remove", then remove item from cart and refresh the page.
+                removeFromCart(e);
+                buildCartStage();
+                    });
+                //Create the addon for the item if checked in the main menu
+                int skipValue=0;
+                for(int m=0;m<cart.getCartItems().get(i).item.getAddonList().size();m++){
+                    //If addon is checked, add it to the summary page.
+                    if(cart.getCartItems().get(i).item.getAddonList().get(m).checkBox.isSelected())
+                    {
+                        cart.getCartItems().get(i).setAddonLabelInfo();
+                        cartGrid.add(cart.getCartItems().get(i).addonInfo, 0, j+skipValue+2);
+                        skipValue++;
+                    }
+                }
+                j=j+2+skipValue;
+            }
+        }
+
     }
     
     public void backButtonHandler() {
