@@ -626,6 +626,7 @@ public class AgileCafe362 extends Application {
             
             // Edit button
             Button editBtn = new Button("Edit");  
+            Button deleteBtn = new Button("Delete");  
             int passIndex = index;
             editBtn.setOnAction(e->{editMenuItems.close();editItemByIndex(passIndex);});
             editBtn.setAlignment(Pos.CENTER);
