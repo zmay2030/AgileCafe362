@@ -5,7 +5,6 @@
  */
 package agilecafe362__;
 import java.util.ArrayList;
-import javafx.scene.control.Spinner;
 
 /**
  *
@@ -13,31 +12,22 @@ import javafx.scene.control.Spinner;
  */
 public class Cart {
     private double taxRate;
-    private final ArrayList<cartItem> cartItems;
+    private ArrayList<Integer> cartItems;
     private double subTotal;
     private double total;
     
     public Cart(){
-    cartItems = new ArrayList<>();
+    cartItems = new ArrayList<Integer>();
     subTotal = 0;
     total = 0;
     taxRate = .1;
     }
     
-    public ArrayList<cartItem> getCartItems(){
+    public ArrayList<Integer> getCartItems(){
         return cartItems;
     }
     public void clear(){
-        for(int i=0; i< cartItems.size();i++){
-            cartItems.get(i).setAddonListUnchecked();
-            cartItems.get(i).quantityOrdered=0;
-            cartItems.get(i).cb.setValue(0);
-            cartItems.get(i).isInCart=false;
-            cartItems.get(i).spinBox = new Spinner<>(0,10,0);
-            cartItems.get(i).spinBox.setId(cartItems.get(i).id.getText());
-            cartItems.get(i).spinBox.setMaxWidth(65);
-        }
-        cartItems.clear();
+        
     }
     
     public void setTaxRate(double taxRate){
@@ -52,10 +42,15 @@ public class Cart {
         return subTotal;
     }
     
+    public void calcSubTotal(double price, int quantity){
+        this.subTotal += price*quantity;
+    }
+    
     public double getTotal(){
         return total;
     }
     
-    public void setSubTotal(double subTotal){ this.subTotal = subTotal; }
-    public void setTotal(double total) { this.total=total; }
+    public void calcTotal(){
+        total = subTotal+subTotal*taxRate;
+    }
 }

@@ -19,7 +19,7 @@ public class Item {
     private String description;
     private int type;
     private String image_path;
-    private final ArrayList<addOn> addOnList = new ArrayList<>(0);
+    private ArrayList<addOn> addOnList = new ArrayList<addOn>(0);;
     private Boolean deleted;
     public Item(int itemID, String name, String description, int type, double price){
         this.name = name;
@@ -96,8 +96,6 @@ public class Item {
     {
         return addOnList;
     }
-    
-    @Override
     public String toString(){
         NumberFormat fcurr = NumberFormat.getCurrencyInstance();
         if(image_path == null)

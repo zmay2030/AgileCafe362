@@ -19,16 +19,13 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.ArrayList;
-<<<<<<< HEAD
 import javafx.event.ActionEvent;
 import javafx.event.EventType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
-=======
 import javafx.geometry.HPos; 
- import javafx.scene.image.Image;
- import javafx.scene.image.ImageView;
->>>>>>> Ahmad
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Spinner;
@@ -94,13 +91,14 @@ public class AgileCafe362 extends Application {
     
     //Used for billing scene
     private Stage tyStage;
-     
+
     //Cart lists
     private final Cart cart = new Cart();
-    private final ArrayList<cartItem> cartList = new ArrayList<>(); 
+    private final ArrayList<cartItem> cartList = new ArrayList<>();
+
     private String IMAGES_PATH = "images/";
     private Desktop desktop = Desktop.getDesktop();
-    private File imageFileNameToUpload = null; 
+    private File imageFileNameToUpload = null;
     
     @Override
     public void init() throws Exception {
@@ -762,10 +760,9 @@ public class AgileCafe362 extends Application {
         errorEmptyCartStage.initModality(Modality.APPLICATION_MODAL);
         errorEmptyCartStage.showAndWait();
     }
- 
-    //Checks if the user enters the correct user/pw. 
-        //Method to handle action
-    private void errorLogin(Stage logInStage){ 
+
+    private void errorLogin(Stage logInStage){
+
         if (userTextField.getText().equals("123") 
                  && pwBox.getText().equals("123"))
         { 
@@ -779,7 +776,10 @@ public class AgileCafe362 extends Application {
             errorLogin.setFill(Color.FIREBRICK);
             errorLogin.setText("Error: Wrong User/PW\nHINT: 123");
         }
-    }   
+    }
+
+
+
     public void editItemByIndex(int index)
     {
         Stage editItem = new Stage();
@@ -1064,4 +1064,5 @@ public class AgileCafe362 extends Application {
         launch(args);
     }
     
-} 
+}
+
