@@ -24,7 +24,7 @@ public class Item {
     private String image_path;
     private final ArrayList<addOn> addOnList = new ArrayList<>(0);
     private Boolean deleted;
-    private ImageView image; 
+    private Image image; 
     
     public Item(int itemID, String name, String description, int type, double price, String image_path){
         this.name = name;
@@ -34,26 +34,22 @@ public class Item {
         this.price = price;
         this.image_path = image_path;
         deleted = false;
+        image = null;
         updateImg();
     }
     public void updateImg()
     {
-        // new image view 
-        image = new ImageView();
-        // Load image  
-        Image imageFile = null;
+        // new image view  
+        // Load image   
         File file = new File("."); 
         try{
-            imageFile = new Image("file:///"+file.getAbsolutePath()+"/src/images/"+image_path);
+            image = new Image("file:///"+file.getAbsolutePath()+"/src/images/"+image_path);
         }
         catch(IllegalArgumentException e)
         {
             System.out.print(e.toString());
-            imageFile = new Image("file:///"+file.getAbsolutePath()+"/src/images/defaultimg.png");
-        } 
-        image.setImage(imageFile);
-        image.setFitWidth(50);
-        image.setFitHeight(50);
+            image = new Image("file:///"+file.getAbsolutePath()+"/src/images/defaultimg.png");
+        }  
     }
   
     
@@ -91,8 +87,13 @@ public class Item {
     public void setDescription(String description){
         this.description = description;
     }
-    public ImageView getImageView(){
-        return image;
+    public ImageView getImageView(){ 
+        ImageView imgView = new ImageView();
+        imgView.setImage(image);
+        imgView.setFitWidth(50);
+        imgView.setFitHeight(50);
+        
+        return imgView;
     }
     public Boolean isDeleted()
     {
