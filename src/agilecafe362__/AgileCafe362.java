@@ -18,6 +18,9 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.ArrayList;
+import javafx.geometry.HPos; 
+ import javafx.scene.image.Image;
+ import javafx.scene.image.ImageView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
@@ -25,6 +28,24 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
+import javafx.collections.ObservableList;
+import javafx.collections.FXCollections;
+import javafx.scene.control.ComboBox;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import java.util.List;
+import javafx.stage.FileChooser;
+import java.io.File;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
+import java.awt.Desktop; 
+import java.io.IOException; 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+ import javafx.embed.swing.SwingFXUtils; 
+import javax.imageio.ImageIO;
+
+import java.awt.image.BufferedImage;
 
 public class AgileCafe362 extends Application {
     
@@ -53,6 +74,9 @@ public class AgileCafe362 extends Application {
     //Cart details
     private Cart cart;
     private ArrayList<menuItemGUI> itemsListGUI = new ArrayList<menuItemGUI>();
+    private String IMAGES_PATH = "images/";
+    private Desktop desktop = Desktop.getDesktop();
+    private File imageFileNameToUpload = null;
     
     @Override
     public void init() throws Exception {
@@ -398,12 +422,14 @@ public class AgileCafe362 extends Application {
         errorLogin = new Text();
         grid.add(errorLogin, 1, 6);
         
+        // Create stage for login
+        // Needs to be passed to errorLogin()
+        logInStage = new Stage();
         //Set handling event if login error
-        loginButton.setOnAction(e->errorLogin());
+        loginButton.setOnAction(e->errorLogin(logInStage));
         
         //Display Admin window
-        logInScene = new Scene(grid,500,500);
-        logInStage = new Stage();
+        logInScene = new Scene(grid,500,500); 
         logInStage.setTitle("Admin Login Page");
         logInStage.setScene(logInScene);
         logInStage.initModality(Modality.APPLICATION_MODAL);
@@ -411,12 +437,12 @@ public class AgileCafe362 extends Application {
     }
 
         //Method to handle action
-    private void errorLogin(){
+    private void errorLogin(Stage logInStage){
         if (userTextField.getText().equals("123") 
                  && pwBox.getText().equals("123"))
-        {
-            //User entered correct credentials
-            //Switch to Admin stage
+        { 
+            logInStage.close();
+            showAdminMenu();
         }
         else
         {
@@ -426,7 +452,284 @@ public class AgileCafe362 extends Application {
             errorLogin.setText("Error: Wrong User/PW\nHINT: 123");
         }
     }
-    
+    public void editItemByIndex(int index, Stage prevStage)
+    {
+        Stage editItem = new Stage();
+        editItem.initModality(Modality.APPLICATION_MODAL);
+        final FileChooser fileChooser = new FileChooser();
+        
+        // Get item passed
+        Item item = itemsList.get(index);
+        
+        String imageName = item.getImage();
+        Image image = null; 
+        if (imageName !="")
+        {
+            image = new Image(IMAGES_PATH+imageName);
+        }
+        else
+        {
+            image = new Image(IMAGES_PATH+"defaultimg.png");
+        }
+        System.out.print(IMAGES_PATH+imageName);
+        ImageView imgView = new ImageView();
+        imgView.setImage(image);
+        imgView.setFitWidth(50);
+        imgView.setFitHeight(50); 
+        
+        // Labels
+        Label itemName = new Label("Name: ");
+        Label itemPrice = new Label("Price: ");
+        Label itemDesc = new Label("Description: "); 
+        Label itemType = new Label("Type: ");
+        ComboBox typeComboBox = new ComboBox();
+        typeComboBox.getItems().add(0, "Food");
+        typeComboBox.getItems().add(1, "Beverage"); 
+        typeComboBox.setValue(item.typeTranslate(item.getType()));
+        
+        // Textfields
+        TextField nameTF = new TextField (item.getName());
+        TextField priceTF = new TextField (String.valueOf(item.getPrice()));
+        TextField descTF  = new TextField (item.getDescription());
+        TextField typeTF    = new TextField(item.typeTranslate(item.getType()));
+        
+        // upload button and submit button
+        Button uploadBtn = new Button("Browse Files");
+        Button submitBtn = new Button("Save"); 
+        submitBtn.setPadding(new Insets(5));
+        
+        GridPane grid = new GridPane(); 
+        
+        // Image
+        grid.add(imgView,0,0);
+        grid.add(uploadBtn,1,1);
+        
+        // Item name
+        grid.add(itemName,0,2);
+        grid.add(nameTF,1,3);
+        
+        // Item price
+        grid.add(itemPrice,0,4);
+        grid.add(priceTF,1,5);
+        
+        // Item description
+        grid.add(itemDesc,0,6);
+        grid.add(descTF,1,7);
+        
+        // Item description
+        grid.add(itemType,0,8);
+        grid.add(typeComboBox,1,9);
+        
+        // save button
+        grid.add(submitBtn,1,10);
+        grid.setAlignment(Pos.CENTER);
+         
+        // ON UPLOAD
+        uploadBtn.setOnAction(
+            new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(final ActionEvent e) {
+                    List<File> list =
+                        fileChooser.showOpenMultipleDialog(editItem);
+                    if (list != null) {
+                        for (File file : list) { 
+                            grid.getChildren().remove(uploadBtn);
+                            Label fileName = new Label(String.valueOf(file));
+                            grid.add(fileName,1,1);
+                           
+                            imageFileNameToUpload = file;
+                        }
+                    }
+                }
+            });
+        submitBtn.setOnAction(e->{
+                if (imageFileNameToUpload !=null)
+                {
+                    Image newImg = new Image("file:///"+imageFileNameToUpload.toString());
+                    File absp = new File("."); 
+                    String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()); 
+                    String fullFileName = "src/images/"+timestamp+imageFileNameToUpload.getName();
+                    File outputFile = new File(fullFileName);
+                    BufferedImage bImage = SwingFXUtils.fromFXImage(newImg, null);
+                    try {
+                      ImageIO.write(bImage, "png", outputFile);
+                    } catch (IOException a) {
+                      throw new RuntimeException(a);
+
+                    }
+                    item.setImage(fullFileName);
+                    imageFileNameToUpload = null;
+                }
+                // NEED TO ERROR CHECK
+                item.setPrice(Double.parseDouble(priceTF.getText()));
+                item.setDescription(descTF.getText());
+                item.setName(nameTF.getText());
+                item.setCategory(typeComboBox.getSelectionModel().getSelectedIndex());
+                System.out.print("NEW PRICE: " +Double.parseDouble(priceTF.getText()));
+                // SAVED
+                editItem.close();
+                prevStage.show();
+            }
+        ); 
+        Scene scene = new Scene(grid,400,300);
+        editItem.setScene(scene);
+        editItem.show();
+        
+    }
+    public void adminEditMenuItems()
+    {
+        Stage editMenuItems = new Stage();
+        editMenuItems.initModality(Modality.APPLICATION_MODAL);
+        GridPane itemBox = new GridPane();
+        itemBox.setId("items");
+        // Go through each item and put into grid
+        
+         
+        int index = 0;
+        for(Item item: itemsList)
+        {
+            // item image
+            String imageName = item.getImage();
+            Image image = null; 
+            if (imageName !="")
+            {
+                image = new Image(IMAGES_PATH+imageName);
+            }
+            else
+            {
+                image = new Image(IMAGES_PATH+"defaultimg.png");
+            }
+            System.out.print(IMAGES_PATH+imageName);
+            ImageView imgView = new ImageView();
+            imgView.setImage(image);
+            imgView.setFitWidth(50);
+            imgView.setFitHeight(50); 
+            GridPane.setMargin(imgView, new Insets(3));
+            
+            // item name
+            Label title = new Label(item.getName());
+            title.setStyle("-fx-font-weight:bold;");
+            title.setPadding(new Insets(3));
+            
+            // Price label
+            Label Price = new Label("$"+String.valueOf(item.getPrice()));
+            Price.setPadding(new Insets(3));
+            
+            // Description label
+            Label desc = new Label(item.getDescription());
+            desc.setPadding(new Insets(3));
+            
+            // Type label 
+            Label type = new Label(item.typeTranslate(item.getType()));
+            type.setPadding(new Insets(3));
+            
+            // Edit button
+            Button editBtn = new Button("Edit");  
+            int passIndex = index;
+            editBtn.setOnAction(e->{editMenuItems.close();editItemByIndex(passIndex,editMenuItems);});
+            editBtn.setAlignment(Pos.CENTER);
+            editBtn.setId("editItemBtn");
+            VBox editBtnBox = new VBox();
+            editBtnBox.getChildren().add(editBtn);
+            editBtnBox.setId("editItemBtnBox");
+            
+            GridPane grid = new GridPane();
+            grid.add(imgView,index,0);
+            grid.add(title, index+1, 0);
+            grid.add(Price, index+1, 1); 
+            grid.add(type, index+1, 2);
+            grid.add(desc, index+1, 3);
+            grid.add(editBtnBox,index+1,4);
+            // Get all addon list for the current item
+            ArrayList<addOn> addonList = item.getAddonList();
+            for(addOn adn: addonList)
+            {
+                System.out.print(adn.getName()+" "); 
+            }
+            System.out.print("\n\n"); 
+            
+            int column;
+            // Get current column 
+            if (index % 3 == 0)
+            {
+                column = 0;
+            }
+            else if(index % 2  == 0)
+                column = 1;
+            else
+                column = 2;
+            
+            itemBox.add(grid, column, index/3); 
+            itemBox.setPrefWidth(166);
+            itemBox.setAlignment(Pos.TOP_CENTER);
+            grid.setPrefWidth(166);
+            grid.setPadding(new Insets(0,5,0,0));
+            grid.setAlignment(Pos.CENTER);
+            grid.setId("itemBox");
+            index++;
+        }   
+          
+        Scene scene = new Scene(itemBox,500,500);
+        scene.getStylesheets().add("css/adminMenu.css");
+        editMenuItems.setScene(scene);
+        editMenuItems.show();
+    }
+    public void showAdminMenu()
+    {  
+        Stage adminMenu = new Stage();
+        adminMenu.initModality(Modality.APPLICATION_MODAL);
+        GridPane layoutPane = new GridPane();
+        
+        
+        Label title = new Label("Admin Menu"); 
+        title.setId("editMenuTitle");
+        title.setPadding(new Insets(0,0,50,0));
+        // Edit Menu Button
+        Button editMenuBtn = new Button("Edit Menu Items");  
+        //editMenuBtn.setOnAction(adminEditMenuItems(adminMenu));
+        editMenuBtn.setOnAction(e->{adminMenu.close();adminEditMenuItems();});
+        editMenuBtn.setId("editMenuBtn");  
+        editMenuBtn.setPrefSize(150,50);
+        
+        HBox hboxEdit = new HBox(10); 
+        hboxEdit.getChildren().add(editMenuBtn);
+        
+        GridPane.setHalignment(hboxEdit, HPos.CENTER);
+        GridPane.setMargin(hboxEdit, new Insets(0,0,5,0));
+        // Action on edit menu button
+         
+        
+        // View Reports Button
+        Button viewReports = new Button("view Reports"); 
+         
+        
+        HBox hboxreports = new HBox(10); 
+        hboxreports.getChildren().add(viewReports);
+        viewReports.setId("viewReportsBtn");
+        viewReports.setPrefSize(150,50);
+        
+        
+        layoutPane.setPadding(new Insets(10, 0, 0, 60));
+        layoutPane.add(title, 1, 1);
+        layoutPane.add(hboxEdit,1,2); 
+        layoutPane.add(hboxreports,1,3);
+         
+        Scene menuScene = new Scene(layoutPane,250,250);
+        menuScene.getStylesheets().add("css/adminMenu.css"); 
+        adminMenu.setScene(menuScene);
+        adminMenu.show(); 
+        
+    }
+    private void openFile(File file) {
+        try {
+            desktop.open(file);
+        } catch (IOException ex) {
+            Logger.getLogger(
+                AgileCafe362.class.getName()).log(
+                    Level.SEVERE, null, ex
+                );
+        }
+    }
     public static void main(String[] args) {
         launch(args);
     }
