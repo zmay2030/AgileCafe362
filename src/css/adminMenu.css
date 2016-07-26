@@ -43,3 +43,14 @@
     -fx-padding-top:20px;  
     -fx-border:2px #000 solid; 
 }
+#addItemBtn
+{
+    -fx-font-size:12px;
+    -fx-padding:5px;   
+}
+#Button_addBtn
+{
+    -fx-background-color: #b9cefa; 
+    -fx-padding-top:20px;  
+    -fx-border:2px #000 solid; 
+}

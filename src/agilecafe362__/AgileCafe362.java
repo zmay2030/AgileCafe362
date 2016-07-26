@@ -46,10 +46,12 @@ import java.awt.Desktop;
 import java.io.IOException; 
 import java.util.logging.Level;
 import java.util.logging.Logger;
- import javafx.embed.swing.SwingFXUtils; 
+ import javafx.embed.swing.SwingFXUtils;  
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage; 
 import javax.imageio.ImageIO; 
 import java.awt.image.BufferedImage; 
-import javafx.scene.control.ScrollPane; 
+import javafx.scene.control.ScrollPane;  
 import java.util.Optional;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -701,6 +703,18 @@ public class AgileCafe362 extends Application {
     private void payNowButtonHandler()
     {
         //NOTE: Store sale info into database here!
+        SQL_DB mysqlDB = new SQL_DB();
+        try{
+            mysqlDB.connect(); 
+        }catch(Exception e)
+        {
+            System.out.print("Error connecting");
+        }
+        for(cartItem cartitem : cart.getCartItems())
+        {
+            cartitem.item.addToQuantityOrdered(cartitem.quantityOrdered);
+        }
+        mysqlDB.addSaleOrder(cart.getTotal());
         thankYouStage();
         cart.clear();
         start(theStage);
@@ -935,14 +949,27 @@ public class AgileCafe362 extends Application {
         GridPane itemBox = new GridPane();
         itemBox.setId("items");
         // Go through each item and put into grid
-         
+        
+        // Add item button
+        Button addBtn = new Button("Add Item");
+        addBtn.setId("Button_addBtn");
+        VBox addBtnBox = new VBox(addBtn);
+        addBtnBox.setAlignment(Pos.TOP_RIGHT);
+        addBtnBox.setId("addItemBtn");
+        addBtnBox.getChildren().add(itemBox);
+        // Add item action 
+        addBtn.setOnAction(e->addNewItem());
+        
         int index = 0;
+        int currentCol = index;
         File file = new File("."); 
         for(Item item: itemsList)
         {
             if (item.isDeleted())
+            {
+                index++;
                 continue; // skip
-            
+            }
             // item image
             ImageView imageOutput = item.getImageView(); 
             GridPane.setMargin(imageOutput, new Insets(3));
@@ -1003,16 +1030,16 @@ public class AgileCafe362 extends Application {
             
             int column;
             // Get current column 
-            if (index % 3 == 0)
+            if (currentCol % 3 == 0)
             {
                 column = 0;
             }
-            else if(index % 2  == 0)
+            else if(currentCol % 2  == 0)
                 column = 1;
             else
                 column = 2;
             
-            itemBox.add(grid, column, index/3); 
+            itemBox.add(grid, column, currentCol/3); 
             itemBox.setPrefWidth(166);
             itemBox.setAlignment(Pos.TOP_CENTER);
             grid.setPrefWidth(166);
@@ -1020,14 +1047,20 @@ public class AgileCafe362 extends Application {
             grid.setAlignment(Pos.CENTER);
             grid.setId("itemBox");
             index++;
+            currentCol++;
         }   
           
-        Scene scene = new Scene(itemBox,500,500);
+        Scene scene = new Scene(addBtnBox,500,500);
         scene.getStylesheets().add("css/adminMenu.css");
         editMenuItems.setScene(scene);
         editMenuItems.show();
     }
-    
+    public void addNewItem()
+    {
+        Stage newItem;
+        
+        
+    }
     public void confirmItemDelete(int index, Stage editMenuItems)
     {
         Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -1041,6 +1074,7 @@ public class AgileCafe362 extends Application {
             editMenuItems.hide();
             adminEditMenuItems();
         }
+        start(theStage);
     }
 
     public void showAdminMenu()
@@ -1049,16 +1083,15 @@ public class AgileCafe362 extends Application {
         adminMenu.initModality(Modality.APPLICATION_MODAL);
         GridPane layoutPane = new GridPane();
         
-        
         Label title = new Label("Admin Menu"); 
         title.setId("editMenuTitle");
         title.setPadding(new Insets(0,0,50,0));
         // Edit Menu Button
-        Button editMenuBtn = new Button("Edit Menu Items");  
+        Button editMenuBtn = new Button("Manage Menu Items");  
         //editMenuBtn.setOnAction(adminEditMenuItems(adminMenu));
         editMenuBtn.setOnAction(e->{adminMenu.close();adminEditMenuItems();});
         editMenuBtn.setId("editMenuBtn");  
-        editMenuBtn.setPrefSize(150,50);
+        editMenuBtn.setPrefSize(200,50);
         
         HBox hboxEdit = new HBox(10); 
         hboxEdit.getChildren().add(editMenuBtn);
@@ -1075,7 +1108,7 @@ public class AgileCafe362 extends Application {
         HBox hboxreports = new HBox(10); 
         hboxreports.getChildren().add(viewReports);
         viewReports.setId("viewReportsBtn");
-        viewReports.setPrefSize(150,50);
+        viewReports.setPrefSize(200,50);
         
         
         layoutPane.setPadding(new Insets(10, 0, 0, 60));
@@ -1083,7 +1116,7 @@ public class AgileCafe362 extends Application {
         layoutPane.add(hboxEdit,1,2); 
         layoutPane.add(hboxreports,1,3);
          
-        Scene menuScene = new Scene(layoutPane,250,250);
+        Scene menuScene = new Scene(layoutPane,310,250);
         menuScene.getStylesheets().add("css/adminMenu.css"); 
         adminMenu.setScene(menuScene);
         adminMenu.show(); 
