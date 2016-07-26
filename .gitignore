@@ -2,7 +2,5 @@ build/built-jar.properties
 build.xml
 dist/
 nbproject/
-build/classes/agilecafe362__/AgileCafe362.class
 build/
-build/classes/agilecafe362__/Cart.class
-C:\Users\Aven\Documents\NetBeansProjects\AgileCafe362\build\classes\
+.gitignore

@@ -105,7 +105,17 @@ public class Item {
         else
             return name + "(" + type + ")" +"\t" + description + "\t" + fcurr.format(price) + "\t" + image_path;
     }
-    
+    public String typeTranslate(int type)
+    {
+        if (type == 0)
+        {
+            return "Food";
+        }
+        else
+        {
+            return "Beverage";
+        }
+    }
     
     
 }

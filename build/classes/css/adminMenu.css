@@ -1,0 +1,49 @@
+.root{
+    -fx-font-size: 16pt;  
+    -fx-background: #e5f7f9;
+}
+#viewReportsBtn
+{
+    -fx-font-size:15px;
+    -fx-border:2px #000 solid; 
+    -fx-background-color: #b9cefa; 
+    -fx-padding-top:20px;
+}
+#editMenuBtn
+{
+    -fx-font-size:15px;
+    -fx-border:2px #000 solid; 
+    -fx-background-color: #b9cefa;
+}
+#editMenuTitle
+{
+    -fx-text-alignment: CENTER;
+    -fx-text-fill: #000;
+    -fx-background: #b9cefa;
+}
+#items
+{
+    -fx-font-size: 10pt;  
+}
+#itemBox
+{
+    -fx-background-color: #caccf9; 
+    -fx-border-style: solid;-fx-border-color:#e5f7f9;
+    -fx-border-width:2;
+}
+#editItemBtn
+{
+    -fx-font-size:10px;
+    -fx-font-style: italic;
+    -fx-border:2px #000 solid; 
+    -fx-background-color: #b9cefa; 
+    -fx-padding-top:20px;
+}
+#editBtnBox
+{
+    -fx-font-size:12px;
+    -fx-font-style: italic;
+    -fx-border:2px #000 solid; 
+    -fx-background-color: #b9cefa; 
+    -fx-padding-top:20px;
+}
