@@ -50,6 +50,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import java.awt.image.BufferedImage;
+import javafx.scene.layout.RowConstraints;
 
 public class AgileCafe362 extends Application {
     //Used as a reference to primary stage
@@ -216,6 +217,12 @@ public class AgileCafe362 extends Application {
     
     //Populates the items on the main menu
     private void addItemGUI(){
+        ColumnConstraints colimg = new ColumnConstraints(60);
+        ColumnConstraints col1 = new ColumnConstraints(500);
+        //ColumnConstraints col2 = new ColumnConstraints(200);
+        foodMenuGrid.getColumnConstraints().set(0, colimg);
+        foodMenuGrid.getColumnConstraints().add(1, col1);
+
         //Type 0 = Food
         //Type 1 = Beverage
         int j=1; //Refers to initial row to start populating data.
@@ -225,15 +232,15 @@ public class AgileCafe362 extends Application {
             //If food, add to food section
             if(itemsList.get(i).getType()==0)
             {
-                foodMenuGrid.add(cartList.get(i).name,0,j);
-                foodMenuGrid.add(cartList.get(i).desc, 0, j+1);
-                foodMenuGrid.add(cartList.get(i).price, 1, j+1);
-                foodMenuGrid.add(cartList.get(i).spinBox, 2, j+1);
-                
+                foodMenuGrid.add(cartList.get(i).name,1,j);
+                foodMenuGrid.add(cartList.get(i).desc, 1, j+1);
+                foodMenuGrid.add(cartList.get(i).price, 2, j+1);
+                foodMenuGrid.add(cartList.get(i).spinBox, 3, j+1);
+                foodMenuGrid.add(cartList.get(i).item.getImageView(), 0, j);
                 //Display Addon for food item
                 int skipVar=0;
                 for(int m=0; m<cartList.get(i).item.getAddonList().size();m++){
-                    foodMenuGrid.add(cartList.get(i).item.getAddonList().get(m).checkBox,0,m+2+j);
+                    foodMenuGrid.add(cartList.get(i).item.getAddonList().get(m).checkBox,1,m+2+j);
                     skipVar++;
                 }
                 j+=skipVar;
@@ -242,15 +249,18 @@ public class AgileCafe362 extends Application {
         }
         j=1; //Refers to initial row to start populating data.
         //Adds the items into the "Beverage" section of the menu.
+        bevMenuGrid.getColumnConstraints().set(0, colimg);
+        bevMenuGrid.getColumnConstraints().add(1, col1);
         for(int i=0; i<itemsList.size();i++)
         {
             //If beverage, add to beverage section
             if(itemsList.get(i).getType()==1)
             {
-                bevMenuGrid.add(cartList.get(i).name,0,j);
-                bevMenuGrid.add(cartList.get(i).desc, 0, j+1);
-                bevMenuGrid.add(cartList.get(i).price, 1, j+1);
-                bevMenuGrid.add(cartList.get(i).spinBox, 2, j+1);
+                bevMenuGrid.add(cartList.get(i).name,1,j);
+                bevMenuGrid.add(cartList.get(i).desc, 1, j+1);
+                bevMenuGrid.add(cartList.get(i).price, 2, j+1);
+                bevMenuGrid.add(cartList.get(i).spinBox, 3, j+1);
+                bevMenuGrid.add(cartList.get(i).item.getImageView(), 0, j);
                 j=j+2;
             }
         }
@@ -998,6 +1008,9 @@ public class AgileCafe362 extends Application {
         editMenuItems.setScene(scene);
         editMenuItems.show();
     }
+    
+    
+
     public void showAdminMenu()
     {  
         Stage adminMenu = new Stage();
