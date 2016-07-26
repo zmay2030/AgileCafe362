@@ -791,21 +791,7 @@ public class AgileCafe362 extends Application {
         // Get item passed
         Item item = itemsList.get(index);
         
-        String imageName = item.getImage();
-        Image image = null; 
-        if (imageName !="")
-        {
-            image = new Image(IMAGES_PATH+imageName);
-        }
-        else
-        {
-            image = new Image(IMAGES_PATH+"defaultimg.png");
-        }
-        System.out.print(IMAGES_PATH+imageName);
-        ImageView imgView = new ImageView();
-        imgView.setImage(image);
-        imgView.setFitWidth(50);
-        imgView.setFitHeight(50); 
+        ImageView viewImage = item.getImageView();
         
         // Labels
         Label itemName = new Label("Name: ");
@@ -831,7 +817,7 @@ public class AgileCafe362 extends Application {
         GridPane grid = new GridPane(); 
         
         // Image
-        grid.add(imgView,0,0);
+        grid.add(viewImage,0,0);
         grid.add(uploadBtn,1,1);
         
         // Item name
@@ -919,29 +905,14 @@ public class AgileCafe362 extends Application {
         GridPane itemBox = new GridPane();
         itemBox.setId("items");
         // Go through each item and put into grid
-        
          
         int index = 0;
         File file = new File("."); 
         for(Item item: itemsList)
         {
             // item image
-            String imageName = item.getImage();
-            Image image = null; 
-            try{
-                image = new Image("file:///"+file.getAbsolutePath()+"/src/images/"+imageName);
-            }
-            catch(IllegalArgumentException e)
-            {
-                System.out.print(e.toString());
-                image = new Image("file:///"+file.getAbsolutePath()+"/src/images/defaultimg.png");
-            }
-            System.out.print(IMAGES_PATH+imageName);
-            ImageView imgView = new ImageView();
-            imgView.setImage(image);
-            imgView.setFitWidth(50);
-            imgView.setFitHeight(50); 
-            GridPane.setMargin(imgView, new Insets(3));
+            ImageView imageOutput = item.getImageView(); 
+            GridPane.setMargin(imageOutput, new Insets(3));
             
             // item name
             Label title = new Label(item.getName());
@@ -979,7 +950,7 @@ public class AgileCafe362 extends Application {
             editBtnBox.setId("editItemBtnBox");
             
             GridPane grid = new GridPane();
-            grid.add(imgView,index,0);
+            grid.add(imageOutput,index,0);
             grid.add(title, index+1, 0);
             grid.add(Price, index+1, 1); 
             grid.add(type, index+1, 2);

@@ -5,8 +5,11 @@
  */
 package agilecafe362__;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.text.NumberFormat;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 /**
  *
@@ -21,15 +24,7 @@ public class Item {
     private String image_path;
     private final ArrayList<addOn> addOnList = new ArrayList<>(0);
     private Boolean deleted;
-    public Item(int itemID, String name, String description, int type, double price){
-        this.name = name;
-        this.itemID = itemID;
-        this.type = type;
-        this.description = description;
-        this.price = price;
-        deleted = false;
-         
-    }
+    private ImageView image; 
     
     public Item(int itemID, String name, String description, int type, double price, String image_path){
         this.name = name;
@@ -38,7 +33,29 @@ public class Item {
         this.description = description;
         this.price = price;
         this.image_path = image_path;
+        deleted = false;
+        updateImg();
     }
+    public void updateImg()
+    {
+        // new image view 
+        image = new ImageView();
+        // Load image  
+        Image imageFile = null;
+        File file = new File("."); 
+        try{
+            imageFile = new Image("file:///"+file.getAbsolutePath()+"/src/images/"+image_path);
+        }
+        catch(IllegalArgumentException e)
+        {
+            System.out.print(e.toString());
+            imageFile = new Image("file:///"+file.getAbsolutePath()+"/src/images/defaultimg.png");
+        } 
+        image.setImage(imageFile);
+        image.setFitWidth(50);
+        image.setFitHeight(50);
+    }
+  
     
     public int getItemID(){
         return itemID;
@@ -74,8 +91,8 @@ public class Item {
     public void setDescription(String description){
         this.description = description;
     }
-    public String getImage(){
-        return image_path;
+    public ImageView getImageView(){
+        return image;
     }
     public Boolean isDeleted()
     {
@@ -87,6 +104,7 @@ public class Item {
     }
     public void setImage(String image_path){
         this.image_path = image_path;
+        updateImg();
     }
     public void addAddOn(addOn addon)
     {
