@@ -20,12 +20,17 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import javafx.event.ActionEvent;
+import javafx.event.EventType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -61,7 +66,10 @@ public class AgileCafe362 extends Application {
     private final Label taxRateLabel = new Label();
     private final Label totalLabel = new Label();
     private BorderPane cartBorderPane;
-    private Boolean isCartStageBuilt = false;
+    private Boolean isCartSceneBuilt = false;
+    
+    //Used for billing scene
+    private Stage tyStage;
     
     //Cart lists
     private final Cart cart = new Cart();
@@ -175,7 +183,7 @@ public class AgileCafe362 extends Application {
         
         //Loads items list and make a "cart item" for each item in the list.
         //If cart stage is already built, then no need to convert list of items again.
-        if(isCartStageBuilt==false){
+        if(isCartSceneBuilt==false){
             loadCartItem();
         }
         
@@ -185,97 +193,9 @@ public class AgileCafe362 extends Application {
         menuSection.getChildren().add(foodMenuGrid);
         menuSection.getChildren().add(bevMenuGrid); 
     }
-
-    private void addToCartHandler(){
-            loadQuantityToCart();
-            //If stage hasn't been built, then load quantity to cart, and build cart stage as usual.
-            if(isCartStageBuilt==false || cart.getCartItems().isEmpty()){
-                buildCartStage();
-                isCartStageBuilt=true;
-            }
-            else if(isCartStageBuilt==true)
-            {
-                buildCartStage();
-            }
-    }
-    //Makes the itemsList(items from database) into cartList(displayable list of items).
-    public void loadCartItem(){
-        for(int i=0;i<itemsList.size();i++){
-            //Adds general item information into the "cartItem" object and plces it into a list.
-            cartItem temp = new cartItem();
-            temp.id.setText(Integer.toString(itemsList.get(i).getItemID()));
-            temp.name.setText(itemsList.get(i).getName());
-            temp.desc.setText(itemsList.get(i).getDescription());
-            temp.price.setText(Double.toString(itemsList.get(i).getPrice()));
-            temp.item = itemsList.get(i);
-            temp.spinBox.setId(temp.id.getText());
-            temp.cb.setId(temp.id.getText());
-            temp.removeButton.setId(temp.id.getText());
-            cartList.add(temp);
-        }
-        for(int i=0;i<cartList.size();i++)
-        {
-            cartList.get(i).cb.setOnAction(e->comboBoxHandler(e));
-        }
-    }
-    
-    //In cart stage, this handles the event when someone changes quantity using combo box, and 
-    //automatically updates the summary amount labels
-    private void comboBoxHandler(ActionEvent e)
-    {
-        for(int i=0;i<cart.getCartItems().size();i++)
-        {
-            if(((Control)e.getSource()).getId().compareTo(cart.getCartItems().get(i).id.getText())==0)
-            {
-                cart.getCartItems().get(i).quantityOrdered=cart.getCartItems().get(i).cb.getValue();
-                calcCartTotals();
-            }
-        }
-        
-    }
-    
-    //Extract the quantity ordered in the main menu and add to cart
-    public void loadQuantityToCart(){
-        //If cart stage hasn't been built or if cart is empty, add the items to the cart.
-        if(isCartStageBuilt==false || cart.getCartItems().isEmpty())
-        {
-            for(int i=0;i<cartList.size();i++){
-            if(cartList.get(i).spinBox.getValue()>0)
-            {
-                cartList.get(i).quantityOrdered = cartList.get(i).spinBox.getValue();
-                cartList.get(i).isInCart = true;
-                cart.getCartItems().add(cartList.get(i));
-            }
-        }
-        }
-        //If cart stage has been built and if there are items in the cart, update the quantity value.
-        else if(isCartStageBuilt == true && cart.getCartItems().size()>0)
-        {
-            for(int i=0;i<cartList.size();i++)
-            {
-                //If item is already in cart, just add the quantity to existing cart item.
-                if(cartList.get(i).isInCart){
-                    cartList.get(i).quantityOrdered += cartList.get(i).spinBox.getValue();
-                }
-                //If item is not already in the cart, then add the item to the cart with its quantity selected.
-                else
-                {
-                    cartList.get(i).quantityOrdered += cartList.get(i).spinBox.getValue();
-                    cartList.get(i).isInCart = true;
-                    cart.getCartItems().add(cartList.get(i));
-                }
-            }
-        }
-
-        /*----DEBUG Purposes-------------------
-        for(int i=0;i<cart.getCartItems().size();i++){
-        System.out.println(cart.getCartItems().get(i).id);
-        System.out.println(cart.getCartItems().get(i).quantityOrdered);
-        }-------------------------------------*/
-    }
     
     //Populates the items on the main menu
-    public void addItemGUI(){
+    private void addItemGUI(){
         //Type 0 = Food
         //Type 1 = Beverage
         int j=1; //Refers to initial row to start populating data.
@@ -316,8 +236,97 @@ public class AgileCafe362 extends Application {
         }
         
     }
- 
-    private void buildCartStage(){
+    
+    private void addToCartHandler(){
+            loadQuantityToCart();
+            //If stage hasn't been built, then load quantity to cart, and build cart stage as usual.
+            if(isCartSceneBuilt==false || cart.getCartItems().isEmpty()){
+                buildCartScene();
+                isCartSceneBuilt=true;
+            }
+            else if(isCartSceneBuilt==true)
+            {
+                buildCartScene();
+            }
+    }
+    
+    //In cart stage, this handles the event when someone changes quantity using combo box, and 
+    //automatically updates the summary amount labels
+    private void comboBoxHandler(ActionEvent e)
+    {
+        for(int i=0;i<cart.getCartItems().size();i++)
+        {
+            if(((Control)e.getSource()).getId().compareTo(cart.getCartItems().get(i).id.getText())==0)
+            {
+                cart.getCartItems().get(i).quantityOrdered=cart.getCartItems().get(i).cb.getValue();
+                calcCartTotals();
+            }
+        }
+        
+    }
+    
+    //Makes the itemsList(items from database) into cartList(displayable list of items).
+    private void loadCartItem(){
+        for(int i=0;i<itemsList.size();i++){
+            //Adds general item information into the "cartItem" object and plces it into a list.
+            cartItem temp = new cartItem();
+            temp.id.setText(Integer.toString(itemsList.get(i).getItemID()));
+            temp.name.setText(itemsList.get(i).getName());
+            temp.desc.setText(itemsList.get(i).getDescription());
+            temp.price.setText(Double.toString(itemsList.get(i).getPrice()));
+            temp.item = itemsList.get(i);
+            temp.spinBox.setId(temp.id.getText());
+            temp.cb.setId(temp.id.getText());
+            temp.removeButton.setId(temp.id.getText());
+            cartList.add(temp);
+        }
+        for(int i=0;i<cartList.size();i++)
+        {
+            cartList.get(i).cb.setOnAction(e->comboBoxHandler(e));
+        }
+    }
+    
+    //Extract the quantity ordered in the main menu and add to cart
+    private void loadQuantityToCart(){
+        //If cart stage hasn't been built or if cart is empty, add the items to the cart.
+        if(isCartSceneBuilt==false || cart.getCartItems().isEmpty())
+        {
+            for(int i=0;i<cartList.size();i++){
+            if(cartList.get(i).spinBox.getValue()>0)
+            {
+                cartList.get(i).quantityOrdered = cartList.get(i).spinBox.getValue();
+                cartList.get(i).isInCart = true;
+                cart.getCartItems().add(cartList.get(i));
+            }
+        }
+        }
+        //If cart stage has been built and if there are items in the cart, update the quantity value.
+        else if(isCartSceneBuilt == true && cart.getCartItems().size()>0)
+        {
+            for(int i=0;i<cartList.size();i++)
+            {
+                //If item is already in cart, just add the quantity to existing cart item.
+                if(cartList.get(i).isInCart){
+                    cartList.get(i).quantityOrdered += cartList.get(i).spinBox.getValue();
+                }
+                //If item is not already in the cart, then add the item to the cart with its quantity selected.
+                else
+                {
+                    cartList.get(i).quantityOrdered += cartList.get(i).spinBox.getValue();
+                    cartList.get(i).isInCart = true;
+                    cart.getCartItems().add(cartList.get(i));
+                }
+            }
+        }
+
+        /*----DEBUG Purposes-------------------
+        for(int i=0;i<cart.getCartItems().size();i++){
+        System.out.println(cart.getCartItems().get(i).id);
+        System.out.println(cart.getCartItems().get(i).quantityOrdered);
+        }-------------------------------------*/
+    }
+    
+    private void buildCartScene(){
         //Create layouts to organize elements
         cartBorderPane = new BorderPane();
         cartGrid = new GridPane();
@@ -377,7 +386,7 @@ public class AgileCafe362 extends Application {
         //Create "Proceed to checkout" Button
         checkoutButton = new Button("Proceed to checkout");
         total_VBox.getChildren().add(checkoutButton);
-        //checkoutButton.setOnAction(e->); 
+        checkoutButton.setOnAction(e->billingScene()); 
         
         //Display the scene
         cartScene = new Scene(cartBorderPane,1100,680);
@@ -387,15 +396,22 @@ public class AgileCafe362 extends Application {
     
     //Diplays the items from cart into summary page.
     private void displaySummaryItems(){
-        int j=1;
+        //Sets the column sizes for the grid
+        ColumnConstraints col1 = new ColumnConstraints(170);
+        ColumnConstraints col2 = new ColumnConstraints(450);
+        col1.setHgrow(Priority.ALWAYS);
+        col2.setHgrow(Priority.ALWAYS);
+        cartGrid.getColumnConstraints().addAll(col1,col2);
+        
+        int j=1; //j is used to place the items in the correct row as items are added to the GUI.
         for(int i=0;i<cart.getCartItems().size();i++)
         {
             //Double check to make sure conditions are true before displaying into cart.
             //Item in the cart must actually belong in the cart, and the quantity ordered must be greater than 0.
             //If check is correct, then add the item to the display.
             if(cart.getCartItems().get(i).isInCart==true && cart.getCartItems().get(i).quantityOrdered>0){
-                //Since cart scene has already been built, remove existing children if it exists and then add updated one.
-                if(isCartStageBuilt==true){
+                //Since if the cart scene has already been built, remove existing children if it exists and then add updated one.
+                if(isCartSceneBuilt==true){
                 cartGrid.getChildren().remove(cart.getCartItems().get(i).name);
                 cartGrid.getChildren().remove(cart.getCartItems().get(i).desc);
                 cartGrid.getChildren().remove(cart.getCartItems().get(i).price);
@@ -409,12 +425,12 @@ public class AgileCafe362 extends Application {
                 cart.getCartItems().get(i).cb.setValue(cart.getCartItems().get(i).quantityOrdered);
                 cartGrid.add(cart.getCartItems().get(i).cb, 3, j+1);
                 cartGrid.add(cart.getCartItems().get(i).removeButton, 4, j+1);
-
-                cart.getCartItems().get(i).removeButton.setOnAction(e->{
+                
                 //When user presses "Remove", then remove item from cart and refresh the page.
+                cart.getCartItems().get(i).removeButton.setOnAction(e->{
                 removeFromCart(e);
-                buildCartStage();
-                    });
+                buildCartScene();});
+                
                 //Create the addon for the item if checked in the main menu
                 int skipValue=0;
                 for(int m=0;m<cart.getCartItems().get(i).item.getAddonList().size();m++){
@@ -426,13 +442,13 @@ public class AgileCafe362 extends Application {
                         skipValue++;
                     }
                 }
-                j=j+2+skipValue;
+                j+=2+skipValue;
             }
         }
 
     }
     
-    public void backButtonHandler() {
+    private void backButtonHandler() {
         for(int i=0;i<cartList.size();i++)
         {
             //When user goes back to main menu, reset the spin box to 0.
@@ -447,7 +463,7 @@ public class AgileCafe362 extends Application {
     }
     
     //Calculates totals and sets appropriate labels
-    public void calcCartTotals(){
+    private void calcCartTotals(){
         double totalC;
         double subtotalC=0;
         for(int i=0;i<cart.getCartItems().size();i++){
@@ -500,6 +516,136 @@ public class AgileCafe362 extends Application {
                         break;
                     }
         }
+    }
+    
+    //When user clicks "Proceed to Checkout", user is sent to this page for payment
+    private void billingScene(){
+        //ccBorderPane is used to display the Credit Card Page
+        //cashBorderPane is used to display the Pay in Cash Page
+        BorderPane ccBorderPane = new BorderPane();
+        BorderPane cashBorderPane = new BorderPane();
+        //Sets up the top section of the billing page
+        VBox topVBox = new VBox();
+        topVBox.setSpacing(20);
+        topVBox.setPadding(new Insets(30,30,30,40));
+        HBox radioHBox = new HBox();
+        radioHBox.setSpacing(30);
+        Label titleLabel = new Label("Payment Information");
+        titleLabel.setPadding(new Insets(0,0,0,380));
+        titleLabel.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,20));
+        Double toBeTruncated = cart.getTotal();
+        double total = new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+        Label totalLbl = new Label("Total to be charged: $"+total);
+        totalLbl.setFont(Font.font("Arial",FontWeight.BOLD,15));
+        ccBorderPane.setTop(topVBox);
+        
+        //Creates the radio buttons
+        ToggleGroup group = new ToggleGroup();
+        RadioButton ccRadioBtn = new RadioButton("Credit Card");
+        RadioButton payCashRadioBtn = new RadioButton("Pay in Cash");
+        ccRadioBtn.setToggleGroup(group);
+        payCashRadioBtn.setToggleGroup(group);
+        ccRadioBtn.setSelected(true);
+        radioHBox.getChildren().addAll(ccRadioBtn,payCashRadioBtn);
+        
+        //Creates the back button
+        HBox buttonHBox = new HBox();
+        buttonHBox.setSpacing(30);
+        Button backButton = new Button("Back to Summary");
+        buttonHBox.getChildren().addAll(radioHBox,backButton);
+        backButton.setOnAction(e->theStage.setScene(cartScene));
+        
+        //Adds labels and buttons to the display
+        topVBox.getChildren().addAll(titleLabel,totalLbl, buttonHBox);
+        
+        Scene billingScene = new Scene(ccBorderPane,1000,600);
+        Scene payNowScene = new Scene(cashBorderPane,1000,600);
+        
+        //Create credit card form
+        GridPane ccGrid = new GridPane();
+        ccBorderPane.setCenter(ccGrid);
+        ccGrid.setPadding(new Insets(0,20,20,30));
+        Label nameCC = new Label("Name");
+        Label cvcLbl = new Label("CVC");
+        Label ccNumLbl = new Label("Card Number");
+        TextField nameTF = new TextField();
+        TextField ccNumTF = new TextField();
+        TextField cvcTF = new TextField();
+        ComboBox cardTypeBox = new ComboBox();
+        cardTypeBox.setPromptText("Card Type");
+        cardTypeBox.getItems().addAll("Card Type", "Visa", "MasterCard","Amex");
+        nameTF.setPromptText("Name (As it appears on the card");
+        ccNumTF.setPromptText("Enter Card Number");
+        cvcTF.setPromptText("3-4 Digit Code");
+        cvcTF.maxWidth(50);
+        ccGrid.getColumnConstraints().add(new ColumnConstraints(500));
+        ccGrid.setVgap(10);
+        ccGrid.add(nameCC, 0, 0);
+        ccGrid.add(nameTF,0,1);
+        ccGrid.add(ccNumLbl,0,2);
+        ccGrid.add(ccNumTF, 0,3);
+        ccGrid.add(cardTypeBox, 0, 4);
+        ccGrid.add(cvcLbl, 0, 5);
+        ccGrid.add(cvcTF, 0, 6);
+        Button ccPayNowBtn = new Button("Submit Payment");
+        ccPayNowBtn.setAlignment(Pos.CENTER);
+        ccGrid.add(ccPayNowBtn, 0, 7);
+        ccPayNowBtn.setOnAction(e->payNowButtonHandler());
+        
+        //-------------------Sets up "Pay Now" Scene-----------------------
+        VBox pnVBox = new VBox();
+        pnVBox.setAlignment(Pos.CENTER);
+        cashBorderPane.setCenter(pnVBox);
+        Text confirmText = new Text("Please see cashier to pay in cash. \n"+" Press submit to submit the order.\n");
+        Button confirmPayNowBtn = new Button("Submit Order");
+        confirmPayNowBtn.setOnAction(e->{ thankYouStage(); cart.clear();
+        start(theStage);});
+        pnVBox.getChildren().addAll(confirmText,confirmPayNowBtn);
+        //-------------------------------------------------------------------
+        
+        //Changes scene when user clicks on radio button.
+        ccRadioBtn.setOnAction(e->
+        {
+            cashBorderPane.getChildren().remove(topVBox);
+            ccBorderPane.setTop(new VBox(topVBox));
+            theStage.setScene(billingScene);});
+        
+        payCashRadioBtn.setOnAction(e->
+        {
+            ccBorderPane.getChildren().remove(topVBox);
+            cashBorderPane.setTop(new VBox(topVBox));
+            theStage.setScene(payNowScene);});
+        
+        theStage.setScene(billingScene);
+    }
+    
+    //When user submits payment, the "Thank You" page is shown
+    private void thankYouStage(){
+        VBox containVBox = new VBox();
+        BorderPane tyBorderPane = new BorderPane();
+        containVBox.setPadding(new Insets(50,50,50,50));
+        containVBox.setAlignment(Pos.CENTER);
+        Text tyText = new Text("Thank you for your payment! \n "+"\n        Order# 000000000 \n");
+        Button closeBtn = new Button("Close");
+        containVBox.getChildren().addAll(tyText,closeBtn);
+        tyBorderPane.setCenter(containVBox);
+        closeBtn.setOnAction(e->tyStage.close());
+        Scene tyScene = new Scene(tyBorderPane,350,300);
+        tyStage = new Stage();
+        tyStage.setTitle("Thank you for your paymnet!  =)");
+        tyStage.initModality(Modality.APPLICATION_MODAL);
+        tyStage.setScene(tyScene);
+        tyStage.showAndWait();
+    }
+    
+    //When user submits payment, the "Thank You" page is shown AND the cart is cleared,
+    //the application goes back to the main menu, ready to take more orders.
+    private void payNowButtonHandler()
+    {
+        //NOTE: Store sale info into database here!
+        thankYouStage();
+        cart.clear();
+        start(theStage);
     }
     
     private void buildLogInStage(){
