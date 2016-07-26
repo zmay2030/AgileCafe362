@@ -994,6 +994,9 @@ public class AgileCafe362 extends Application {
         editMenuItems.setScene(scene);
         editMenuItems.show();
     }
+    
+    
+
     public void showAdminMenu()
     {  
         Stage adminMenu = new Stage();
