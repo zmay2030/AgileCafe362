@@ -48,7 +48,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
  import javafx.embed.swing.SwingFXUtils; 
 import javax.imageio.ImageIO;
-
 import java.awt.image.BufferedImage;
 import java.util.Optional;
 import javafx.scene.control.Alert;
