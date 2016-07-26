@@ -452,7 +452,7 @@ public class AgileCafe362 extends Application {
             errorLogin.setText("Error: Wrong User/PW\nHINT: 123");
         }
     }
-    public void editItemByIndex(int index, Stage prevStage)
+    public void editItemByIndex(int index)
     {
         Stage editItem = new Stage();
         editItem.initModality(Modality.APPLICATION_MODAL);
@@ -548,8 +548,8 @@ public class AgileCafe362 extends Application {
                     Image newImg = new Image("file:///"+imageFileNameToUpload.toString());
                     File absp = new File("."); 
                     String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()); 
-                    String fullFileName = "src/images/"+timestamp+imageFileNameToUpload.getName();
-                    File outputFile = new File(fullFileName);
+                    String fullFileName = timestamp+imageFileNameToUpload.getName();
+                    File outputFile = new File("src/images/"+fullFileName);
                     BufferedImage bImage = SwingFXUtils.fromFXImage(newImg, null);
                     try {
                       ImageIO.write(bImage, "png", outputFile);
@@ -568,7 +568,7 @@ public class AgileCafe362 extends Application {
                 System.out.print("NEW PRICE: " +Double.parseDouble(priceTF.getText()));
                 // SAVED
                 editItem.close();
-                prevStage.show();
+                adminEditMenuItems();
             }
         ); 
         Scene scene = new Scene(grid,400,300);
@@ -586,18 +586,19 @@ public class AgileCafe362 extends Application {
         
          
         int index = 0;
+        File file = new File("."); 
         for(Item item: itemsList)
         {
             // item image
             String imageName = item.getImage();
             Image image = null; 
-            if (imageName !="")
-            {
-                image = new Image(IMAGES_PATH+imageName);
+            try{
+                image = new Image("file:///"+file.getAbsolutePath()+"/src/images/"+imageName);
             }
-            else
+            catch(IllegalArgumentException e)
             {
-                image = new Image(IMAGES_PATH+"defaultimg.png");
+                System.out.print(e.toString());
+                image = new Image("file:///"+file.getAbsolutePath()+"/src/images/defaultimg.png");
             }
             System.out.print(IMAGES_PATH+imageName);
             ImageView imgView = new ImageView();
@@ -626,7 +627,7 @@ public class AgileCafe362 extends Application {
             // Edit button
             Button editBtn = new Button("Edit");  
             int passIndex = index;
-            editBtn.setOnAction(e->{editMenuItems.close();editItemByIndex(passIndex,editMenuItems);});
+            editBtn.setOnAction(e->{editMenuItems.close();editItemByIndex(passIndex);});
             editBtn.setAlignment(Pos.CENTER);
             editBtn.setId("editItemBtn");
             VBox editBtnBox = new VBox();
