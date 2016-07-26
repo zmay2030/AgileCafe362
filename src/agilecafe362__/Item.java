@@ -24,9 +24,10 @@ public class Item {
     private String image_path;
     private final ArrayList<addOn> addOnList = new ArrayList<>(0);
     private Boolean deleted;
-    private Image image; 
+    private Image image;
+    private int quantityOrdered;
     
-    public Item(int itemID, String name, String description, int type, double price, String image_path){
+    public Item(int itemID, String name, String description, int type, double price, String image_path,int ordered){
         this.name = name;
         this.itemID = itemID;
         this.type = type;
@@ -34,8 +35,10 @@ public class Item {
         this.price = price;
         this.image_path = image_path;
         deleted = false;
+        quantityOrdered = ordered;
         image = null;
         updateImg();
+
     }
     public void updateImg()
     {
@@ -134,6 +137,10 @@ public class Item {
         {
             return "Beverage";
         }
+    }
+    public void addToQuantityOrdered(int num)
+    {
+        quantityOrdered += num;
     }
     
     

@@ -3,7 +3,9 @@
  */
 package agilecafe362__;
 import java.sql.*; 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class SQL_DB  {
     
@@ -76,7 +78,8 @@ public class SQL_DB  {
             ResultSet rs = stmt.executeQuery("SELECT * from items"); 
             while(rs.next()){ 
     	         //Retrieve by column name
-    	         int itemId  = rs.getInt("item_id"); 
+    	         int itemId  = rs.getInt("item_id");
+                 int ordered = rs.getInt("ordered");
     	         String itemName = rs.getString("item_name"); 
     	         String itemDesc = rs.getString("item_desc"); 
     	         double itemPrice = rs.getDouble("item_price"); 
@@ -84,7 +87,7 @@ public class SQL_DB  {
                  int itemType = rs.getInt("item_type");
                  System.out.println(itemName+"\n");
                  // Create new Item Class
-                 Item newItem = new Item(itemId,itemName,itemDesc,itemType,itemPrice,itemImgPath);
+                 Item newItem = new Item(itemId,itemName,itemDesc,itemType,itemPrice,itemImgPath,ordered);
                  addAddonsList(newItem);
                  itemsList.add(newItem); 
             } 
@@ -112,6 +115,32 @@ public class SQL_DB  {
          
          
         return itemsList;
+    }
+    public void addSaleOrder(double total)
+    {
+        System.out.print("ORDERED PROCSSED SQL "+total);
+        Statement stmt = null;
+        try
+        { 
+            stmt = (this.conn).createStatement(); 
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, 1);
+            SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+            String formatted = format1.format(cal.getTime());
+            System.out.println(formatted);
+             
+            stmt.executeUpdate("INSERT INTO sales (sale_date,sales_total) VALUES('"+formatted+"',"+total+")"); 
+             
+        }catch(SQLException se){
+    	      //Handle errors for JDBC
+    	      se.printStackTrace();
+    	   }catch(Exception e){
+    	      //Handle errors for Class.forName
+    	      e.printStackTrace();
+    	   }finally{
+    	      //finally block used to close resources
+    	       
+    	   }//end try 
     }
     public void closeConn()
     { 
