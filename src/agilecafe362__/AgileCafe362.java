@@ -47,12 +47,13 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
  import javafx.embed.swing.SwingFXUtils; 
-import javax.imageio.ImageIO;
-
-import java.awt.image.BufferedImage;
-import javafx.geometry.Orientation;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.ScrollPane;
+import javax.imageio.ImageIO; 
+import java.awt.image.BufferedImage; 
+import javafx.scene.control.ScrollPane; 
+import java.util.Optional;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType; 
 
 public class AgileCafe362 extends Application {
     //Used as a reference to primary stage
@@ -939,6 +940,9 @@ public class AgileCafe362 extends Application {
         File file = new File("."); 
         for(Item item: itemsList)
         {
+            if (item.isDeleted())
+                continue; // skip
+            
             // item image
             ImageView imageOutput = item.getImageView(); 
             GridPane.setMargin(imageOutput, new Insets(3));
@@ -971,7 +975,10 @@ public class AgileCafe362 extends Application {
             editBtn.setId("editItemBtn");
             
             // Delete button
-            deleteBtn.setId("deleteItemBtn");
+            deleteBtn.setId("deleteItem");
+            // On delete action
+            int indexToDelete = index;
+            deleteBtn.setOnAction(e->{confirmItemDelete(indexToDelete, editMenuItems);});
             // Box for edit button
             VBox editBtnBox = new VBox();
             editBtnBox.getChildren().add(editBtn);
@@ -979,7 +986,7 @@ public class AgileCafe362 extends Application {
             // Box for delete button
             VBox deleteBtnBox = new VBox();
             deleteBtnBox.getChildren().add(deleteBtn);
-            deleteBtnBox.setId("deleteItem");
+            deleteBtnBox.setId("deleteItemBox");
             
             GridPane grid = new GridPane();
             grid.add(imageOutput,index,0);
@@ -991,10 +998,7 @@ public class AgileCafe362 extends Application {
             grid.add(deleteBtnBox,index+1,5);
             // Get all addon list for the current item
             ArrayList<addOn> addonList = item.getAddonList();
-            for(addOn adn: addonList)
-            {
-                System.out.print(adn.getName()+" "); 
-            }
+            
             System.out.print("\n\n"); 
             
             int column;
@@ -1024,7 +1028,20 @@ public class AgileCafe362 extends Application {
         editMenuItems.show();
     }
     
-    
+    public void confirmItemDelete(int index, Stage editMenuItems)
+    {
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Deleting an Item");
+        alert.setHeaderText("Are you sure you want to delete this item?"); 
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            Item item = itemsList.get(index);
+            item.SetDelete();
+            editMenuItems.hide();
+            adminEditMenuItems();
+        }
+    }
 
     public void showAdminMenu()
     {  

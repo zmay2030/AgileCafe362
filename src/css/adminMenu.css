@@ -31,24 +31,15 @@
     -fx-border-style: solid;-fx-border-color:#e5f7f9;
     -fx-border-width:2;
 }
-#editItemBtn
+#editItemBtn,#deleteItem
 {
-    -fx-font-size:10px;
-    -fx-font-style: italic;
-    -fx-border:2px #000 solid; 
+    -fx-font-size:11px;  
     -fx-background-color: #b9cefa; 
     -fx-padding-top:20px;
-} 
-#editItemBtnBox,#deleteItemBtn,#deleteItem
-{
-    -fx-font-size:12px;
-    -fx-font-style: italic;
-    -fx-border:2px #000 solid;  
-    -fx-border-style: solid;-fx-border-color:#e5f7f9;
-    -fx-border-width:2;
-}
-#editItemBtnBox,#deleteItem
+}  
+#editItemBtnBox,#deleteItemBox
 {
     -fx-background-color: #b9cefa; 
-    -fx-padding-top:20px; 
+    -fx-padding-top:20px;  
+    -fx-border:2px #000 solid; 
 }
