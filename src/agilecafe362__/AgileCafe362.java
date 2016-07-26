@@ -167,7 +167,7 @@ public class AgileCafe362 extends Application {
         AccessAdminButton.setMinWidth(100);
         AccessAdminButton.setOnAction(e-> buildLogInStage());
         HBox adminHBox = new HBox();
-        adminHBox.setPadding(new Insets(0,10,0,0));
+        adminHBox.setPadding(new Insets(0,10,10,0));
         adminHBox.getChildren().add(AccessAdminButton);
         adminHBox.setAlignment(Pos.BOTTOM_RIGHT);
         mainPane.setBottom(adminHBox);
@@ -609,7 +609,9 @@ public class AgileCafe362 extends Application {
         buttonHBox.setSpacing(30);
         Button backButton = new Button("Back to Summary");
         buttonHBox.getChildren().addAll(radioHBox,backButton);
-        backButton.setOnAction(e->theStage.setScene(cartScene));
+        backButton.setOnAction(e->{
+            theStage.setTitle("Shopping Cart - Agile's Cafe");
+            theStage.setScene(cartScene);});
         
         //Adds labels and buttons to the display
         topVBox.getChildren().addAll(titleLabel,totalLbl, buttonHBox);
@@ -672,6 +674,7 @@ public class AgileCafe362 extends Application {
             cashBorderPane.setTop(new VBox(topVBox));
             theStage.setScene(payNowScene);});
         
+        theStage.setTitle("Payment Information");
         theStage.setScene(billingScene);
     }
     
