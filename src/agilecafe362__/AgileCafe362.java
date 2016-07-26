@@ -949,19 +949,22 @@ public class AgileCafe362 extends Application {
             Button editBtn = new Button("Edit");  
             Button deleteBtn = new Button("Delete"); 
             
+            // Edit button
             int passIndex = index;
             editBtn.setOnAction(e->{editMenuItems.close();editItemByIndex(passIndex);});
             editBtn.setAlignment(Pos.CENTER);
             editBtn.setId("editItemBtn");
             
+            // Delete button
+            deleteBtn.setId("deleteItemBtn");
             // Box for edit button
             VBox editBtnBox = new VBox();
             editBtnBox.getChildren().add(editBtn);
             editBtnBox.setId("editItemBtnBox");
             // Box for delete button
             VBox deleteBtnBox = new VBox();
-            editBtnBox.getChildren().add(deleteBtn);
-            editBtnBox.setId("editItemBtnBox");
+            deleteBtnBox.getChildren().add(deleteBtn);
+            deleteBtnBox.setId("deleteItem");
             
             GridPane grid = new GridPane();
             grid.add(imageOutput,index,0);
@@ -970,6 +973,7 @@ public class AgileCafe362 extends Application {
             grid.add(type, index+1, 2);
             grid.add(desc, index+1, 3);
             grid.add(editBtnBox,index+1,4);
+            grid.add(deleteBtnBox,index+1,5);
             // Get all addon list for the current item
             ArrayList<addOn> addonList = item.getAddonList();
             for(addOn adn: addonList)
