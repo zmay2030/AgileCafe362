@@ -162,7 +162,13 @@ public class AgileCafe362 extends Application {
         AccessAdminButton = new Button("Admin Login");
         AccessAdminButton.setMinWidth(100);
         AccessAdminButton.setOnAction(e-> buildLogInStage());
-        mainPane.setBottom(AccessAdminButton);
+        HBox adminHBox = new HBox();
+        adminHBox.setPadding(new Insets(0,10,0,0));
+        adminHBox.getChildren().add(AccessAdminButton);
+        adminHBox.setAlignment(Pos.BOTTOM_RIGHT);
+        mainPane.setBottom(adminHBox);
+ 
+        
 
         //Creates two sections of menu
         foodMenuGrid = new GridPane();
@@ -1066,9 +1072,5 @@ public class AgileCafe362 extends Application {
                 );
         }
     }
-    public static void main(String[] args) {
-        launch(args);
-    }
-    
+    public static void main(String[] args) { launch(args); }   
 }
-
