@@ -50,7 +50,6 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import java.awt.image.BufferedImage;
-import javafx.scene.layout.RowConstraints;
 
 public class AgileCafe362 extends Application {
     //Used as a reference to primary stage
@@ -92,8 +91,8 @@ public class AgileCafe362 extends Application {
     private final Cart cart = new Cart();
     private final ArrayList<cartItem> cartList = new ArrayList<>();
 
-    private String IMAGES_PATH = "images/";
-    private Desktop desktop = Desktop.getDesktop();
+    private final String IMAGES_PATH = "images/";
+    private final Desktop desktop = Desktop.getDesktop();
     private File imageFileNameToUpload = null;
     
     @Override
@@ -614,7 +613,7 @@ public class AgileCafe362 extends Application {
         ComboBox cardTypeBox = new ComboBox();
         cardTypeBox.setPromptText("Card Type");
         cardTypeBox.getItems().addAll("Card Type", "Visa", "MasterCard","Amex");
-        nameTF.setPromptText("Name (As it appears on the card");
+        nameTF.setPromptText("Name (As it appears on the card)");
         ccNumTF.setPromptText("Enter Card Number");
         cvcTF.setPromptText("3-4 Digit Code");
         cvcTF.maxWidth(50);
@@ -1037,7 +1036,7 @@ public class AgileCafe362 extends Application {
          
         
         // View Reports Button
-        Button viewReports = new Button("view Reports"); 
+        Button viewReports = new Button("View Reports"); 
          
         
         HBox hboxreports = new HBox(10); 
