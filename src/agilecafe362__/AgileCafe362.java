@@ -50,6 +50,9 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import java.awt.image.BufferedImage;
+import javafx.geometry.Orientation;
+import javafx.scene.control.ScrollBar;
+import javafx.scene.control.ScrollPane;
 
 public class AgileCafe362 extends Application {
     //Used as a reference to primary stage
@@ -189,7 +192,6 @@ public class AgileCafe362 extends Application {
         //Creates center section where the menu items are displayed
         VBox menuSection = new VBox();
         menuSection.setSpacing(20);
-        mainPane.setCenter(menuSection);
         mainPane.setPadding(new Insets(20,20,20,20));
         
         //Creates title of the menu
@@ -218,6 +220,10 @@ public class AgileCafe362 extends Application {
         
         menuSection.getChildren().add(foodMenuGrid);
         menuSection.getChildren().add(bevMenuGrid); 
+        menuSection.setPadding(new Insets(20,5,20,50));
+        ScrollPane menuScrollPane = new ScrollPane();
+        menuScrollPane.setContent(menuSection);
+        mainPane.setCenter(menuScrollPane);
     }
     
     //Populates the items on the main menu
@@ -237,6 +243,7 @@ public class AgileCafe362 extends Application {
             //If food, add to food section
             if(itemsList.get(i).getType()==0)
             {
+                if(!itemsList.get(i).isDeleted()){
                 foodMenuGrid.add(cartList.get(i).name,1,j);
                 foodMenuGrid.add(cartList.get(i).desc, 1, j+1);
                 foodMenuGrid.add(cartList.get(i).price, 2, j+1);
@@ -250,6 +257,7 @@ public class AgileCafe362 extends Application {
                 }
                 j+=skipVar;
                 j=j+2;
+                }
             }
         }
         j=1; //Refers to initial row to start populating data.
@@ -261,12 +269,14 @@ public class AgileCafe362 extends Application {
             //If beverage, add to beverage section
             if(itemsList.get(i).getType()==1)
             {
+                if(!itemsList.get(i).isDeleted()){
                 bevMenuGrid.add(cartList.get(i).name,1,j);
                 bevMenuGrid.add(cartList.get(i).desc, 1, j+1);
                 bevMenuGrid.add(cartList.get(i).price, 2, j+1);
                 bevMenuGrid.add(cartList.get(i).spinBox, 3, j+1);
                 bevMenuGrid.add(cartList.get(i).item.getImageView(), 0, j);
                 j=j+2;
+                }
             }
         }
         
