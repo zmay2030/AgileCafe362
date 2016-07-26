@@ -287,11 +287,13 @@ public class AgileCafe362 extends Application {
     
     //Makes the itemsList(items from database) into cartList(displayable list of items).
     private void loadCartItem(){
+        cartList.clear();
         for(int i=0;i<itemsList.size();i++){
             //Adds general item information into the "cartItem" object and plces it into a list.
             cartItem temp = new cartItem();
             temp.id.setText(Integer.toString(itemsList.get(i).getItemID()));
             temp.name.setText(itemsList.get(i).getName());
+            System.out.print("NNNEW NAME: "+temp.name);
             temp.desc.setText(itemsList.get(i).getDescription());
             temp.price.setText(Double.toString(itemsList.get(i).getPrice()));
             temp.item = itemsList.get(i);
@@ -889,9 +891,15 @@ public class AgileCafe362 extends Application {
                 item.setName(nameTF.getText());
                 item.setCategory(typeComboBox.getSelectionModel().getSelectedIndex());
                 System.out.print("NEW PRICE: " +Double.parseDouble(priceTF.getText()));
-                // SAVED
+                
+                // Save items after edit
                 editItem.close();
                 adminEditMenuItems();
+                
+                // Load cart items again
+                loadCartItem(); 
+                buildMainMenuStage();
+                
             }
         ); 
         Scene scene = new Scene(grid,400,300);
@@ -949,15 +957,22 @@ public class AgileCafe362 extends Application {
             Label type = new Label(item.typeTranslate(item.getType()));
             type.setPadding(new Insets(3));
             
-            // Edit button
+            // Edit button and delete button 
             Button editBtn = new Button("Edit");  
-            Button deleteBtn = new Button("Delete");  
+            Button deleteBtn = new Button("Delete"); 
+            
             int passIndex = index;
             editBtn.setOnAction(e->{editMenuItems.close();editItemByIndex(passIndex);});
             editBtn.setAlignment(Pos.CENTER);
             editBtn.setId("editItemBtn");
+            
+            // Box for edit button
             VBox editBtnBox = new VBox();
             editBtnBox.getChildren().add(editBtn);
+            editBtnBox.setId("editItemBtnBox");
+            // Box for delete button
+            VBox deleteBtnBox = new VBox();
+            editBtnBox.getChildren().add(deleteBtn);
             editBtnBox.setId("editItemBtnBox");
             
             GridPane grid = new GridPane();
