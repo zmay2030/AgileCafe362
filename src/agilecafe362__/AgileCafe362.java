@@ -19,9 +19,6 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.ArrayList;
-import javafx.event.ActionEvent;
-import javafx.event.EventType;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.geometry.HPos; 
 import javafx.scene.image.Image;
@@ -37,8 +34,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
-import javafx.collections.ObservableList;
-import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -902,6 +897,8 @@ public class AgileCafe362 extends Application {
         Scene scene = new Scene(grid,400,300);
         editItem.setScene(scene);
         editItem.show();
+        
+        
         
     }
     public void adminEditMenuItems()
