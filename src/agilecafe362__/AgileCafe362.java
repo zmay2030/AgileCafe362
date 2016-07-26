@@ -386,12 +386,22 @@ public class AgileCafe362 extends Application {
         //Create "Proceed to checkout" Button
         checkoutButton = new Button("Proceed to checkout");
         total_VBox.getChildren().add(checkoutButton);
-        checkoutButton.setOnAction(e->billingScene()); 
+        checkoutButton.setOnAction(e->checkoutButtonHandler()); 
         
         //Display the scene
         cartScene = new Scene(cartBorderPane,1100,680);
         theStage.setScene(cartScene);
         theStage.setTitle("Shopping Cart - Agile's Cafe");
+    }
+    
+    private void checkoutButtonHandler(){
+        if(cart.getCartItems().isEmpty()){
+            errorEmptyCartStage();
+        }
+        else
+        {
+            billingScene();
+        }
     }
     
     //Diplays the items from cart into summary page.
@@ -701,6 +711,27 @@ public class AgileCafe362 extends Application {
         logInStage.setScene(logInScene);
         logInStage.initModality(Modality.APPLICATION_MODAL);
         logInStage.showAndWait();
+    }
+    
+    //Displays error window if cart is empty when checkbutton is pressed.
+    private void errorEmptyCartStage(){
+        Stage errorEmptyCartStage = new Stage();
+        BorderPane errorBorderPane = new BorderPane();
+        VBox errorVBox = new VBox();
+        errorBorderPane.setCenter(errorVBox);
+        errorVBox.setAlignment(Pos.CENTER);
+        
+        Text errText = new Text("Error: Cart is empty. Cannot checkout.\n");
+        errText.setFont(Font.font("Arial",FontWeight.BOLD,15));
+        Button closeBtn = new Button("Close");
+        closeBtn.setOnAction(e->errorEmptyCartStage.close());
+        errorVBox.getChildren().addAll(errText,closeBtn);
+        Scene errScene= new Scene(errorBorderPane, 400,300);
+        
+        errorEmptyCartStage.setScene(errScene);
+        errorEmptyCartStage.setTitle("ERROR");
+        errorEmptyCartStage.initModality(Modality.APPLICATION_MODAL);
+        errorEmptyCartStage.showAndWait();
     }
 
     //Checks if the user enters the correct user/pw.
