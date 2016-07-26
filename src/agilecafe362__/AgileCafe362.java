@@ -656,8 +656,7 @@ public class AgileCafe362 extends Application {
         cashBorderPane.setCenter(pnVBox);
         Text confirmText = new Text("Please see cashier to pay in cash. \n"+" Press submit to submit the order.\n");
         Button confirmPayNowBtn = new Button("Submit Order");
-        confirmPayNowBtn.setOnAction(e->{ thankYouStage(); cart.clear();
-        start(theStage);});
+        confirmPayNowBtn.setOnAction(e->payNowButtonHandler());
         pnVBox.getChildren().addAll(confirmText,confirmPayNowBtn);
         //-------------------------------------------------------------------
         
@@ -801,8 +800,6 @@ public class AgileCafe362 extends Application {
             errorLogin.setText("Error: Wrong User/PW\nHINT: 123");
         }
     }
-
-
 
     public void editItemByIndex(int index)
     {
