@@ -89,13 +89,10 @@ public class AgileCafe362 extends Application {
     private final Label totalLabel = new Label();
     private BorderPane cartBorderPane;
     private Boolean isCartSceneBuilt = false;
+    private final Cart cart = new Cart();
     
     //Used for billing scene
     private Stage tyStage;
-
-    //Cart lists
-    private final Cart cart = new Cart();
-    private final ArrayList<cartItem> cartList = new ArrayList<>();
 
     private final String IMAGES_PATH = "images/";
     private final Desktop desktop = Desktop.getDesktop();
@@ -109,7 +106,7 @@ public class AgileCafe362 extends Application {
         mysqlDB.connect(); 
         
         //Query info from database into application
-        this.itemsList = mysqlDB.getAllItems(); 
+        this.itemsList = mysqlDB.getAllItems();
         
         // Get each item and output each of its addons
         for(Item item: itemsList)
@@ -173,8 +170,6 @@ public class AgileCafe362 extends Application {
         adminHBox.getChildren().add(AccessAdminButton);
         adminHBox.setAlignment(Pos.BOTTOM_RIGHT);
         mainPane.setBottom(adminHBox);
- 
-        
 
         //Creates two sections of menu
         foodMenuGrid = new GridPane();
@@ -212,14 +207,9 @@ public class AgileCafe362 extends Application {
         //foodMenuGrid.setGridLinesVisible(true);
         //bevMenuGrid.setGridLinesVisible(true);
         
-        //Loads items list and make a "cart item" for each item in the list.
-        //If cart stage is already built, then no need to convert list of items again.
-        if(isCartSceneBuilt==false){
-            loadCartItem();
-        }
-        
         //Display each item w/ their info onto GUI
         addItemGUI();
+        setComboBoxHandler();
         
         menuSection.getChildren().add(foodMenuGrid);
         menuSection.getChildren().add(bevMenuGrid); 
@@ -244,23 +234,21 @@ public class AgileCafe362 extends Application {
         for (int i=0;i<itemsList.size();i++)
         {
             //If food, add to food section
-            if(itemsList.get(i).getType()==0)
+            if(itemsList.get(i).getType()==0 && !itemsList.get(i).isDeleted())
             {
-                if(!itemsList.get(i).isDeleted()){
-                foodMenuGrid.add(cartList.get(i).name,1,j);
-                foodMenuGrid.add(cartList.get(i).desc, 1, j+1);
-                foodMenuGrid.add(cartList.get(i).price, 2, j+1);
-                foodMenuGrid.add(cartList.get(i).spinBox, 3, j+1);
-                foodMenuGrid.add(cartList.get(i).item.getImageView(), 0, j);
+                foodMenuGrid.add(itemsList.get(i).nameLbl,1,j);
+                foodMenuGrid.add(itemsList.get(i).descLbl, 1, j+1);
+                foodMenuGrid.add(itemsList.get(i).priceLbl, 2, j+1);
+                foodMenuGrid.add(itemsList.get(i).spinBox, 3, j+1);
+                foodMenuGrid.add(itemsList.get(i).getImageView(), 0, j);
                 //Display Addon for food item
                 int skipVar=0;
-                for(int m=0; m<cartList.get(i).item.getAddonList().size();m++){
-                    foodMenuGrid.add(cartList.get(i).item.getAddonList().get(m).checkBox,1,m+2+j);
+                for(int m=0; m<itemsList.get(i).getAddonList().size();m++){
+                    foodMenuGrid.add(itemsList.get(i).getAddonList().get(m).checkBox,1,m+2+j);
                     skipVar++;
                 }
                 j+=skipVar;
                 j=j+2;
-                }
             }
         }
         j=1; //Refers to initial row to start populating data.
@@ -270,16 +258,14 @@ public class AgileCafe362 extends Application {
         for(int i=0; i<itemsList.size();i++)
         {
             //If beverage, add to beverage section
-            if(itemsList.get(i).getType()==1)
+            if(itemsList.get(i).getType()==1 && !itemsList.get(i).isDeleted())
             {
-                if(!itemsList.get(i).isDeleted()){
-                bevMenuGrid.add(cartList.get(i).name,1,j);
-                bevMenuGrid.add(cartList.get(i).desc, 1, j+1);
-                bevMenuGrid.add(cartList.get(i).price, 2, j+1);
-                bevMenuGrid.add(cartList.get(i).spinBox, 3, j+1);
-                bevMenuGrid.add(cartList.get(i).item.getImageView(), 0, j);
+                bevMenuGrid.add(itemsList.get(i).nameLbl,1,j);
+                bevMenuGrid.add(itemsList.get(i).descLbl, 1, j+1);
+                bevMenuGrid.add(itemsList.get(i).priceLbl, 2, j+1);
+                bevMenuGrid.add(itemsList.get(i).spinBox, 3, j+1);
+                bevMenuGrid.add(itemsList.get(i).getImageView(), 0, j);
                 j=j+2;
-                }
             }
         }
         
@@ -298,40 +284,25 @@ public class AgileCafe362 extends Application {
             }
     }
     
+    private void setComboBoxHandler(){
+        for(int i=0;i<itemsList.size();i++)
+        {
+           itemsList.get(i).cb.setOnAction(e->comboBoxHandler(e));
+        }
+    }
     //In cart stage, this handles the event when someone changes quantity using combo box, and 
     //automatically updates the summary amount labels
-    private void comboBoxHandler(ActionEvent e)
+    public void comboBoxHandler(ActionEvent e)
     {
         for(int i=0;i<cart.getCartItems().size();i++)
         {
-            if(((Control)e.getSource()).getId().compareTo(cart.getCartItems().get(i).id.getText())==0)
+            if(((Control)e.getSource()).getId().compareTo(cart.getCartItems().get(i).idLbl.getText())==0)
             {
-                cart.getCartItems().get(i).quantityOrdered=cart.getCartItems().get(i).cb.getValue();
+                cart.getCartItems().get(i).quantityOrderedInCart=cart.getCartItems().get(i).cb.getValue();
                 calcCartTotals();
             }
         }
         
-    }
-    
-    //Makes the itemsList(items from database) into cartList(displayable list of items).
-    private void loadCartItem(){
-        for(int i=0;i<itemsList.size();i++){
-            //Adds general item information into the "cartItem" object and plces it into a list.
-            cartItem temp = new cartItem();
-            temp.id.setText(Integer.toString(itemsList.get(i).getItemID()));
-            temp.name.setText(itemsList.get(i).getName());
-            temp.desc.setText(itemsList.get(i).getDescription());
-            temp.price.setText(Double.toString(itemsList.get(i).getPrice()));
-            temp.item = itemsList.get(i);
-            temp.spinBox.setId(temp.id.getText());
-            temp.cb.setId(temp.id.getText());
-            temp.removeButton.setId(temp.id.getText());
-            cartList.add(temp);
-        }
-        for(int i=0;i<cartList.size();i++)
-        {
-            cartList.get(i).cb.setOnAction(e->comboBoxHandler(e));
-        }
     }
     
     //Extract the quantity ordered in the main menu and add to cart
@@ -339,39 +310,34 @@ public class AgileCafe362 extends Application {
         //If cart stage hasn't been built or if cart is empty, add the items to the cart.
         if(isCartSceneBuilt==false || cart.getCartItems().isEmpty())
         {
-            for(int i=0;i<cartList.size();i++){
-            if(cartList.get(i).spinBox.getValue()>0)
+            for(int i=0;i<itemsList.size();i++){
+            if(itemsList.get(i).spinBox.getValue()>0)
             {
-                cartList.get(i).quantityOrdered = cartList.get(i).spinBox.getValue();
-                cartList.get(i).isInCart = true;
-                cart.getCartItems().add(cartList.get(i));
+                itemsList.get(i).quantityOrderedInCart = itemsList.get(i).spinBox.getValue();
+                itemsList.get(i).isInCart = true;
+                cart.getCartItems().add(itemsList.get(i));
             }
         }
         }
+        
         //If cart stage has been built and if there are items in the cart, update the quantity value.
         else if(isCartSceneBuilt == true && cart.getCartItems().size()>0)
         {
-            for(int i=0;i<cartList.size();i++)
+            for(int i=0;i<itemsList.size();i++)
             {
                 //If item is already in cart, just add the quantity to existing cart item.
-                if(cartList.get(i).isInCart){
-                    cartList.get(i).quantityOrdered += cartList.get(i).spinBox.getValue();
+                if(itemsList.get(i).isInCart){
+                    itemsList.get(i).quantityOrderedInCart += itemsList.get(i).spinBox.getValue();
                 }
                 //If item is not already in the cart, then add the item to the cart with its quantity selected.
                 else
                 {
-                    cartList.get(i).quantityOrdered += cartList.get(i).spinBox.getValue();
-                    cartList.get(i).isInCart = true;
-                    cart.getCartItems().add(cartList.get(i));
+                    itemsList.get(i).quantityOrderedInCart += itemsList.get(i).spinBox.getValue();
+                    itemsList.get(i).isInCart = true;
+                    cart.getCartItems().add(itemsList.get(i));
                 }
             }
         }
-
-        /*----DEBUG Purposes-------------------
-        for(int i=0;i<cart.getCartItems().size();i++){
-        System.out.println(cart.getCartItems().get(i).id);
-        System.out.println(cart.getCartItems().get(i).quantityOrdered);
-        }-------------------------------------*/
     }
     
     private void buildCartScene(){
@@ -467,20 +433,20 @@ public class AgileCafe362 extends Application {
             //Double check to make sure conditions are true before displaying into cart.
             //Item in the cart must actually belong in the cart, and the quantity ordered must be greater than 0.
             //If check is correct, then add the item to the display.
-            if(cart.getCartItems().get(i).isInCart==true && cart.getCartItems().get(i).quantityOrdered>0){
+            if(cart.getCartItems().get(i).isInCart==true && cart.getCartItems().get(i).quantityOrderedInCart>0){
                 //Since if the cart scene has already been built, remove existing children if it exists and then add updated one.
                 if(isCartSceneBuilt==true){
-                cartGrid.getChildren().remove(cart.getCartItems().get(i).name);
-                cartGrid.getChildren().remove(cart.getCartItems().get(i).desc);
-                cartGrid.getChildren().remove(cart.getCartItems().get(i).price);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).nameLbl);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).descLbl);
+                cartGrid.getChildren().remove(cart.getCartItems().get(i).priceLbl);
                 cartGrid.getChildren().remove(cart.getCartItems().get(i).cb);
                 cartGrid.getChildren().remove(cart.getCartItems().get(i).removeButton);
                 cartGrid.getChildren().remove(cart.getCartItems().get(i).addonInfo);
                 }
-                cartGrid.add(cart.getCartItems().get(i).name, 0, j+1);
-                cartGrid.add(cart.getCartItems().get(i).desc, 1, j+1);
-                cartGrid.add(cart.getCartItems().get(i).price,2,j+1);
-                cart.getCartItems().get(i).cb.setValue(cart.getCartItems().get(i).quantityOrdered);
+                cartGrid.add(cart.getCartItems().get(i).nameLbl, 0, j+1);
+                cartGrid.add(cart.getCartItems().get(i).descLbl, 1, j+1);
+                cartGrid.add(cart.getCartItems().get(i).priceLbl,2,j+1);
+                cart.getCartItems().get(i).cb.setValue(cart.getCartItems().get(i).quantityOrderedInCart);
                 cartGrid.add(cart.getCartItems().get(i).cb, 3, j+1);
                 cartGrid.add(cart.getCartItems().get(i).removeButton, 4, j+1);
                 
@@ -491,9 +457,9 @@ public class AgileCafe362 extends Application {
                 
                 //Create the addon for the item if checked in the main menu
                 int skipValue=0;
-                for(int m=0;m<cart.getCartItems().get(i).item.getAddonList().size();m++){
+                for(int m=0;m<cart.getCartItems().get(i).getAddonList().size();m++){
                     //If addon is checked, add it to the summary page.
-                    if(cart.getCartItems().get(i).item.getAddonList().get(m).checkBox.isSelected())
+                    if(cart.getCartItems().get(i).getAddonList().get(m).checkBox.isSelected())
                     {
                         cart.getCartItems().get(i).setAddonLabelInfo();
                         cartGrid.add(cart.getCartItems().get(i).addonInfo, 0, j+skipValue+2);
@@ -507,14 +473,14 @@ public class AgileCafe362 extends Application {
     }
     
     private void backButtonHandler() {
-        for(int i=0;i<cartList.size();i++)
+        for(int i=0;i<itemsList.size();i++)
         {
             //When user goes back to main menu, reset the spin box to 0.
             //Also reset checked addons
-            cartList.get(i).spinBox= new Spinner(0,10,0);
-            cartList.get(i).spinBox.setMaxWidth(65);
-            cartList.get(i).spinBox.setId(cartList.get(i).id.getText());
-            cartList.get(i).setAddonListUnchecked();
+            itemsList.get(i).spinBox= new Spinner(0,10,0);
+            itemsList.get(i).spinBox.setMaxWidth(65);
+            itemsList.get(i).spinBox.setId(itemsList.get(i).idLbl.getText());
+            itemsList.get(i).setAddonListUnchecked();
         }
         //Rebuilds the main menu
         start(theStage);
@@ -525,17 +491,17 @@ public class AgileCafe362 extends Application {
         double totalC;
         double subtotalC=0;
         for(int i=0;i<cart.getCartItems().size();i++){
-            subtotalC+= cart.getCartItems().get(i).item.getPrice()* cart.getCartItems().get(i).quantityOrdered;
+            subtotalC+= cart.getCartItems().get(i).getPrice()* cart.getCartItems().get(i).quantityOrderedInCart;
         }
         for(int i=0;i<cart.getCartItems().size();i++)
         {
-            for(int m=0;m<cart.getCartItems().get(i).item.getAddonList().size();m++)
+            for(int m=0;m<cart.getCartItems().get(i).getAddonList().size();m++)
             {
-                if(cart.getCartItems().get(i).item.getAddonList().get(m).checkBox.isSelected())
+                if(cart.getCartItems().get(i).getAddonList().get(m).checkBox.isSelected())
                 {
-                    for(int j=0;j<cart.getCartItems().get(i).item.getAddonList().size();j++)
+                    for(int j=0;j<cart.getCartItems().get(i).getAddonList().size();j++)
                     {
-                        subtotalC+=cart.getCartItems().get(i).item.getAddonList().get(j).getPrice()* cart.getCartItems().get(i).quantityOrdered;
+                        subtotalC+=cart.getCartItems().get(i).getAddonList().get(j).getPrice()* cart.getCartItems().get(i).quantityOrderedInCart;
                     }
                 }
 
@@ -565,9 +531,9 @@ public class AgileCafe362 extends Application {
         for(int i=0; i<cart.getCartItems().size();i++)
         {
             //If "Remove" button matches the item the user wants to remove, then remove the item from cart.
-            if(((Control)e.getSource()).getId().compareTo(Integer.toString(cart.getCartItems().get(i).item.getItemID()))==0)
+            if(((Control)e.getSource()).getId().compareTo(Integer.toString(cart.getCartItems().get(i).getItemID()))==0)
                     {
-                        cart.getCartItems().get(i).quantityOrdered=0;
+                        cart.getCartItems().get(i).quantityOrderedInCart=0;
                         cart.getCartItems().get(i).isInCart=false;
                         cart.getCartItems().get(i).setAddonListUnchecked();
                         cart.getCartItems().remove(i);
@@ -710,9 +676,8 @@ public class AgileCafe362 extends Application {
         {
             System.out.print("Error connecting");
         }
-        for(cartItem cartitem : cart.getCartItems())
-        {
-            cartitem.item.addToQuantityOrdered(cartitem.quantityOrdered);
+        for(int i =0;i<cart.getCartItems().size();i++){
+            itemsList.get(i).addToQuantityOrdered(itemsList.get(i).quantityOrderedInCart);
         }
         mysqlDB.addSaleOrder(cart.getTotal());
         thankYouStage();
@@ -933,11 +898,11 @@ public class AgileCafe362 extends Application {
     }
     
     public void renameLabels(Item item){
-        for(int i=0; i<cartList.size();i++){
-            if(item.getItemID()==cartList.get(i).item.getItemID()){
-                cartList.get(i).name.setText(item.getName());
-                cartList.get(i).price.setText(Double.toString(item.getPrice()));
-                cartList.get(i).desc.setText(item.getDescription());
+        for(int i=0; i<itemsList.size();i++){
+            if(item.getItemID()==itemsList.get(i).getItemID()){
+                itemsList.get(i).nameLbl.setText(item.getName());
+                itemsList.get(i).priceLbl.setText(Double.toString(item.getPrice()));
+                itemsList.get(i).descLbl.setText(item.getDescription());
             }
         }
     }
@@ -1070,6 +1035,7 @@ public class AgileCafe362 extends Application {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
             Item item = itemsList.get(index);
+            item.spinBox = new Spinner(0,10,0);
             item.SetDelete();
             editMenuItems.hide();
             adminEditMenuItems();

@@ -13,7 +13,7 @@ import javafx.scene.control.Spinner;
  */
 public class Cart {
     private double taxRate;
-    private final ArrayList<cartItem> cartItems;
+    private final ArrayList<Item> cartItems;
     private double subTotal;
     private double total;
     
@@ -24,17 +24,17 @@ public class Cart {
     taxRate = .1;
     }
     
-    public ArrayList<cartItem> getCartItems(){
+    public ArrayList<Item> getCartItems(){
         return cartItems;
     }
     public void clear(){
         for(int i=0; i< cartItems.size();i++){
             cartItems.get(i).setAddonListUnchecked();
-            cartItems.get(i).quantityOrdered=0;
+            cartItems.get(i).quantityOrderedInCart=0;
             cartItems.get(i).cb.setValue(0);
             cartItems.get(i).isInCart=false;
             cartItems.get(i).spinBox = new Spinner<>(0,10,0);
-            cartItems.get(i).spinBox.setId(cartItems.get(i).id.getText());
+            cartItems.get(i).spinBox.setId(cartItems.get(i).idLbl.getText());
             cartItems.get(i).spinBox.setMaxWidth(65);
         }
         cartItems.clear();

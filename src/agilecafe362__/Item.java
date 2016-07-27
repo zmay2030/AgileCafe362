@@ -8,6 +8,10 @@ package agilecafe362__;
 import java.io.File;
 import java.util.ArrayList;
 import java.text.NumberFormat;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -27,7 +31,20 @@ public class Item {
     private Image image;
     private int quantityOrdered;
     
+    //FOR GUI
+    public Label idLbl = new Label();
+    public Label nameLbl = new Label();
+    public Label descLbl = new Label();
+    public Label priceLbl = new Label();
+    public Label addonInfo = new Label();
+    public Button removeButton = new Button("Remove");
+    public Spinner<Integer> spinBox = new Spinner<>(0,10,0);
+    public ComboBox<Integer> cb = new ComboBox<>();
+    public Boolean isInCart = false;
+    public int quantityOrderedInCart;
+    
     public Item(int itemID, String name, String description, int type, double price, String image_path,int ordered){
+        //Info pulled from databse into attributes
         this.name = name;
         this.itemID = itemID;
         this.type = type;
@@ -38,8 +55,20 @@ public class Item {
         quantityOrdered = ordered;
         image = null;
         updateImg();
-
+        
+        //Info for GUI
+        idLbl.setText(Integer.toString(itemID));
+        nameLbl.setText(name);
+        descLbl.setText(description);
+        priceLbl.setText(Double.toString(price));
+        quantityOrderedInCart=0;
+        spinBox.setMaxWidth(65);
+        cb.setId(idLbl.getText());
+        cb.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
+        removeButton.setId(idLbl.getText());
     }
+    
+    
     public void updateImg()
     {
         // new image view  
@@ -55,6 +84,28 @@ public class Item {
         }  
     }
   
+            public void setAddonListUnchecked(){
+            if(!this.getAddonList().isEmpty()){
+            for(int i=0; i<this.getAddonList().size();i++){
+                while(this.getAddonList().get(i).checkBox.isSelected()==true)
+                {
+                    this.getAddonList().get(i).checkBox.fire();
+                }
+                this.getAddonList().get(i).setChecked(false);
+            }
+            }
+        }
+        
+        public void setAddonLabelInfo(){
+            String tempText="With ";
+            if(!this.getAddonList().isEmpty()){
+                for(int i=0;i<this.getAddonList().size();i++)
+                {
+                    tempText+=this.getAddonList().get(i).getName()+" ($"+Double.toString(this.getAddonList().get(i).getPrice())+") ";
+                }
+            }
+            addonInfo.setText(tempText);
+        }
     
     public int getItemID(){
         return itemID;
@@ -104,6 +155,7 @@ public class Item {
     }
     public void SetDelete()
     {
+        quantityOrderedInCart=0;
         deleted = true;
     }
     public void setImage(String image_path){
