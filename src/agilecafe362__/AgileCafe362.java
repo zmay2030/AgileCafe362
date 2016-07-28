@@ -47,8 +47,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
  import javafx.embed.swing.SwingFXUtils;  
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage; 
 import javax.imageio.ImageIO; 
 import java.awt.image.BufferedImage; 
 import javafx.scene.control.ScrollPane;  
@@ -847,30 +845,35 @@ public class AgileCafe362 extends Application {
         Button submitBtn = new Button("Save"); 
         submitBtn.setPadding(new Insets(5));
         
+        // Manage addons button
+        Button manageAddonsBtn = new Button("Manage AddOns");
+        manageAddonsBtn.setOnAction(e->manageAddons(index));
         GridPane grid = new GridPane(); 
         
         // Image
         grid.add(viewImage,0,0);
-        grid.add(uploadBtn,1,1);
+        grid.add(uploadBtn,1,0);
         
         // Item name
         grid.add(itemName,0,2);
-        grid.add(nameTF,1,3);
+        grid.add(nameTF,1,2);
         
         // Item price
-        grid.add(itemPrice,0,4);
-        grid.add(priceTF,1,5);
+        grid.add(itemPrice,0,3);
+        grid.add(priceTF,1,3);
         
         // Item description
-        grid.add(itemDesc,0,6);
-        grid.add(descTF,1,7);
+        grid.add(itemDesc,0,4);
+        grid.add(descTF,1,4);
         
         // Item description
-        grid.add(itemType,0,8);
-        grid.add(typeComboBox,1,9);
+        grid.add(itemType,0,5);
+        grid.add(typeComboBox,1,5);
         
         // save button
-        grid.add(submitBtn,1,10);
+        grid.add(submitBtn,1,6);
+        grid.add(manageAddonsBtn,1,7);
+        GridPane.setMargin(manageAddonsBtn, new Insets(15,0,0,0));
         grid.setAlignment(Pos.CENTER);
          
         // ON UPLOAD
@@ -919,7 +922,7 @@ public class AgileCafe362 extends Application {
                 // Save items after edit
                 editItem.close();
                 adminEditMenuItems();
-                
+                start(theStage);
                 // Load cart items again
                 renameLabels(item);
                 //////////////////////////////////////
@@ -1057,7 +1060,162 @@ public class AgileCafe362 extends Application {
     }
     public void addNewItem()
     {
-        Stage newItem;
+        Stage newItemStage = new Stage();
+        GridPane grid = new GridPane();
+        newItemStage.initModality(Modality.APPLICATION_MODAL);
+        
+         // Labels
+        Label itemName = new Label("Name: ");
+        Label itemPrice = new Label("Price: ");
+        Label itemDesc = new Label("Description: "); 
+        Label itemType = new Label("Type: ");
+        Label itemImg  = new Label("Upload Image: "); 
+        ComboBox typeComboBox = new ComboBox();
+        typeComboBox.getItems().add(0, "Food");
+        typeComboBox.getItems().add(1, "Beverage");  
+        typeComboBox.setValue("Food");
+        // Textfields
+        TextField nameTF = new TextField ();
+        TextField priceTF = new TextField ();
+        TextField descTF  = new TextField ();
+        TextField typeTF    = new TextField();
+       
+        // upload button and submit button
+        Button uploadBtn = new Button("Browse Files");
+        Button submitBtn = new Button("Save"); 
+        submitBtn.setPadding(new Insets(5)); 
+        
+        grid.setPadding(new Insets(10,10,10,80));
+        // Image
+        grid.add(itemImg,0,0);
+        grid.add(uploadBtn,1,0);
+        
+        // Item name
+        grid.add(itemName,0,1);
+        grid.add(nameTF,1,1);
+        
+        // Item price
+        grid.add(itemPrice,0,2);
+        grid.add(priceTF,1,2);
+        
+        // Item description
+        grid.add(itemDesc,0,3);
+        grid.add(descTF,1,3);
+        
+        // Item description
+        grid.add(itemType,0,4);
+        grid.add(typeComboBox,1,4); 
+        // add submit button
+        grid.add(submitBtn,1,5);
+        grid.setHgap(20);
+        
+        // on upload
+         // ON UPLOAD 
+        final FileChooser fileChooser = new FileChooser();
+        uploadBtn.setOnAction(
+            new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(final ActionEvent e) {
+                    List<File> list =
+                        fileChooser.showOpenMultipleDialog(newItemStage);
+                    if (list != null) {
+                        for (File file : list) { 
+                            grid.getChildren().remove(uploadBtn);
+                            Label fileName = new Label(String.valueOf(file));
+                            grid.add(fileName,1,0);
+                           
+                            imageFileNameToUpload = file;
+                        }
+                    }
+                }
+            });
+        // on saving  
+         
+        submitBtn.setOnAction(e->{ 
+                String name = nameTF.getText();
+                String desc = descTF.getText();
+                int    type = typeComboBox.getSelectionModel().getSelectedIndex();
+                double price = -1;
+                try{
+                    price = Double.parseDouble(priceTF.getText());
+                }
+                catch(NumberFormatException n)
+                {
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Price not valid");
+                    alert.setHeaderText("Please note that price be an integer or decimal number"); 
+
+                    alert.showAndWait();
+                }
+                if (imageFileNameToUpload !=null && name!="" && desc!="")
+                {
+                    Image newImg = new Image("file:///"+imageFileNameToUpload.toString());
+                    File absp = new File("."); 
+                    String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()); 
+                    String fullFileName = timestamp+imageFileNameToUpload.getName();
+                    File outputFile = new File("src/images/"+fullFileName);
+                    BufferedImage bImage = SwingFXUtils.fromFXImage(newImg, null);
+                    try {
+                      ImageIO.write(bImage, "png", outputFile);
+                    } catch (IOException a) {
+                      throw new RuntimeException(a);
+
+                    }
+                     
+                    String image_path = fullFileName;
+                    
+                    SQL_DB mysqlDB = new SQL_DB();
+                    try{
+                        mysqlDB.connect();
+                        // Check if fields are not empty 
+                        
+                        int itemId = mysqlDB.addItem(name,desc,type,price,image_path);
+                        if (itemId > 0) // valid
+                        {
+
+                            Item item = new Item(itemId,name,desc,type,price,image_path,0);
+                            // Now add to list
+                            itemsList.add(item);
+                            start(theStage); 
+                            // Cart stuff here
+                        }
+                        else
+                        {
+                            System.out.print("ERROR ADDING ITEM");
+                        } 
+                    }catch(Exception a)  
+                    {
+                        System.out.print("Error connecting");
+                    } 
+                    imageFileNameToUpload = null;
+                    
+                    Alert alert = new Alert(AlertType.INFORMATION);
+                    alert.setTitle("Information Dialog");
+                    alert.setHeaderText("Look, an Information Dialog");
+                    alert.setContentText("I have a great message for you!");
+
+                    alert.showAndWait();
+                    alert.setTitle("Item added");
+                    alert.setHeaderText("Item "+name+" has been added");
+
+                    alert.showAndWait();
+                }
+                else // error
+                {
+                    if(price >=0)
+                    {
+                        showErrorMessage("Incomplete form","Please make sure the form is completely filled out before proceeding");
+                    }
+                }
+                
+                
+            }
+        ); 
+        Scene scene = new Scene(grid,400,300);
+        newItemStage.setScene(scene);
+        
+        newItemStage.show();
+        
         
         
     }
@@ -1066,17 +1224,37 @@ public class AgileCafe362 extends Application {
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Deleting an Item");
         alert.setHeaderText("Are you sure you want to delete this item?"); 
-
+        
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
             Item item = itemsList.get(index);
-            item.SetDelete();
+            item.SetDelete(); 
+            // another alert to notify deletion
+            alert = new Alert(AlertType.INFORMATION); 
+            alert.setTitle("Item deleted");
+            alert.setHeaderText("Item "+item.getName()+" has been deleted!"); 
+            alert.showAndWait();
+            
             editMenuItems.hide();
             adminEditMenuItems();
         }
         start(theStage);
     }
-
+    public boolean confirmAddonDelete()
+    {
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Deleting an Addon");
+        alert.setHeaderText("Are you sure you want to delete this addon?"); 
+        
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
     public void showAdminMenu()
     {  
         Stage adminMenu = new Stage();
@@ -1121,6 +1299,210 @@ public class AgileCafe362 extends Application {
         adminMenu.setScene(menuScene);
         adminMenu.show(); 
         
+    }
+    public void manageAddons(int index)
+    { 
+        Item item = itemsList.get(index);
+        ArrayList<addOn> addonList = item.getAddOnList();
+        
+        Stage addonsStage = new Stage();
+        GridPane grid = new GridPane();
+        Button addBtn = new Button("New addon");
+        addBtn.setOnAction(e->{addonsStage.hide();addAddon(index);});
+        grid.add(addBtn,3, 0);
+         
+        
+        int addonIndex = 1;
+        for(addOn addon : addonList)
+        {
+            Label name = new Label(addon.getName());
+            Label price = new Label(" $"+String.valueOf(addon.getPrice()));
+            Button editBtn = new Button("Edit");
+            Button deleteBtn = new Button("Delete");
+            grid.add(name, 0,addonIndex);
+            grid.add(price, 1,addonIndex);
+            grid.add(editBtn, 2,addonIndex);
+            grid.add(deleteBtn, 3,addonIndex);
+            GridPane.setMargin(editBtn, new Insets(0,0,0,10));
+            GridPane.setMargin(deleteBtn, new Insets(0,0,0,10));
+            
+            // On editing button
+            int passAddonIndex = addonIndex;
+            int itemIndex = index;
+            editBtn.setOnAction(e->{addonsStage.hide();editAddon(passAddonIndex,itemIndex);});
+            deleteBtn.setOnAction(e->{
+                boolean confirmDelete = confirmAddonDelete();
+                if (confirmDelete)
+                { 
+                    addonList.remove(passAddonIndex-1); 
+                    grid.getChildren().remove(name);  
+                    grid.getChildren().remove(price);
+                    grid.getChildren().remove(editBtn); 
+                    grid.getChildren().remove(deleteBtn);
+                    start(theStage);
+                    
+                    SQL_DB mysqlDB = new SQL_DB();
+                    try{
+                        mysqlDB.connect();
+                        // Check if fields are not empty 
+                        
+                        mysqlDB.deleteAddon(addon.getAddOnID());
+                    }catch(Exception a)  
+                    {
+                        System.out.print("Error connecting");
+                    }  
+                    // deleted addon 
+
+                }
+            });
+            addonIndex++;
+        }
+        grid.setPadding(new Insets(10));
+        Scene scene = new Scene(grid,300,300);
+        addonsStage.setScene(scene);
+        addonsStage.show();
+    }
+    public void editAddon(int addonIndex,int itemIndex)
+    {
+        Item item = itemsList.get(itemIndex);
+        ArrayList<addOn> addonList = item.getAddOnList();
+        addOn currentAddon = addonList.get(addonIndex);
+        
+        // Create stage
+        Stage editAddonStage = new Stage();
+        GridPane grid = new GridPane();
+
+        // Labels
+        Label name = new Label("Name: ");
+        Label price = new Label("Price: ");
+        TextField nameTF = new TextField(currentAddon.getName());
+        TextField priceTF = new TextField(Double.toString(currentAddon.getPrice()));
+        Button save = new Button("Save"); 
+        grid.add(name, 0,0);
+        grid.add(nameTF, 1,0);
+        
+        grid.add(price, 0,1);
+        grid.add(priceTF, 1,1);
+        
+        grid.add(save,1,2);
+        grid.setPadding(new Insets(10));
+        
+       
+        save.setOnAction(e->{
+                
+                String getName = nameTF.getText();
+                double getPrice = -1;
+                try
+                {
+                    getPrice = Double.parseDouble(priceTF.getText());
+                }
+                catch(NumberFormatException n)
+                {
+                    showErrorMessage("Invalid Price","Price must be an integer or decimal");
+                }
+                if(getPrice != -1 && getName!="")
+                {
+                    currentAddon.setName(getName);
+                    currentAddon.setPrice(getPrice);
+                    manageAddons(itemIndex);
+                    editAddonStage.hide();
+                    start(theStage);
+                    // saved addon
+                }
+                else
+                {
+                    showErrorMessage("Incomplete Form","Please make sure name and price are filled before saving");
+                }
+        });
+        
+        Scene scene = new Scene(grid,200,200);
+        editAddonStage.setScene(scene);
+        editAddonStage.show();
+    }
+    public void addAddon(int itemIndex)
+    {
+        Item item = itemsList.get(itemIndex);
+        ArrayList<addOn> addonList = item.getAddOnList();
+        
+        // Create stage
+        Stage addAddonStage = new Stage();
+        GridPane grid = new GridPane();
+
+        // Labels
+        Label name = new Label("Name: ");
+        Label price = new Label("Price: ");
+        TextField nameTF = new TextField();
+        TextField priceTF = new TextField();
+        Button save = new Button("Add"); 
+        grid.add(name, 0,0);
+        grid.add(nameTF, 1,0);
+        
+        grid.add(price, 0,1);
+        grid.add(priceTF, 1,1);
+        
+        grid.add(save,1,2);
+        grid.setPadding(new Insets(10));
+        
+       
+        save.setOnAction(e->{
+                
+                String getName = nameTF.getText();
+                double getPrice = -1;
+                try
+                {
+                    getPrice = Double.parseDouble(priceTF.getText());
+                }
+                catch(NumberFormatException n)
+                {
+                    showErrorMessage("Invalid Price","Price must be an integer or decimal");
+                }
+                if(getPrice != -1 && getName!="")
+                { 
+                    SQL_DB mysqlDB = new SQL_DB();
+                    try{
+                        mysqlDB.connect();
+                        // Check if fields are not empty 
+                        
+                        int addonId = mysqlDB.addAddon(getName,getPrice,item.getItemID());
+                        if (addonId > 0) // valid
+                        {
+
+                            addOn addon = new addOn(getName,getPrice); 
+                            addon.setAddOnID(addonId); 
+                            addonList.add(addon);
+                            
+                            manageAddons(itemIndex);
+                            addAddonStage.hide();
+                            start(theStage);
+                            // saved addon
+                        }
+                        else
+                        {
+                            System.out.print("ERROR ADDING ITEM");
+                        } 
+                    }catch(Exception a)  
+                    {
+                        System.out.print("Error connecting");
+                    } 
+                    
+                }
+                else
+                {
+                    showErrorMessage("Incomplete Form","Please make sure name and price are filled before saving");
+                }
+        });
+        
+        Scene scene = new Scene(grid,200,200);
+        addAddonStage.setScene(scene);
+        addAddonStage.show();
+    }
+    public void showErrorMessage(String title, String desc)
+    {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(desc); 
+
+        alert.showAndWait();
     }
     private void openFile(File file) {
         try {
