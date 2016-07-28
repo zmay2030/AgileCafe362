@@ -5,6 +5,7 @@ package agilecafe362__;
 import java.sql.*; 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.sql.Date;
 import java.util.Calendar;
 
 public class SQL_DB  {
@@ -105,12 +106,7 @@ public class SQL_DB  {
     	            stmt.close();
     	      }catch(SQLException se2){
     	      }// nothing we can do
-    	      try{
-    	         if(conn!=null)
-    	            conn.close();
-    	      }catch(SQLException se){
-    	         se.printStackTrace();
-    	      }//end finally try
+    	      
     	   }//end try
          
          
@@ -277,5 +273,45 @@ public class SQL_DB  {
                }//end try 
                 
             } 
+    }
+    public ArrayList<Sales> getAllSales()
+    { 
+        // Initialize list
+        ArrayList<Sales> salesList = new ArrayList<Sales>();
+        Statement stmt = null;
+        // MySQL statement   
+        try
+        { 
+            stmt = (this.conn).createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * from sales"); 
+            while(rs.next()){ 
+    	         //Retrieve by column name
+    	         int salelId  = rs.getInt("sale_id");
+                 double totalSales = rs.getDouble("sales_total");
+                 java.sql.Date saleDate = rs.getDate("sale_date");
+    	         
+                 // Create new Item Class
+                 Sales sale = new Sales(totalSales,saleDate);
+                 salesList.add(sale);
+            } 
+             
+        }catch(SQLException se){
+    	      //Handle errors for JDBC
+    	      se.printStackTrace();
+    	   }catch(Exception e){
+    	      //Handle errors for Class.forName
+    	      e.printStackTrace();
+    	   }finally{
+    	      //finally block used to close resources
+    	      try{
+    	         if(stmt!=null)
+    	            stmt.close();
+    	      }catch(SQLException se2){
+    	      }// nothing we can do
+    	       
+    	   }//end try
+         
+         
+        return salesList;
     }
 }
