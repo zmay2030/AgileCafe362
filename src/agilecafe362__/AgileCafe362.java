@@ -48,7 +48,8 @@ import java.util.logging.Logger;
  import javafx.embed.swing.SwingFXUtils;  
 import javax.imageio.ImageIO; 
 import java.awt.image.BufferedImage; 
-import java.util.Date;
+//import java.util.Date;
+import java.sql.Date
 import javafx.scene.control.ScrollPane;  
 import java.util.Optional;
 import javafx.collections.FXCollections;
@@ -1329,7 +1330,7 @@ public class AgileCafe362 extends Application {
         NumberAxis dateAxis = new NumberAxis();
         numberAxis.setLabel("Sales amount");
         dateAxis.setLabel("Date");
-        LineChart<Double,Date> lineChart = new LineChart(dateAxis,numberAxis,series);
+        LineChart<Date,Number> lineChart = new LineChart(dateAxis,numberAxis,series);
         lineChart.setTitle("Sales Timeline");
         //----------------END CREATE XY CHART-------------------
         
