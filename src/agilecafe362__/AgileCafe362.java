@@ -91,6 +91,10 @@ public class AgileCafe362 extends Application {
     
     //Used for billing scene
     private Stage tyStage;
+    
+    //Used for edit settings scene
+    TextField changeTR_TF; //Change Tax Rate text field
+    Text statusLbl;
 
     private final String IMAGES_PATH = "images/";
     private final Desktop desktop = Desktop.getDesktop();
@@ -459,6 +463,8 @@ public class AgileCafe362 extends Application {
                     //If addon is checked, add it to the summary page.
                     if(cart.getCartItems().get(i).getAddonList().get(m).checkBox.isSelected())
                     {
+                        cartGrid.getChildren().remove(cart.getCartItems().get(i).addonInfo);
+                        System.out.println(cart.getCartItems().get(i).getAddonList().get(m).checkBox.isSelected());
                         cart.getCartItems().get(i).setAddonLabelInfo();
                         cartGrid.add(cart.getCartItems().get(i).addonInfo, 0, j+skipValue+2);
                         skipValue++;
@@ -499,7 +505,9 @@ public class AgileCafe362 extends Application {
                 {
                     for(int j=0;j<cart.getCartItems().get(i).getAddonList().size();j++)
                     {
-                        subtotalC+=cart.getCartItems().get(i).getAddonList().get(j).getPrice()* cart.getCartItems().get(i).quantityOrderedInCart;
+                        if(cart.getCartItems().get(i).getAddOnList().get(j).isChecked()){
+                        subtotalC+=cart.getCartItems().get(i).getAddonList().get(j).getPrice()*cart.getCartItems().get(i).quantityOrderedInCart;
+                        }
                     }
                 }
 
@@ -1225,11 +1233,15 @@ public class AgileCafe362 extends Application {
     {  
         Stage adminMenu = new Stage();
         adminMenu.initModality(Modality.APPLICATION_MODAL);
-        GridPane layoutPane = new GridPane();
+        VBox adminMenuVBox = new VBox();
+        adminMenuVBox.setAlignment(Pos.CENTER);
+        adminMenuVBox.setSpacing(15);
         
-        Label title = new Label("Admin Menu"); 
-        title.setId("editMenuTitle");
-        title.setPadding(new Insets(0,0,50,0));
+        //Admin title Label
+        Label titleLbl = new Label("Admin Menu"); 
+        titleLbl.setId("editMenuTitle");
+        titleLbl.setPadding(new Insets(0,0,50,0));
+        
         // Edit Menu Button
         Button editMenuBtn = new Button("Manage Menu Items");  
         //editMenuBtn.setOnAction(adminEditMenuItems(adminMenu));
@@ -1237,35 +1249,62 @@ public class AgileCafe362 extends Application {
         editMenuBtn.setId("editMenuBtn");  
         editMenuBtn.setPrefSize(200,50);
         
-        HBox hboxEdit = new HBox(10); 
-        hboxEdit.getChildren().add(editMenuBtn);
-        
-        GridPane.setHalignment(hboxEdit, HPos.CENTER);
-        GridPane.setMargin(hboxEdit, new Insets(0,0,5,0));
-        // Action on edit menu button
-         
-        
         // View Reports Button
-        Button viewReports = new Button("View Reports"); 
-         
+        Button viewReportsBtn = new Button("View Reports"); 
+        viewReportsBtn.setId("viewReportsBtn");
+        viewReportsBtn.setPrefSize(200,50);
         
-        HBox hboxreports = new HBox(10); 
-        hboxreports.getChildren().add(viewReports);
-        viewReports.setId("viewReportsBtn");
-        viewReports.setPrefSize(200,50);
+        //Edit settings Button
+        Button editSettingsBtn = new Button("Edit Settings");
+        editSettingsBtn.setOnAction(e->editSettingsHandler());
         
+        adminMenuVBox.getChildren().addAll(titleLbl,editMenuBtn,viewReportsBtn,editSettingsBtn);
         
-        layoutPane.setPadding(new Insets(10, 0, 0, 60));
-        layoutPane.add(title, 1, 1);
-        layoutPane.add(hboxEdit,1,2); 
-        layoutPane.add(hboxreports,1,3);
-         
-        Scene menuScene = new Scene(layoutPane,310,250);
+        Scene menuScene = new Scene(adminMenuVBox,310,250);
         menuScene.getStylesheets().add("css/adminMenu.css"); 
         adminMenu.setScene(menuScene);
+        adminMenu.setTitle("Administrator Menu");
         adminMenu.show(); 
         
     }
+    public void editSettingsHandler(){
+        Stage settingsStage = new Stage();
+        settingsStage.setTitle("Edit Settings");
+        VBox settingsVBox = new VBox();
+        settingsVBox.setSpacing(20);
+        settingsVBox.setAlignment(Pos.CENTER);
+        GridPane settingsGridPane = new GridPane();
+        settingsGridPane.setAlignment(Pos.CENTER);
+        Scene SettingsScene = new Scene(settingsVBox,500,500);
+        
+        //Create change tax rate form
+        Label changeTRLbl = new Label("Enter new tax rate:    ");
+        changeTR_TF = new TextField();
+        changeTR_TF.setPromptText("Enter new tax rate");
+        Button applyChangeBtn = new Button("Apply Changes");
+        applyChangeBtn.setOnAction(e->applyChangeHandler());
+        applyChangeBtn.setAlignment(Pos.CENTER);
+        //Note: Needs error checking.
+        
+        //Tells user if changes has been applied
+        statusLbl = new Text("");
+        statusLbl.setFill(Color.FIREBRICK);
+        
+        settingsGridPane.add(changeTRLbl, 0, 0);
+        settingsGridPane.add(changeTR_TF, 1, 0);
+        settingsVBox.getChildren().addAll(settingsGridPane,applyChangeBtn,statusLbl);
+        
+        settingsStage.initModality(Modality.APPLICATION_MODAL);
+        settingsStage.setScene(SettingsScene);
+        settingsStage.show();
+    }
+    
+    public void applyChangeHandler(){
+        //Note: Needs error checking.
+        cart.setTaxRate(Double.parseDouble(changeTR_TF.getText()));
+        statusLbl.setText("Changes Applied!");
+    }
+    
     public void manageAddons(int index)
     { 
         Item item = itemsList.get(index);
