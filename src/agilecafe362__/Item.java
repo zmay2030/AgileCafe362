@@ -208,5 +208,4 @@ public class Item {
     {
         return image_path;
     }
-    
 }
