@@ -48,11 +48,15 @@ import java.util.logging.Logger;
  import javafx.embed.swing.SwingFXUtils;  
 import javax.imageio.ImageIO; 
 import java.awt.image.BufferedImage; 
+import java.util.Date;
 import javafx.scene.control.ScrollPane;  
 import java.util.Optional;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType; 
@@ -1317,15 +1321,19 @@ public class AgileCafe362 extends Application {
         //----------------END CREATE PIE CHART-------------------
         
         //----------------CREATE XY CHART------------------------
-        Text xyTitleText = new Text("Sales Report Timeline");
-        xyTitleText.setFont(Font.font("Arial",FontWeight.BOLD,25));
+        ObservableList<XYChart.Series<Date, Number>> series = FXCollections.observableArrayList();
         
+        //XYChart.Data temp = new XYChart.Data<>()
         
-        
-        
+        NumberAxis numberAxis = new NumberAxis();
+        NumberAxis dateAxis = new NumberAxis();
+        numberAxis.setLabel("Sales amount");
+        dateAxis.setLabel("Date");
+        LineChart<Double,Date> lineChart = new LineChart(dateAxis,numberAxis,series);
+        lineChart.setTitle("Sales Timeline");
         //----------------END CREATE XY CHART-------------------
         
-        holdGraphsHBox.getChildren().addAll(chart);
+        holdGraphsHBox.getChildren().addAll(chart,lineChart);
         Scene graphScene = new Scene(graphScrollPane,1000,1000);
         viewReportsStage.initModality(Modality.APPLICATION_MODAL);
         viewReportsStage.setScene(graphScene);

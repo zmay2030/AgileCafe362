@@ -209,8 +209,4 @@ public class Item {
         return image_path;
     }
     
-    public int getQuantityOrdered(){
-        return quantityOrdered;
-    }
-    
 }
