@@ -101,7 +101,9 @@ public class Item {
             if(!this.getAddonList().isEmpty()){
                 for(int i=0;i<this.getAddonList().size();i++)
                 {
-                    tempText+=this.getAddonList().get(i).getName()+" ($"+Double.toString(this.getAddonList().get(i).getPrice())+") ";
+                    if(this.getAddOnList().get(i).isChecked()){
+                    tempText+=this.getAddonList().get(i).getName()+" ($"+Double.toString(this.getAddonList().get(i).getPrice())+") \n";
+                    }
                 }
             }
             addonInfo.setText(tempText);
