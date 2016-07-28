@@ -112,6 +112,14 @@ public class AgileCafe362 extends Application {
         //Query info from database into application
         this.itemsList = mysqlDB.getAllItems();
         
+        ArrayList<Sales> salesList = mysqlDB.getAllSales();
+        
+        for(Sales sale : salesList)
+        {         
+            java.sql.Date saleDate = sale.getSaleDate();
+            double total = sale.getTotal();
+            System.out.print("OUTPUT: "+saleDate+" "+total+"\n");
+        } 
         // Get each item and output each of its addons
         for(Item item: itemsList)
         {
@@ -692,6 +700,7 @@ public class AgileCafe362 extends Application {
         }
         for(int i =0;i<cart.getCartItems().size();i++){
             itemsList.get(i).addToQuantityOrdered(itemsList.get(i).quantityOrderedInCart);
+            System.out.print("QO: "+itemsList.get(i).getQuantityOrdered());
         }
         mysqlDB.addSaleOrder(cart.getTotal());
         thankYouStage();
