@@ -207,10 +207,6 @@ public class Item {
     public String getImagePath()
     {
         return image_path;
-    }
-    
-    public int getQuantityOrdered(){
-        return quantityOrdered;
-    }
+    } 
     
 }
