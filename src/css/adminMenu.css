@@ -1,5 +1,5 @@
 .root{
-    -fx-font-size: 16pt;  
+    -fx-font-size: 12;  
     -fx-background: #e5f7f9;
 }
 #viewReportsBtn
@@ -19,15 +19,15 @@
     -fx-background-color: #b9cefa;
     -fx-cursor: hand;
 }
-#editMenuBtn:hover
+#editMenuBtn:hover,#Button_addBtn:hover,#editItemBtnBox:hover,#deleteItemBox:hover
 { 
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
 }
-#editMenuTitle
+#TITLEBOX
 {
     -fx-text-alignment: CENTER;
-    -fx-text-fill: #000;
-    -fx-background-color: #b9cefa;
+    -fx-text-fill: #fff;
+    -fx-font-weight: bold;
     -fx-font-size: 13px;
 }
 #items
@@ -46,12 +46,14 @@
     -fx-background-color: #b9cefa; 
     -fx-padding-top:20px;
     -fx-cursor: hand;
-}  
+}   
 #editItemBtnBox,#deleteItemBox
 {
     -fx-background-color: #b9cefa; 
     -fx-padding-top:20px;  
-    -fx-cursor: hand;
+    -fx-cursor: hand;    
+    -fx-border-style: solid;-fx-border-color:#e5f7f9;
+    -fx-border-width: 1;
 }
 #addItemBtn
 {
@@ -61,6 +63,6 @@
 #Button_addBtn
 {
     -fx-background-color: #b9cefa; 
-    -fx-padding-top:20px;
     -fx-cursor: hand;
+    -fx-font-size:12px;
 }
