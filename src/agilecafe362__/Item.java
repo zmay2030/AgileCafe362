@@ -201,5 +201,8 @@ public class Item {
         return addOnList;
     }
     
+    public int getQuantityOrdered(){
+        return quantityOrdered;
+    }
     
 }

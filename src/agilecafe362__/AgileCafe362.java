@@ -20,7 +20,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import javafx.scene.control.Control;
-import javafx.geometry.HPos; 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.PasswordField;
@@ -51,6 +50,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage; 
 import javafx.scene.control.ScrollPane;  
 import java.util.Optional;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType; 
@@ -1253,6 +1255,7 @@ public class AgileCafe362 extends Application {
         Button viewReportsBtn = new Button("View Reports"); 
         viewReportsBtn.setId("viewReportsBtn");
         viewReportsBtn.setPrefSize(200,50);
+        viewReportsBtn.setOnAction(e->viewReportsBtnHandler());
         
         //Edit settings Button
         Button editSettingsBtn = new Button("Edit Settings");
@@ -1267,6 +1270,58 @@ public class AgileCafe362 extends Application {
         adminMenu.show(); 
         
     }
+    
+    //Create top order and sales report
+    public void viewReportsBtnHandler(){
+        Stage viewReportsStage = new Stage();
+        viewReportsStage.setTitle("Reports");
+
+        //HBox to hold both graphs
+        HBox holdGraphsHBox = new HBox();
+        holdGraphsHBox.setSpacing(25);
+
+        //Create scrolling feature
+        ScrollPane graphScrollPane = new ScrollPane();
+        graphScrollPane.setContent(holdGraphsHBox);
+        
+        
+        //----------------CREATE PIE CHART-------------------
+        Text pieChartTitleText = new Text("Item popularity");
+        pieChartTitleText.setFont(Font.font("Arial",FontWeight.BOLD,25));
+        
+                        /*--------------FOR DEBUGGING---------------
+                        for(int i =0; i<itemsList.size();i++){
+                            itemsList.get(i).addToQuantityOrdered(i);
+                        }*/
+        
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+        for(int i =0;i<itemsList.size();i++){
+            PieChart.Data temp = new PieChart.Data(itemsList.get(i).getName(), itemsList.get(i).getQuantityOrdered());
+            pieChartData.add(temp);
+        }
+        
+        final PieChart chart = new PieChart(pieChartData);
+        chart.setTitle("Item Popularity");
+        chart.setMinWidth(550);
+        chart.setMinHeight(550);
+        //----------------END CREATE PIE CHART-------------------
+        
+        //----------------CREATE XY CHART------------------------
+        Text xyTitleText = new Text("Sales Report Timeline");
+        xyTitleText.setFont(Font.font("Arial",FontWeight.BOLD,25));
+        
+        
+        
+        
+        //----------------END CREATE XY CHART-------------------
+        
+        holdGraphsHBox.getChildren().addAll(chart);
+        Scene graphScene = new Scene(graphScrollPane,1000,1000);
+        viewReportsStage.initModality(Modality.APPLICATION_MODAL);
+        viewReportsStage.setScene(graphScene);
+        viewReportsStage.show();
+    }
+    
     public void editSettingsHandler(){
         Stage settingsStage = new Stage();
         settingsStage.setTitle("Edit Settings");
@@ -1282,7 +1337,7 @@ public class AgileCafe362 extends Application {
         changeTR_TF = new TextField();
         changeTR_TF.setPromptText("Enter new tax rate");
         Button applyChangeBtn = new Button("Apply Changes");
-        applyChangeBtn.setOnAction(e->applyChangeHandler());
+        applyChangeBtn.setOnAction(e->applyChangesHandler());
         applyChangeBtn.setAlignment(Pos.CENTER);
         //Note: Needs error checking.
         
@@ -1299,7 +1354,7 @@ public class AgileCafe362 extends Application {
         settingsStage.show();
     }
     
-    public void applyChangeHandler(){
+    public void applyChangesHandler(){
         //Note: Needs error checking.
         cart.setTaxRate(Double.parseDouble(changeTR_TF.getText()));
         statusLbl.setText("Changes Applied!");
