@@ -194,9 +194,17 @@ public class Item {
     {
         quantityOrdered += num;
     }
+    public int getQuantityOrdered()
+    {
+        return quantityOrdered;
+    }
     public ArrayList<addOn> getAddOnList()
     {
         return addOnList;
+    }
+    public String getImagePath()
+    {
+        return image_path;
     }
     
     

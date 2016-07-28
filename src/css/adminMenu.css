@@ -4,22 +4,31 @@
 }
 #viewReportsBtn
 {
-    -fx-font-size:15px;
-    -fx-border:2px #000 solid; 
+    -fx-font-size:15px;  
     -fx-background-color: #b9cefa; 
     -fx-padding-top:20px;
+    -fx-cursor: hand;
+}
+#viewReportsBtn:hover
+{
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
 }
 #editMenuBtn
 {
-    -fx-font-size:15px;
-    -fx-border:2px #000 solid; 
+    -fx-font-size:15px; 
     -fx-background-color: #b9cefa;
+    -fx-cursor: hand;
+}
+#editMenuBtn:hover
+{ 
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
 }
 #editMenuTitle
 {
     -fx-text-alignment: CENTER;
     -fx-text-fill: #000;
-    -fx-background: #b9cefa;
+    -fx-background-color: #b9cefa;
+    -fx-font-size: 13px;
 }
 #items
 {
@@ -36,21 +45,22 @@
     -fx-font-size:11px;  
     -fx-background-color: #b9cefa; 
     -fx-padding-top:20px;
+    -fx-cursor: hand;
 }  
 #editItemBtnBox,#deleteItemBox
 {
     -fx-background-color: #b9cefa; 
     -fx-padding-top:20px;  
-    -fx-border:2px #000 solid; 
+    -fx-cursor: hand;
 }
 #addItemBtn
 {
     -fx-font-size:12px;
-    -fx-padding:5px;   
+    -fx-padding:5px;
 }
 #Button_addBtn
 {
     -fx-background-color: #b9cefa; 
-    -fx-padding-top:20px;  
-    -fx-border:2px #000 solid; 
+    -fx-padding-top:20px;
+    -fx-cursor: hand;
 }

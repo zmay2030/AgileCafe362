@@ -227,4 +227,55 @@ public class SQL_DB  {
 
          }//end try 
     }
+    public void saveAllItems(ArrayList<Item> itemsList) {
+        Statement stmt = null;
+
+        // Going through item list
+        for(Item item : itemsList)
+        {
+            int itemId = item.getItemID();
+            String itemName = item.getName();
+            double itemPrice = item.getPrice();
+            String itemDesc = item.getDescription();
+            String itemImagePath = item.getImagePath();
+            boolean isDeleted = item.isDeleted();
+            int numTimesOrdered = item.getQuantityOrdered();
+            
+            int itemType = item.getType();
+            try 
+            { 
+                stmt = (this.conn).createStatement();  
+                
+                // Check if item has been marked for deletion
+                if (isDeleted)
+                {
+                    stmt.executeUpdate("DELETE from addon WHERE item_id="+itemId); 
+                    stmt.executeUpdate("DELETE from items WHERE item_id="+itemId);  
+                }
+                else
+                {
+                    stmt.executeUpdate("UPDATE items SET item_name='"+itemName+"',item_price="+itemPrice+",item_desc='"+itemDesc+"',item_type="+itemType+",item_image_path='"+itemImagePath+"',ordered="+numTimesOrdered+" WHERE item_id="+itemId); 
+
+                    for(addOn currentAddon: item.getAddOnList())
+                    {
+                        int addonId = currentAddon.getAddOnID();
+                        String addonName = currentAddon.getName();
+                        double addonPrice = currentAddon.getPrice();
+                        stmt.executeUpdate("UPDATE addon SET addon_name='"+addonName+"',addon_price="+addonPrice+" WHERE addon_id="+addonId);
+                    } 
+                }
+
+            }catch(SQLException se){
+                  //Handle errors for JDBC
+                  se.printStackTrace();
+               }catch(Exception e){
+                  //Handle errors for Class.forName
+                  e.printStackTrace();
+               }finally{
+                  //finally block used to close resources
+
+               }//end try 
+                
+            } 
+    }
 }

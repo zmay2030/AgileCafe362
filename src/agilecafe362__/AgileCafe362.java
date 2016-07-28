@@ -51,9 +51,12 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage; 
 import javafx.scene.control.ScrollPane;  
 import java.util.Optional;
+import javafx.event.EventType;
+import javafx.geometry.Orientation;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType; 
+import javafx.scene.layout.FlowPane;
 
 public class AgileCafe362 extends Application {
     //Used as a reference to primary stage
@@ -130,7 +133,7 @@ public class AgileCafe362 extends Application {
         //Save info into database
         SQL_DB mysqlDB = new SQL_DB();
         mysqlDB.connect(); 
-        
+        mysqlDB.saveAllItems(itemsList);
         //Save info from application into database
     }
     
@@ -263,6 +266,12 @@ public class AgileCafe362 extends Application {
                 bevMenuGrid.add(itemsList.get(i).priceLbl, 2, j+1);
                 bevMenuGrid.add(itemsList.get(i).spinBox, 3, j+1);
                 bevMenuGrid.add(itemsList.get(i).getImageView(), 0, j);
+                int skipVar=0;
+                for(int m=0; m<itemsList.get(i).getAddonList().size();m++){
+                    bevMenuGrid.add(itemsList.get(i).getAddonList().get(m).checkBox,1,m+2+j);
+                    skipVar++;
+                }
+                j+=skipVar;
                 j=j+2;
             }
         }
@@ -1225,11 +1234,19 @@ public class AgileCafe362 extends Application {
     {  
         Stage adminMenu = new Stage();
         adminMenu.initModality(Modality.APPLICATION_MODAL);
-        GridPane layoutPane = new GridPane();
         
-        Label title = new Label("Admin Menu"); 
-        title.setId("editMenuTitle");
+        // Admin menu title
+        Label title = new Label("Admin Menu");  
+        VBox titleBox =  new VBox(title);
+        titleBox.setId("editMenuTitle");
         title.setPadding(new Insets(0,0,50,0));
+        
+        // Flow title
+        FlowPane flow = new FlowPane(Orientation.VERTICAL);
+        GridPane layoutPane = new GridPane(); 
+        flow.getChildren().add(titleBox);
+        flow.getChildren().add(layoutPane);
+         
         // Edit Menu Button
         Button editMenuBtn = new Button("Manage Menu Items");  
         //editMenuBtn.setOnAction(adminEditMenuItems(adminMenu));
@@ -1247,8 +1264,7 @@ public class AgileCafe362 extends Application {
         
         // View Reports Button
         Button viewReports = new Button("View Reports"); 
-         
-        
+          
         HBox hboxreports = new HBox(10); 
         hboxreports.getChildren().add(viewReports);
         viewReports.setId("viewReportsBtn");
@@ -1256,11 +1272,11 @@ public class AgileCafe362 extends Application {
         
         
         layoutPane.setPadding(new Insets(10, 0, 0, 60));
-        layoutPane.add(title, 1, 1);
+        layoutPane.add(titleBox, 1, 1);
         layoutPane.add(hboxEdit,1,2); 
         layoutPane.add(hboxreports,1,3);
          
-        Scene menuScene = new Scene(layoutPane,310,250);
+        Scene menuScene = new Scene(flow,310,250);
         menuScene.getStylesheets().add("css/adminMenu.css"); 
         adminMenu.setScene(menuScene);
         adminMenu.show(); 
@@ -1293,7 +1309,7 @@ public class AgileCafe362 extends Application {
             GridPane.setMargin(deleteBtn, new Insets(0,0,0,10));
             
             // On editing button
-            int passAddonIndex = addonIndex;
+            int passAddonIndex = addonIndex-1;
             int itemIndex = index;
             editBtn.setOnAction(e->{addonsStage.hide();editAddon(passAddonIndex,itemIndex);});
             deleteBtn.setOnAction(e->{
@@ -1373,7 +1389,7 @@ public class AgileCafe362 extends Application {
                     manageAddons(itemIndex);
                     editAddonStage.hide();
                     start(theStage);
-                    // saved addon
+                    // saved addon 
                 }
                 else
                 {
