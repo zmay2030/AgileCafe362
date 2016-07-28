@@ -48,22 +48,14 @@ import java.util.logging.Logger;
  import javafx.embed.swing.SwingFXUtils;  
 import javax.imageio.ImageIO; 
 import java.awt.image.BufferedImage; 
-//import java.util.Date; 
-import java.sql.Date;
 import javafx.scene.control.ScrollPane;  
 import java.util.Optional;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.HPos;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType; 
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.text.TextAlignment;
 
 public class AgileCafe362 extends Application {
     //Used as a reference to primary stage
@@ -112,6 +104,9 @@ public class AgileCafe362 extends Application {
     private final Desktop desktop = Desktop.getDesktop();
     private File imageFileNameToUpload = null;
     
+    //Used for graph
+    ArrayList<Sales> salesList;
+    
     @Override
     public void init() throws Exception {
         //init() runs before application starts
@@ -122,7 +117,7 @@ public class AgileCafe362 extends Application {
         //Query info from database into application
         this.itemsList = mysqlDB.getAllItems();
         
-        ArrayList<Sales> salesList = mysqlDB.getAllSales();
+        salesList = mysqlDB.getAllSales();
         
         for(Sales sale : salesList)
         {         
@@ -490,13 +485,12 @@ public class AgileCafe362 extends Application {
                     if(cart.getCartItems().get(i).getAddonList().get(m).checkBox.isSelected())
                     {
                         cartGrid.getChildren().remove(cart.getCartItems().get(i).addonInfo);
-                        System.out.println(cart.getCartItems().get(i).getAddonList().get(m).checkBox.isSelected());
                         cart.getCartItems().get(i).setAddonLabelInfo();
                         cartGrid.add(cart.getCartItems().get(i).addonInfo, 0, j+skipValue+2);
                         skipValue++;
                     }
                 }
-                j+=2+skipValue;
+                j+=1+skipValue;
             }
         }
 
@@ -1341,21 +1335,18 @@ public class AgileCafe362 extends Application {
         chart.setMinWidth(550);
         chart.setMinHeight(550);
         //----------------END CREATE PIE CHART-------------------
+        Text salesTitleText = new Text("Sales History");
+        salesTitleText.setFont(Font.font("Arial",FontWeight.BOLD,25));
+        VBox salesVBox = new VBox();
+        salesVBox.setAlignment(Pos.CENTER);
+        salesVBox.setPadding(new Insets(0,0,0,100));
+        salesVBox.setSpacing(10);
+        salesVBox.getChildren().add(salesTitleText);
+        for(int i =0; i<salesList.size();i++){
+            salesVBox.getChildren().add(new Text("Date: "+salesList.get(i).getSaleDate()+"  Total: "+Double.toString(salesList.get(i).getTotal())));
+        }
         
-        //----------------CREATE XY CHART------------------------
-        ObservableList<XYChart.Series<Date, Number>> series = FXCollections.observableArrayList();
-        
-        //XYChart.Data temp = new XYChart.Data<>()
-        
-        NumberAxis numberAxis = new NumberAxis();
-        NumberAxis dateAxis = new NumberAxis();
-        numberAxis.setLabel("Sales amount");
-        dateAxis.setLabel("Date");
-        LineChart<Date,Number> lineChart = new LineChart(dateAxis,numberAxis,series);
-        lineChart.setTitle("Sales Timeline");
-        //----------------END CREATE XY CHART-------------------
-        
-        holdGraphsHBox.getChildren().addAll(chart,lineChart);
+        holdGraphsHBox.getChildren().addAll(chart,salesVBox);
         Scene graphScene = new Scene(graphScrollPane,1100,600);
         viewReportsStage.initModality(Modality.APPLICATION_MODAL);
         viewReportsStage.setScene(graphScene);
