@@ -152,4 +152,79 @@ public class SQL_DB  {
     	      se.printStackTrace();
     	   } 
     }
+    public int addItem(String name,String desc,int type,double price,String image_path)
+    {
+        Statement stmt = null;
+        int itemId = 0;
+        try
+        { 
+            stmt = (this.conn).createStatement();  
+            String query = "INSERT INTO items (item_name,item_desc,item_type,item_price,item_image_path) VALUES('"+name+"','"+desc+"',"+type+","+price+",'"+image_path+"')";
+            System.out.print(query);
+            PreparedStatement pInsertOid = (this.conn).prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            pInsertOid.executeUpdate();
+            ResultSet rs = pInsertOid.getGeneratedKeys();
+            if (rs.next()) { 
+              itemId = rs.getInt(1);
+            } 
+        }catch(SQLException se){
+    	      //Handle errors for JDBC
+    	      se.printStackTrace();
+    	   }catch(Exception e){
+    	      //Handle errors for Class.forName
+    	      e.printStackTrace();
+    	   }finally{
+    	      //finally block used to close resources
+    	       
+    	   }//end try 
+        
+            return itemId;
+    }
+    public int addAddon(String name, double price, int itemId)
+    {
+        Statement stmt = null;
+        try
+        { 
+            stmt = (this.conn).createStatement();  
+            String query = "INSERT INTO addon (addon_name,addon_price,item_id) VALUES('"+name+"',"+price+","+itemId+")";
+            System.out.print(query);
+            PreparedStatement pInsertOid = (this.conn).prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            pInsertOid.executeUpdate();
+            ResultSet rs = pInsertOid.getGeneratedKeys();
+            if (rs.next()) { 
+              itemId = rs.getInt(1);
+            } 
+        }catch(SQLException se){
+    	      //Handle errors for JDBC
+    	      se.printStackTrace();
+    	   }catch(Exception e){
+    	      //Handle errors for Class.forName
+    	      e.printStackTrace();
+    	   }finally{
+    	      //finally block used to close resources
+    	       
+    	   }//end try 
+        
+            return itemId;
+    }
+    public void deleteAddon(int addonId)
+    { 
+        Statement stmt = null;
+        try
+        { 
+            stmt = (this.conn).createStatement(); 
+             
+            stmt.executeUpdate("Delete from addon where addon_id="+addonId); 
+             
+        }catch(SQLException se){
+    	      //Handle errors for JDBC
+            se.printStackTrace();
+         }catch(Exception e){
+            //Handle errors for Class.forName
+            e.printStackTrace();
+         }finally{
+            //finally block used to close resources
+
+         }//end try 
+    }
 }

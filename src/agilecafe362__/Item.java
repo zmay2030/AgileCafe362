@@ -194,6 +194,10 @@ public class Item {
     {
         quantityOrdered += num;
     }
+    public ArrayList<addOn> getAddOnList()
+    {
+        return addOnList;
+    }
     
     
 }

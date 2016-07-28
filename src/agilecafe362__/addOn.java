@@ -56,7 +56,10 @@ public class addOn {
     public void setName(String addName){
         name = addName;
     }
-    
+    public void setPrice(double num)
+    {
+        price = num;
+    }
     public double getAddOnPrice(){
         return price;
     }
