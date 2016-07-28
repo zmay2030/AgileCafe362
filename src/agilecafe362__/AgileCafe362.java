@@ -1334,7 +1334,7 @@ public class AgileCafe362 extends Application {
         //----------------END CREATE XY CHART-------------------
         
         holdGraphsHBox.getChildren().addAll(chart,lineChart);
-        Scene graphScene = new Scene(graphScrollPane,1000,1000);
+        Scene graphScene = new Scene(graphScrollPane,1100,600);
         viewReportsStage.initModality(Modality.APPLICATION_MODAL);
         viewReportsStage.setScene(graphScene);
         viewReportsStage.show();
