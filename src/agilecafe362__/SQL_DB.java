@@ -5,6 +5,7 @@ package agilecafe362__;
 import java.sql.*; 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.sql.Date;
 import java.util.Calendar;
 
 public class SQL_DB  {
@@ -105,12 +106,7 @@ public class SQL_DB  {
     	            stmt.close();
     	      }catch(SQLException se2){
     	      }// nothing we can do
-    	      try{
-    	         if(conn!=null)
-    	            conn.close();
-    	      }catch(SQLException se){
-    	         se.printStackTrace();
-    	      }//end finally try
+    	      
     	   }//end try
          
          
@@ -151,5 +147,171 @@ public class SQL_DB  {
     	      //Handle errors for JDBC
     	      se.printStackTrace();
     	   } 
+    }
+    public int addItem(String name,String desc,int type,double price,String image_path)
+    {
+        Statement stmt = null;
+        int itemId = 0;
+        try
+        { 
+            stmt = (this.conn).createStatement();  
+            String query = "INSERT INTO items (item_name,item_desc,item_type,item_price,item_image_path) VALUES('"+name+"','"+desc+"',"+type+","+price+",'"+image_path+"')";
+            System.out.print(query);
+            PreparedStatement pInsertOid = (this.conn).prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            pInsertOid.executeUpdate();
+            ResultSet rs = pInsertOid.getGeneratedKeys();
+            if (rs.next()) { 
+              itemId = rs.getInt(1);
+            } 
+        }catch(SQLException se){
+    	      //Handle errors for JDBC
+    	      se.printStackTrace();
+    	   }catch(Exception e){
+    	      //Handle errors for Class.forName
+    	      e.printStackTrace();
+    	   }finally{
+    	      //finally block used to close resources
+    	       
+    	   }//end try 
+        
+            return itemId;
+    }
+    public int addAddon(String name, double price, int itemId)
+    {
+        Statement stmt = null;
+        try
+        { 
+            stmt = (this.conn).createStatement();  
+            String query = "INSERT INTO addon (addon_name,addon_price,item_id) VALUES('"+name+"',"+price+","+itemId+")";
+            System.out.print(query);
+            PreparedStatement pInsertOid = (this.conn).prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            pInsertOid.executeUpdate();
+            ResultSet rs = pInsertOid.getGeneratedKeys();
+            if (rs.next()) { 
+              itemId = rs.getInt(1);
+            } 
+        }catch(SQLException se){
+    	      //Handle errors for JDBC
+    	      se.printStackTrace();
+    	   }catch(Exception e){
+    	      //Handle errors for Class.forName
+    	      e.printStackTrace();
+    	   }finally{
+    	      //finally block used to close resources
+    	       
+    	   }//end try 
+        
+            return itemId;
+    }
+    public void deleteAddon(int addonId)
+    { 
+        Statement stmt = null;
+        try
+        { 
+            stmt = (this.conn).createStatement(); 
+             
+            stmt.executeUpdate("Delete from addon where addon_id="+addonId); 
+             
+        }catch(SQLException se){
+    	      //Handle errors for JDBC
+            se.printStackTrace();
+         }catch(Exception e){
+            //Handle errors for Class.forName
+            e.printStackTrace();
+         }finally{
+            //finally block used to close resources
+
+         }//end try 
+    }
+    public void saveAllItems(ArrayList<Item> itemsList) {
+        Statement stmt = null;
+
+        // Going through item list
+        for(Item item : itemsList)
+        {
+            int itemId = item.getItemID();
+            String itemName = item.getName();
+            double itemPrice = item.getPrice();
+            String itemDesc = item.getDescription();
+            String itemImagePath = item.getImagePath();
+            boolean isDeleted = item.isDeleted();
+            int numTimesOrdered = item.getQuantityOrdered();
+            
+            int itemType = item.getType();
+            try 
+            { 
+                stmt = (this.conn).createStatement();  
+                
+                // Check if item has been marked for deletion
+                if (isDeleted)
+                {
+                    stmt.executeUpdate("DELETE from addon WHERE item_id="+itemId); 
+                    stmt.executeUpdate("DELETE from items WHERE item_id="+itemId);  
+                }
+                else
+                {
+                    stmt.executeUpdate("UPDATE items SET item_name='"+itemName+"',item_price="+itemPrice+",item_desc='"+itemDesc+"',item_type="+itemType+",item_image_path='"+itemImagePath+"',ordered="+numTimesOrdered+" WHERE item_id="+itemId); 
+
+                    for(addOn currentAddon: item.getAddOnList())
+                    {
+                        int addonId = currentAddon.getAddOnID();
+                        String addonName = currentAddon.getName();
+                        double addonPrice = currentAddon.getPrice();
+                        stmt.executeUpdate("UPDATE addon SET addon_name='"+addonName+"',addon_price="+addonPrice+" WHERE addon_id="+addonId);
+                    } 
+                }
+
+            }catch(SQLException se){
+                  //Handle errors for JDBC
+                  se.printStackTrace();
+               }catch(Exception e){
+                  //Handle errors for Class.forName
+                  e.printStackTrace();
+               }finally{
+                  //finally block used to close resources
+
+               }//end try 
+                
+            } 
+    }
+    public ArrayList<Sales> getAllSales()
+    { 
+        // Initialize list
+        ArrayList<Sales> salesList = new ArrayList<Sales>();
+        Statement stmt = null;
+        // MySQL statement   
+        try
+        { 
+            stmt = (this.conn).createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * from sales"); 
+            while(rs.next()){ 
+    	         //Retrieve by column name
+    	         int salelId  = rs.getInt("sale_id");
+                 double totalSales = rs.getDouble("sales_total");
+                 java.sql.Date saleDate = rs.getDate("sale_date");
+    	         
+                 // Create new Item Class
+                 Sales sale = new Sales(totalSales,saleDate);
+                 salesList.add(sale);
+            } 
+             
+        }catch(SQLException se){
+    	      //Handle errors for JDBC
+    	      se.printStackTrace();
+    	   }catch(Exception e){
+    	      //Handle errors for Class.forName
+    	      e.printStackTrace();
+    	   }finally{
+    	      //finally block used to close resources
+    	      try{
+    	         if(stmt!=null)
+    	            stmt.close();
+    	      }catch(SQLException se2){
+    	      }// nothing we can do
+    	       
+    	   }//end try
+         
+         
+        return salesList;
     }
 }

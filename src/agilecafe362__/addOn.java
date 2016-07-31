@@ -22,9 +22,14 @@ public class addOn {
     public addOn(String addName, double price){
         this.name = addName;
         this.price = price;
+        checked = false;
         checkBox = new CheckBox("+ $"+Double.toString(price)+" "+addName);
         checkBox.setIndeterminate(false);
         checkBox.setOnAction(e->checkBoxHandler(e));
+        while(checkBox.isSelected()==true)
+                {
+                    checkBox.fire();
+                }
     }
     private void checkBoxHandler(ActionEvent e)
     {
@@ -55,8 +60,17 @@ public class addOn {
     
     public void setName(String addName){
         name = addName;
+        checkBox.setText("+ $"+Double.toString(price)+" "+addName);
+        checkBox.setIndeterminate(false);
+        checkBox.setOnAction(e->checkBoxHandler(e));
     }
-    
+    public void setPrice(double num)
+    {
+        price = num;
+        checkBox.setText("+ $"+Double.toString(price)+" "+name);
+        checkBox.setIndeterminate(false);
+        checkBox.setOnAction(e->checkBoxHandler(e));
+    }
     public double getAddOnPrice(){
         return price;
     }

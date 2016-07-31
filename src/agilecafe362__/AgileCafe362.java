@@ -20,7 +20,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import javafx.scene.control.Control;
-import javafx.geometry.HPos; 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.PasswordField;
@@ -51,6 +50,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage; 
 import javafx.scene.control.ScrollPane;  
 import java.util.Optional;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType; 
@@ -91,10 +93,19 @@ public class AgileCafe362 extends Application {
     
     //Used for billing scene
     private Stage tyStage;
+    // List of items to edit/delete stage
+    private Stage editMenuItems = new Stage();;
+    
+    //Used for edit settings scene
+    TextField changeTR_TF; //Change Tax Rate text field
+    Text statusLbl;
 
     private final String IMAGES_PATH = "images/";
     private final Desktop desktop = Desktop.getDesktop();
     private File imageFileNameToUpload = null;
+    
+    //Used for graph
+    ArrayList<Sales> salesList;
     
     @Override
     public void init() throws Exception {
@@ -106,6 +117,14 @@ public class AgileCafe362 extends Application {
         //Query info from database into application
         this.itemsList = mysqlDB.getAllItems();
         
+        salesList = mysqlDB.getAllSales();
+        
+        for(Sales sale : salesList)
+        {         
+            java.sql.Date saleDate = sale.getSaleDate();
+            double total = sale.getTotal();
+            System.out.print("OUTPUT: "+saleDate+" "+total+"\n");
+        } 
         // Get each item and output each of its addons
         for(Item item: itemsList)
         {
@@ -130,7 +149,7 @@ public class AgileCafe362 extends Application {
         //Save info into database
         SQL_DB mysqlDB = new SQL_DB();
         mysqlDB.connect(); 
-        
+        mysqlDB.saveAllItems(itemsList);
         //Save info from application into database
     }
     
@@ -263,6 +282,12 @@ public class AgileCafe362 extends Application {
                 bevMenuGrid.add(itemsList.get(i).priceLbl, 2, j+1);
                 bevMenuGrid.add(itemsList.get(i).spinBox, 3, j+1);
                 bevMenuGrid.add(itemsList.get(i).getImageView(), 0, j);
+                int skipVar=0;
+                for(int m=0; m<itemsList.get(i).getAddonList().size();m++){
+                    bevMenuGrid.add(itemsList.get(i).getAddonList().get(m).checkBox,1,m+2+j);
+                    skipVar++;
+                }
+                j+=skipVar;
                 j=j+2;
             }
         }
@@ -459,12 +484,13 @@ public class AgileCafe362 extends Application {
                     //If addon is checked, add it to the summary page.
                     if(cart.getCartItems().get(i).getAddonList().get(m).checkBox.isSelected())
                     {
+                        cartGrid.getChildren().remove(cart.getCartItems().get(i).addonInfo);
                         cart.getCartItems().get(i).setAddonLabelInfo();
                         cartGrid.add(cart.getCartItems().get(i).addonInfo, 0, j+skipValue+2);
                         skipValue++;
                     }
                 }
-                j+=2+skipValue;
+                j+=1+skipValue;
             }
         }
 
@@ -499,7 +525,9 @@ public class AgileCafe362 extends Application {
                 {
                     for(int j=0;j<cart.getCartItems().get(i).getAddonList().size();j++)
                     {
-                        subtotalC+=cart.getCartItems().get(i).getAddonList().get(j).getPrice()* cart.getCartItems().get(i).quantityOrderedInCart;
+                        if(cart.getCartItems().get(i).getAddOnList().get(j).isChecked()){
+                        subtotalC+=cart.getCartItems().get(i).getAddonList().get(j).getPrice()*cart.getCartItems().get(i).quantityOrderedInCart;
+                        }
                     }
                 }
 
@@ -676,6 +704,7 @@ public class AgileCafe362 extends Application {
         }
         for(int i =0;i<cart.getCartItems().size();i++){
             itemsList.get(i).addToQuantityOrdered(itemsList.get(i).quantityOrderedInCart);
+            System.out.print("QO: "+itemsList.get(i).getQuantityOrdered());
         }
         mysqlDB.addSaleOrder(cart.getTotal());
         thankYouStage();
@@ -781,6 +810,7 @@ public class AgileCafe362 extends Application {
     public void editItemByIndex(int index)
     {
         Stage editItem = new Stage();
+        editItem.setTitle("Editing "+itemsList.get(index).getName());
         editItem.initModality(Modality.APPLICATION_MODAL);
         final FileChooser fileChooser = new FileChooser();
         
@@ -810,32 +840,37 @@ public class AgileCafe362 extends Application {
         Button submitBtn = new Button("Save"); 
         submitBtn.setPadding(new Insets(5));
         
+        // Manage addons button
+        Button manageAddonsBtn = new Button("Manage AddOns");
+        manageAddonsBtn.setOnAction(e->manageAddons(index));
         GridPane grid = new GridPane(); 
         
         // Image
         grid.add(viewImage,0,0);
-        grid.add(uploadBtn,1,1);
+        grid.add(uploadBtn,1,0);
         
         // Item name
         grid.add(itemName,0,2);
-        grid.add(nameTF,1,3);
+        grid.add(nameTF,1,2);
         
         // Item price
-        grid.add(itemPrice,0,4);
-        grid.add(priceTF,1,5);
+        grid.add(itemPrice,0,3);
+        grid.add(priceTF,1,3);
         
         // Item description
-        grid.add(itemDesc,0,6);
-        grid.add(descTF,1,7);
+        grid.add(itemDesc,0,4);
+        grid.add(descTF,1,4);
         
         // Item description
-        grid.add(itemType,0,8);
-        grid.add(typeComboBox,1,9);
+        grid.add(itemType,0,5);
+        grid.add(typeComboBox,1,5);
         
         // save button
-        grid.add(submitBtn,1,10);
+        grid.add(submitBtn,1,6);
+        grid.add(manageAddonsBtn,1,7);
+        GridPane.setMargin(manageAddonsBtn, new Insets(15,0,0,0));
         grid.setAlignment(Pos.CENTER);
-         
+        grid.setVgap(10);
         // ON UPLOAD
         uploadBtn.setOnAction(
             new EventHandler<ActionEvent>() {
@@ -882,14 +917,17 @@ public class AgileCafe362 extends Application {
                 // Save items after edit
                 editItem.close();
                 adminEditMenuItems();
+                editMenuItems.show();
                 
+                start(theStage);
                 // Load cart items again
                 renameLabels(item);
                 //////////////////////////////////////
                 
             }
         ); 
-        Scene scene = new Scene(grid,400,300);
+        Scene scene = new Scene(grid,500,400); 
+        scene.getStylesheets().add("css/adminMenu.css");
         editItem.setScene(scene);
         editItem.show();
 
@@ -906,8 +944,9 @@ public class AgileCafe362 extends Application {
     }
     
     public void adminEditMenuItems()
-    {
-        Stage editMenuItems = new Stage();
+    { 
+        int BTN_SIZE = 160;
+        editMenuItems.setTitle("Edit Items");
         editMenuItems.initModality(Modality.APPLICATION_MODAL);
         GridPane itemBox = new GridPane();
         itemBox.setId("items");
@@ -916,16 +955,17 @@ public class AgileCafe362 extends Application {
         // Add item button
         Button addBtn = new Button("Add Item");
         addBtn.setId("Button_addBtn");
+        addBtn.setPadding(new Insets(5));
         VBox addBtnBox = new VBox(addBtn);
         addBtnBox.setAlignment(Pos.TOP_RIGHT);
-        addBtnBox.setId("addItemBtn");
-        addBtnBox.getChildren().add(itemBox);
+        addBtnBox.getChildren().add(itemBox); 
+        addBtnBox.setPadding(new Insets(7));
         // Add item action 
         addBtn.setOnAction(e->addNewItem());
-        
+       
         int index = 0;
         int currentCol = index;
-        File file = new File("."); 
+        File file = new File(".");  
         for(Item item: itemsList)
         {
             if (item.isDeleted())
@@ -963,29 +1003,32 @@ public class AgileCafe362 extends Application {
             editBtn.setOnAction(e->{editMenuItems.close();editItemByIndex(passIndex);});
             editBtn.setAlignment(Pos.CENTER);
             editBtn.setId("editItemBtn");
-            
-            // Delete button
-            deleteBtn.setId("deleteItem");
+            editBtn.setPrefWidth(BTN_SIZE);
+            // Delete button 
+            deleteBtn.setId("deleteItemBox");
             // On delete action
             int indexToDelete = index;
             deleteBtn.setOnAction(e->{confirmItemDelete(indexToDelete, editMenuItems);});
-            // Box for edit button
-            VBox editBtnBox = new VBox();
-            editBtnBox.getChildren().add(editBtn);
-            editBtnBox.setId("editItemBtnBox");
-            // Box for delete button
-            VBox deleteBtnBox = new VBox();
-            deleteBtnBox.getChildren().add(deleteBtn);
-            deleteBtnBox.setId("deleteItemBox");
+            deleteBtn.setPrefWidth(BTN_SIZE);
+            // Box for edit button 
+            editBtn.setId("editItemBtnBox");
+             
             
             GridPane grid = new GridPane();
-            grid.add(imageOutput,index,0);
-            grid.add(title, index+1, 0);
-            grid.add(Price, index+1, 1); 
-            grid.add(type, index+1, 2);
-            grid.add(desc, index+1, 3);
-            grid.add(editBtnBox,index+1,4);
-            grid.add(deleteBtnBox,index+1,5);
+            VBox vbox = new VBox(); 
+            grid.add(imageOutput,0,0);
+            grid.add(title, 1, 0);
+            grid.add(Price, 1, 1); 
+        
+            grid.add(type, 1, 2);
+            grid.add(desc, 1, 3); 
+            
+            vbox.setSpacing(5);
+            vbox.getChildren().addAll(editBtn,deleteBtn); 
+            vbox.setPadding(new Insets(10));
+            grid.add(vbox,0,4,2,5);
+            
+            GridPane.setMargin(grid, new Insets(5,0,0,0)); 
             // Get all addon list for the current item
             ArrayList<addOn> addonList = item.getAddonList();
             
@@ -1007,21 +1050,169 @@ public class AgileCafe362 extends Application {
             itemBox.setAlignment(Pos.TOP_CENTER);
             grid.setPrefWidth(166);
             grid.setPadding(new Insets(0,5,0,0));
-            grid.setAlignment(Pos.CENTER);
+            grid.setAlignment(Pos.TOP_CENTER);
             grid.setId("itemBox");
+            
+            grid.setPrefHeight(220);
             index++;
             currentCol++;
         }   
-          
-        Scene scene = new Scene(addBtnBox,500,500);
+        
+        ScrollPane graphScrollPane = new ScrollPane();
+        addBtnBox.setMinWidth(500); 
+        graphScrollPane.setContent(addBtnBox);
+        
+        Scene scene = new Scene(graphScrollPane,533,500);
         scene.getStylesheets().add("css/adminMenu.css");
         editMenuItems.setScene(scene);
         editMenuItems.show();
     }
     public void addNewItem()
     {
-        Stage newItem;
+        Stage newItemStage = new Stage();
+        GridPane grid = new GridPane();
+        newItemStage.initModality(Modality.APPLICATION_MODAL);
         
+         // Labels
+        Label itemName = new Label("Name: ");
+        Label itemPrice = new Label("Price: ");
+        Label itemDesc = new Label("Description: "); 
+        Label itemType = new Label("Type: ");
+        Label itemImg  = new Label("Upload Image: "); 
+        ComboBox typeComboBox = new ComboBox();
+        typeComboBox.getItems().add(0, "Food");
+        typeComboBox.getItems().add(1, "Beverage");  
+        typeComboBox.setValue("Food");
+        // Textfields
+        TextField nameTF = new TextField ();
+        TextField priceTF = new TextField ();
+        TextField descTF  = new TextField ();
+        TextField typeTF    = new TextField();
+       
+        // upload button and submit button
+        Button uploadBtn = new Button("Browse Files");
+        Button submitBtn = new Button("Save"); 
+        submitBtn.setPadding(new Insets(5)); 
+        
+        grid.setPadding(new Insets(10,10,10,80));
+        // Image
+        grid.add(itemImg,0,0);
+        grid.add(uploadBtn,1,0);
+        
+        // Item name
+        grid.add(itemName,0,1);
+        grid.add(nameTF,1,1);
+        
+        // Item price
+        grid.add(itemPrice,0,2);
+        grid.add(priceTF,1,2);
+        
+        // Item description
+        grid.add(itemDesc,0,3);
+        grid.add(descTF,1,3);
+        
+        // Item description
+        grid.add(itemType,0,4);
+        grid.add(typeComboBox,1,4); 
+        // add submit button
+        grid.add(submitBtn,1,5);
+        grid.setHgap(20);
+        
+        grid.setVgap(10);
+        // on upload
+         // ON UPLOAD 
+        final FileChooser fileChooser = new FileChooser();
+        uploadBtn.setOnAction(
+            new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(final ActionEvent e) {
+                    List<File> list =
+                        fileChooser.showOpenMultipleDialog(newItemStage);
+                    if (list != null) {
+                        for (File file : list) { 
+                            grid.getChildren().remove(uploadBtn);
+                            Label fileName = new Label(String.valueOf(file));
+                            grid.add(fileName,1,0);
+                           
+                            imageFileNameToUpload = file;
+                        }
+                    }
+                }
+            });
+        // on saving  
+         
+        submitBtn.setOnAction(e->{ 
+                String name = nameTF.getText();
+                String desc = descTF.getText();
+                int    type = typeComboBox.getSelectionModel().getSelectedIndex();
+                double price = -1;
+                try{
+                    price = Double.parseDouble(priceTF.getText());
+                }
+                catch(NumberFormatException n)
+                { 
+                    showErrorMessage("Price not valid!","Please note that the price must be an integer or decimal number");
+                }
+                if (imageFileNameToUpload !=null && name!="" && desc!="")
+                { 
+                    Image newImg = new Image("file:///"+imageFileNameToUpload.toString());
+                    File absp = new File("."); 
+                    String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()); 
+                    String fullFileName = timestamp+imageFileNameToUpload.getName();
+                    File outputFile = new File("src/images/"+fullFileName);
+                    BufferedImage bImage = SwingFXUtils.fromFXImage(newImg, null);
+                    try {
+                      ImageIO.write(bImage, "png", outputFile);
+                    } catch (IOException a) {
+                      throw new RuntimeException(a);
+
+                    }
+                     
+                    String image_path = fullFileName;
+                    
+                    SQL_DB mysqlDB = new SQL_DB();
+                    try{
+                        mysqlDB.connect();
+                        // Check if fields are not empty 
+                        
+                        int itemId = mysqlDB.addItem(name,desc,type,price,image_path);
+                        if (itemId > 0) // valid
+                        {
+
+                            Item item = new Item(itemId,name,desc,type,price,image_path,0);
+                            // Now add to list
+                            itemsList.add(item);
+                            start(theStage); 
+                            editMenuItems.hide();
+                            adminEditMenuItems();
+                            // Cart stuff here
+                        }
+                        else
+                        {
+                            System.out.print("ERROR ADDING ITEM");
+                        } 
+                    }catch(Exception a)  
+                    {
+                        System.out.print("Error connecting");
+                    } 
+                    imageFileNameToUpload = null;
+                    
+                    showInformation("Item added!","Item "+name+" has been added");
+                     
+                }
+                else // error
+                {
+                    if(price >=0)
+                    {
+                        showErrorMessage("Incomplete form","Please make sure the form is completely filled out before proceeding");
+                    }
+                }
+            }
+        ); 
+        Scene scene = new Scene(grid,400,300);
+        newItemStage.setScene(scene);
+        scene.getStylesheets().add("css/adminMenu.css");
+        newItemStage.show(); 
         
     }
     public void confirmItemDelete(int index, Stage editMenuItems)
@@ -1029,27 +1220,56 @@ public class AgileCafe362 extends Application {
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Deleting an Item");
         alert.setHeaderText("Are you sure you want to delete this item?"); 
-
+        
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
-            Item item = itemsList.get(index);
+            Item item = itemsList.get(index); 
             item.spinBox = new Spinner(0,10,0);
-            item.SetDelete();
+            item.SetDelete(); 
+            // another alert to notify deletion
+            alert = new Alert(AlertType.INFORMATION); 
+            alert.setTitle("Item deleted");
+            alert.setHeaderText("Item "+item.getName()+" has been deleted!"); 
+            alert.showAndWait();
+             
             editMenuItems.hide();
             adminEditMenuItems();
         }
         start(theStage);
     }
-
+    public boolean confirmAddonDelete()
+    {
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Deleting an Addon");
+        alert.setHeaderText("Are you sure you want to delete this addon?"); 
+        
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
     public void showAdminMenu()
     {  
         Stage adminMenu = new Stage();
         adminMenu.initModality(Modality.APPLICATION_MODAL);
-        GridPane layoutPane = new GridPane();
+
+        VBox adminMenuVBox = new VBox();
+        adminMenuVBox.setAlignment(Pos.CENTER);
+        adminMenuVBox.setSpacing(15);
         
-        Label title = new Label("Admin Menu"); 
-        title.setId("editMenuTitle");
-        title.setPadding(new Insets(0,0,50,0));
+      // No need for admin title since it's already on dialog box
+//        Label titleLbl = new Label("Admin Menu");
+//        titleLbl.setMaxWidth(Double.MAX_VALUE);
+//        titleLbl.setAlignment(Pos.CENTER);
+//        VBox titleBox  = new VBox(titleLbl);
+//        titleBox.setId("TITLEBOX");
+//        titleBox.setPadding(new Insets(10,0,10,0));
+        
+
         // Edit Menu Button
         Button editMenuBtn = new Button("Manage Menu Items");  
         //editMenuBtn.setOnAction(adminEditMenuItems(adminMenu));
@@ -1057,34 +1277,323 @@ public class AgileCafe362 extends Application {
         editMenuBtn.setId("editMenuBtn");  
         editMenuBtn.setPrefSize(200,50);
         
-        HBox hboxEdit = new HBox(10); 
-        hboxEdit.getChildren().add(editMenuBtn);
-        
-        GridPane.setHalignment(hboxEdit, HPos.CENTER);
-        GridPane.setMargin(hboxEdit, new Insets(0,0,5,0));
-        // Action on edit menu button
-         
-        
         // View Reports Button
-        Button viewReports = new Button("View Reports"); 
-         
+
+        Button viewReportsBtn = new Button("View Reports"); 
+        viewReportsBtn.setId("viewReportsBtn");
+        viewReportsBtn.setPrefSize(200,50);
+        viewReportsBtn.setOnAction(e->viewReportsBtnHandler());
         
-        HBox hboxreports = new HBox(10); 
-        hboxreports.getChildren().add(viewReports);
-        viewReports.setId("viewReportsBtn");
-        viewReports.setPrefSize(200,50);
+        //Edit settings Button
+        Button editSettingsBtn = new Button("Edit Settings");
+        editSettingsBtn.setOnAction(e->editSettingsHandler());
+        editSettingsBtn.setPrefSize(200,50);
+        editSettingsBtn.setId("editMenuBtn"); 
         
+        adminMenuVBox.getChildren().addAll(editMenuBtn,viewReportsBtn,editSettingsBtn);
         
-        layoutPane.setPadding(new Insets(10, 0, 0, 60));
-        layoutPane.add(title, 1, 1);
-        layoutPane.add(hboxEdit,1,2); 
-        layoutPane.add(hboxreports,1,3);
-         
-        Scene menuScene = new Scene(layoutPane,310,250);
+        Scene menuScene = new Scene(adminMenuVBox,310,260);
+
         menuScene.getStylesheets().add("css/adminMenu.css"); 
         adminMenu.setScene(menuScene);
+        adminMenu.setTitle("Administrator Menu");
         adminMenu.show(); 
         
+    }
+    
+    //Create top order and sales report
+    public void viewReportsBtnHandler(){
+        Stage viewReportsStage = new Stage();
+        viewReportsStage.setTitle("Reports");
+
+        //HBox to hold both graphs
+        HBox holdGraphsHBox = new HBox();
+        holdGraphsHBox.setSpacing(25);
+
+        //Create scrolling feature
+        ScrollPane graphScrollPane = new ScrollPane();
+        graphScrollPane.setContent(holdGraphsHBox);
+        
+        
+        //----------------CREATE PIE CHART-------------------
+        Text pieChartTitleText = new Text("Item popularity");
+        pieChartTitleText.setFont(Font.font("Arial",FontWeight.BOLD,25));
+        
+                        /*--------------FOR DEBUGGING---------------
+                        for(int i =0; i<itemsList.size();i++){
+                            itemsList.get(i).addToQuantityOrdered(i);
+                        }*/
+        
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+        for(int i =0;i<itemsList.size();i++){
+            PieChart.Data temp = new PieChart.Data(itemsList.get(i).getName(), itemsList.get(i).getQuantityOrdered());
+            pieChartData.add(temp);
+        }
+        
+        final PieChart chart = new PieChart(pieChartData);
+        chart.setTitle("Item Popularity");
+        chart.setMinWidth(550);
+        chart.setMinHeight(550);
+        //----------------END CREATE PIE CHART-------------------
+        Text salesTitleText = new Text("Sales History");
+        salesTitleText.setFont(Font.font("Arial",FontWeight.BOLD,25));
+        VBox salesVBox = new VBox();
+        salesVBox.setAlignment(Pos.CENTER);
+        salesVBox.setPadding(new Insets(0,0,0,100));
+        salesVBox.setSpacing(10);
+        salesVBox.getChildren().add(salesTitleText);
+        for(int i =0; i<salesList.size();i++){
+            salesVBox.getChildren().add(new Text("Date: "+salesList.get(i).getSaleDate()+"  Total: "+Double.toString(salesList.get(i).getTotal())));
+        }
+        
+        holdGraphsHBox.getChildren().addAll(chart,salesVBox);
+        Scene graphScene = new Scene(graphScrollPane,1100,600);
+        viewReportsStage.initModality(Modality.APPLICATION_MODAL);
+        viewReportsStage.setScene(graphScene);
+        viewReportsStage.show();
+    }
+    
+    public void editSettingsHandler(){
+        Stage settingsStage = new Stage();
+        settingsStage.setTitle("Edit Settings");
+        VBox settingsVBox = new VBox();
+        settingsVBox.setSpacing(20);
+        settingsVBox.setAlignment(Pos.CENTER);
+        GridPane settingsGridPane = new GridPane();
+        settingsGridPane.setAlignment(Pos.CENTER);
+        Scene SettingsScene = new Scene(settingsVBox,500,500);
+        
+        //Create change tax rate form
+        Label changeTRLbl = new Label("Enter new tax rate:    ");
+        changeTR_TF = new TextField();
+        changeTR_TF.setPromptText("Enter new tax rate");
+        Button applyChangeBtn = new Button("Apply Changes");
+        applyChangeBtn.setOnAction(e->applyChangesHandler());
+        applyChangeBtn.setAlignment(Pos.CENTER);
+        //Note: Needs error checking.
+        
+        //Tells user if changes has been applied
+        statusLbl = new Text("");
+        statusLbl.setFill(Color.FIREBRICK);
+        
+        settingsGridPane.add(changeTRLbl, 0, 0);
+        settingsGridPane.add(changeTR_TF, 1, 0);
+        settingsVBox.getChildren().addAll(settingsGridPane,applyChangeBtn,statusLbl);
+        
+        settingsStage.initModality(Modality.APPLICATION_MODAL);
+        settingsStage.setScene(SettingsScene);
+        settingsStage.show();
+    }
+    
+    public void applyChangesHandler(){
+        //Note: Needs error checking.
+        cart.setTaxRate(Double.parseDouble(changeTR_TF.getText()));
+        statusLbl.setText("Changes Applied!");
+    }
+    
+    public void manageAddons(int index)
+    { 
+        Item item = itemsList.get(index);
+        ArrayList<addOn> addonList = item.getAddOnList();
+        
+        Stage addonsStage = new Stage();
+        GridPane grid = new GridPane();
+        Button addBtn = new Button("New addon");
+        addBtn.setOnAction(e->{addonsStage.hide();addAddon(index);});
+        grid.add(addBtn,3, 0);
+         
+        
+        int addonIndex = 1;
+        for(addOn addon : addonList)
+        {
+            Label name = new Label(addon.getName());
+            Label price = new Label(" $"+String.valueOf(addon.getPrice()));
+            Button editBtn = new Button("Edit");
+            Button deleteBtn = new Button("Delete");
+            grid.add(name, 0,addonIndex);
+            grid.add(price, 1,addonIndex);
+            grid.add(editBtn, 2,addonIndex);
+            grid.add(deleteBtn, 3,addonIndex);
+            GridPane.setMargin(editBtn, new Insets(0,0,0,10));
+            GridPane.setMargin(deleteBtn, new Insets(0,0,0,10));
+            
+            // On editing button
+            int passAddonIndex = addonIndex-1;
+            int itemIndex = index;
+            editBtn.setOnAction(e->{addonsStage.hide();editAddon(passAddonIndex,itemIndex);});
+            deleteBtn.setOnAction(e->{
+                boolean confirmDelete = confirmAddonDelete();
+                if (confirmDelete)
+                { 
+                    addonList.remove(passAddonIndex-1); 
+                    grid.getChildren().remove(name);  
+                    grid.getChildren().remove(price);
+                    grid.getChildren().remove(editBtn); 
+                    grid.getChildren().remove(deleteBtn);
+                    start(theStage);
+                    
+                    SQL_DB mysqlDB = new SQL_DB();
+                    try{
+                        mysqlDB.connect();
+                        // Check if fields are not empty 
+                        
+                        mysqlDB.deleteAddon(addon.getAddOnID());
+                    }catch(Exception a)  
+                    {
+                        System.out.print("Error connecting");
+                    }  
+                    // deleted addon 
+
+                }
+            });
+            addonIndex++;
+        }
+        grid.setPadding(new Insets(10));
+        Scene scene = new Scene(grid,300,300);
+        addonsStage.setScene(scene);
+        addonsStage.show();
+    }
+    public void editAddon(int addonIndex,int itemIndex)
+    {
+        Item item = itemsList.get(itemIndex);
+        ArrayList<addOn> addonList = item.getAddOnList();
+        addOn currentAddon = addonList.get(addonIndex);
+        
+        // Create stage
+        Stage editAddonStage = new Stage();
+        GridPane grid = new GridPane();
+
+        // Labels
+        Label name = new Label("Name: ");
+        Label price = new Label("Price: ");
+        TextField nameTF = new TextField(currentAddon.getName());
+        TextField priceTF = new TextField(Double.toString(currentAddon.getPrice()));
+        Button save = new Button("Save"); 
+        grid.add(name, 0,0);
+        grid.add(nameTF, 1,0);
+        
+        grid.add(price, 0,1);
+        grid.add(priceTF, 1,1);
+        
+        grid.add(save,1,2);
+        grid.setPadding(new Insets(10));
+        
+       
+        save.setOnAction(e->{
+                
+                String getName = nameTF.getText();
+                double getPrice = -1;
+                try
+                {
+                    getPrice = Double.parseDouble(priceTF.getText());
+                }
+                catch(NumberFormatException n)
+                {
+                    showErrorMessage("Invalid Price","Price must be an integer or decimal");
+                }
+                if(getPrice != -1 && getName!="")
+                {
+                    currentAddon.setName(getName);
+                    currentAddon.setPrice(getPrice);
+                    manageAddons(itemIndex);
+                    editAddonStage.hide();
+                    start(theStage);
+                    // saved addon 
+                }
+                else
+                {
+                    showErrorMessage("Incomplete Form","Please make sure name and price are filled before saving");
+                }
+        });
+        
+        Scene scene = new Scene(grid,200,200);
+        editAddonStage.setScene(scene);
+        editAddonStage.show();
+    }
+    public void addAddon(int itemIndex)
+    {
+        Item item = itemsList.get(itemIndex);
+        ArrayList<addOn> addonList = item.getAddOnList();
+        
+        // Create stage
+        Stage addAddonStage = new Stage();
+        GridPane grid = new GridPane();
+
+        // Labels
+        Label name = new Label("Name: ");
+        Label price = new Label("Price: ");
+        TextField nameTF = new TextField();
+        TextField priceTF = new TextField();
+        Button save = new Button("Add"); 
+        grid.add(name, 0,0);
+        grid.add(nameTF, 1,0);
+        
+        grid.add(price, 0,1);
+        grid.add(priceTF, 1,1);
+        
+        grid.add(save,1,2);
+        grid.setPadding(new Insets(10));
+        
+       
+        save.setOnAction(e->{
+                
+                String getName = nameTF.getText();
+                double getPrice = -1;
+                try
+                {
+                    getPrice = Double.parseDouble(priceTF.getText());
+                }
+                catch(NumberFormatException n)
+                {
+                    showErrorMessage("Invalid Price","Price must be an integer or decimal");
+                }
+                if(getPrice != -1 && getName!="")
+                { 
+                    SQL_DB mysqlDB = new SQL_DB();
+                    try{
+                        mysqlDB.connect();
+                        // Check if fields are not empty 
+                        
+                        int addonId = mysqlDB.addAddon(getName,getPrice,item.getItemID());
+                        if (addonId > 0) // valid
+                        {
+
+                            addOn addon = new addOn(getName,getPrice); 
+                            addon.setAddOnID(addonId); 
+                            addonList.add(addon);
+                            
+                            manageAddons(itemIndex);
+                            addAddonStage.hide();
+                            start(theStage);
+                            // saved addon
+                        }
+                        else
+                        {
+                            System.out.print("ERROR ADDING ITEM");
+                        } 
+                    }catch(Exception a)  
+                    {
+                        System.out.print("Error connecting");
+                    } 
+                    
+                }
+                else
+                {
+                    showErrorMessage("Incomplete Form","Please make sure name and price are filled before saving");
+                }
+        });
+        
+        Scene scene = new Scene(grid,200,200);
+        addAddonStage.setScene(scene);
+        addAddonStage.show();
+    }
+    public void showErrorMessage(String title, String desc)
+    {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(desc); 
+
+        alert.showAndWait();
     }
     private void openFile(File file) {
         try {
@@ -1095,6 +1604,14 @@ public class AgileCafe362 extends Application {
                     Level.SEVERE, null, ex
                 );
         }
+    }
+    private void showInformation(String title,String desc)
+    {
+        Alert alert = new Alert(AlertType.INFORMATION);  
+        alert.setTitle(title);
+        alert.setHeaderText(desc);
+
+        alert.showAndWait();
     }
     public static void main(String[] args) { launch(args); }   
 }
