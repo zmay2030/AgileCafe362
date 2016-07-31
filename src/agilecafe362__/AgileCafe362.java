@@ -93,6 +93,7 @@ public class AgileCafe362 extends Application {
     
     //Used for billing scene
     private Stage tyStage;
+    Label totalLbl = new Label();
     // List of items to edit/delete stage
     private final Stage editMenuItems = new Stage();
     
@@ -413,6 +414,9 @@ public class AgileCafe362 extends Application {
         }
         else
         {
+            //Updates total label in billing scene
+            totalLbl.setText(Double.toString(cart.getTotal()));
+            //Displays the billing scene
             billingScene();
         }
     }
@@ -562,7 +566,7 @@ public class AgileCafe362 extends Application {
         titleLabel.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,20));
         Double toBeTruncated = cart.getTotal();
         double total = new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
-        Label totalLbl = new Label("Total to be charged: $"+total);
+        totalLbl = new Label("Total to be charged: $"+total);
         totalLbl.setFont(Font.font("Arial",FontWeight.BOLD,15));
         ccBorderPane.setTop(topVBox);
         
