@@ -45,7 +45,7 @@ import java.awt.Desktop;
 import java.io.IOException; 
 import java.util.logging.Level;
 import java.util.logging.Logger;
- import javafx.embed.swing.SwingFXUtils;  
+import javafx.embed.swing.SwingFXUtils;  
 import javax.imageio.ImageIO; 
 import java.awt.image.BufferedImage; 
 import javafx.scene.control.ScrollPane;  
@@ -94,7 +94,7 @@ public class AgileCafe362 extends Application {
     //Used for billing scene
     private Stage tyStage;
     // List of items to edit/delete stage
-    private Stage editMenuItems = new Stage();;
+    private final Stage editMenuItems = new Stage();
     
     //Used for edit settings scene
     TextField changeTR_TF; //Change Tax Rate text field
@@ -156,6 +156,7 @@ public class AgileCafe362 extends Application {
     @Override
     public void start(Stage primaryStage) {
         theStage = primaryStage;
+        //theStage.setFullScreen(true);
         buildMainMenuStage();
         
         primaryStage.setTitle("Agile's Cafe Menu");
@@ -224,8 +225,9 @@ public class AgileCafe362 extends Application {
         //foodMenuGrid.setGridLinesVisible(true);
         //bevMenuGrid.setGridLinesVisible(true);
         
-        //Display each item w/ their info onto GUI
-        addItemGUI();
+        //Display each item w/ their info onto GUI using itemsList array
+        createSectionMenu(foodMenuGrid, 0);
+        createSectionMenu(bevMenuGrid, 1);
         setComboBoxHandler();
         
         menuSection.getChildren().add(foodMenuGrid);
@@ -236,62 +238,34 @@ public class AgileCafe362 extends Application {
         mainPane.setCenter(menuScrollPane);
     }
     
-    //Populates the items on the main menu
-    private void addItemGUI(){
+    private void createSectionMenu(GridPane grid, int typeNum){
+        //Constrains the column size
         ColumnConstraints colimg = new ColumnConstraints(60);
         ColumnConstraints col1 = new ColumnConstraints(500);
-        //ColumnConstraints col2 = new ColumnConstraints(200);
-        foodMenuGrid.getColumnConstraints().set(0, colimg);
-        foodMenuGrid.getColumnConstraints().add(1, col1);
-
-        //Type 0 = Food
-        //Type 1 = Beverage
+        grid.getColumnConstraints().set(0, colimg);
+        grid.getColumnConstraints().add(1, col1);
+        
         int j=1; //Refers to initial row to start populating data.
-        //Adds the items into the "Food" section of the menu.
-        for (int i=0;i<itemsList.size();i++)
-        {
-            //If food, add to food section
-            if(itemsList.get(i).getType()==0 && !itemsList.get(i).isDeleted())
-            {
-                foodMenuGrid.add(itemsList.get(i).nameLbl,1,j);
-                foodMenuGrid.add(itemsList.get(i).descLbl, 1, j+1);
-                foodMenuGrid.add(itemsList.get(i).priceLbl, 2, j+1);
-                foodMenuGrid.add(itemsList.get(i).spinBox, 3, j+1);
-                foodMenuGrid.add(itemsList.get(i).getImageView(), 0, j);
-                //Display Addon for food item
-                int skipVar=0;
-                for(int m=0; m<itemsList.get(i).getAddonList().size();m++){
-                    foodMenuGrid.add(itemsList.get(i).getAddonList().get(m).checkBox,1,m+2+j);
-                    skipVar++;
-                }
-                j+=skipVar;
-                j=j+2;
-            }
-        }
-        j=1; //Refers to initial row to start populating data.
-        //Adds the items into the "Beverage" section of the menu.
-        bevMenuGrid.getColumnConstraints().set(0, colimg);
-        bevMenuGrid.getColumnConstraints().add(1, col1);
+        //Adds the items into the appropriate section of the menu.
         for(int i=0; i<itemsList.size();i++)
         {
             //If beverage, add to beverage section
-            if(itemsList.get(i).getType()==1 && !itemsList.get(i).isDeleted())
+            if(itemsList.get(i).getType()==typeNum && !itemsList.get(i).isDeleted())
             {
-                bevMenuGrid.add(itemsList.get(i).nameLbl,1,j);
-                bevMenuGrid.add(itemsList.get(i).descLbl, 1, j+1);
-                bevMenuGrid.add(itemsList.get(i).priceLbl, 2, j+1);
-                bevMenuGrid.add(itemsList.get(i).spinBox, 3, j+1);
-                bevMenuGrid.add(itemsList.get(i).getImageView(), 0, j);
+                grid.add(itemsList.get(i).nameLbl,1,j);
+                grid.add(itemsList.get(i).descLbl, 1, j+1);
+                grid.add(itemsList.get(i).priceLbl, 2, j+1);
+                grid.add(itemsList.get(i).spinBox, 3, j+1);
+                grid.add(itemsList.get(i).getImageView(), 0, j);
                 int skipVar=0;
                 for(int m=0; m<itemsList.get(i).getAddonList().size();m++){
-                    bevMenuGrid.add(itemsList.get(i).getAddonList().get(m).checkBox,1,m+2+j);
+                    grid.add(itemsList.get(i).getAddonList().get(m).checkBox,1,m+2+j);
                     skipVar++;
                 }
                 j+=skipVar;
                 j=j+2;
             }
         }
-        
     }
     
     private void addToCartHandler(){
@@ -370,7 +344,9 @@ public class AgileCafe362 extends Application {
         cartGrid.setPadding(new Insets(15,20,15,20));
         cartGrid.setHgap(50);
         cartGrid.setAlignment(Pos.TOP_LEFT);
-        cartBorderPane.setCenter(cartGrid);
+        ScrollPane sp = new ScrollPane();
+        sp.setContent(cartGrid);
+        cartBorderPane.setCenter(sp);
         
         //Create title box on top
         HBox titleHBox = new HBox();
@@ -449,8 +425,9 @@ public class AgileCafe362 extends Application {
         col1.setHgrow(Priority.ALWAYS);
         col2.setHgrow(Priority.ALWAYS);
         cartGrid.getColumnConstraints().addAll(col1,col2);
+        //cartGrid.setGridLinesVisible(true);
         
-        int j=1; //j is used to place the items in the correct row as items are added to the GUI.
+        int j=0; //j is used to place the items in the correct row as items are added to the GUI.
         for(int i=0;i<cart.getCartItems().size();i++)
         {
             //Double check to make sure conditions are true before displaying into cart.
@@ -476,7 +453,8 @@ public class AgileCafe362 extends Application {
                 //When user presses "Remove", then remove item from cart and refresh the page.
                 cart.getCartItems().get(i).removeButton.setOnAction(e->{
                 removeFromCart(e);
-                buildCartScene();});
+                buildCartScene();
+                });
                 
                 //Create the addon for the item if checked in the main menu
                 int skipValue=0;
@@ -486,11 +464,11 @@ public class AgileCafe362 extends Application {
                     {
                         cartGrid.getChildren().remove(cart.getCartItems().get(i).addonInfo);
                         cart.getCartItems().get(i).setAddonLabelInfo();
-                        cartGrid.add(cart.getCartItems().get(i).addonInfo, 0, j+skipValue+2);
+                        cartGrid.add(cart.getCartItems().get(i).addonInfo, 0, j+2);
                         skipValue++;
                     }
                 }
-                j+=1+skipValue;
+                j+=2;
             }
         }
 
@@ -532,7 +510,6 @@ public class AgileCafe362 extends Application {
                 }
 
             }
-
         }
         
         totalC=subtotalC+(subtotalC*cart.getTaxRate());
