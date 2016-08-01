@@ -13,9 +13,9 @@ import java.sql.Date;
  */
 public class Sales {
     private double total;
-    private Date saleDate;
+    private String saleDate;
     
-    public Sales(double totalSales, Date theSalesDate)
+    public Sales(double totalSales, String theSalesDate)
     {
         total = totalSales;  
         saleDate = theSalesDate;
@@ -24,7 +24,7 @@ public class Sales {
     {
         return total;
     }
-    public Date getSaleDate()
+    public String getSaleDate()
     {
         return saleDate;
     }

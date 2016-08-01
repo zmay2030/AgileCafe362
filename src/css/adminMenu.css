@@ -60,9 +60,16 @@
     -fx-font-size:12px;
     -fx-padding:5px;
 }
-#Button_addBtn
+.button
 {
     -fx-background-color: #b9cefa; 
     -fx-cursor: hand;
     -fx-font-size:12px;
+    -fx-border-style: solid;-fx-border-color:#e5f7f9;
+    -fx-border-width: 1;
+}
+.button:hover
+{
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+    
 }

@@ -282,13 +282,13 @@ public class SQL_DB  {
         // MySQL statement   
         try
         { 
-            stmt = (this.conn).createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * from sales"); 
+            stmt = (this.conn).createStatement();  
+            ResultSet rs = stmt.executeQuery("SELECT sale_id,sales_total,DATE_FORMAT(sale_date,'%m/%d/%Y') as sale_date from sales"); 
             while(rs.next()){ 
     	         //Retrieve by column name
     	         int salelId  = rs.getInt("sale_id");
                  double totalSales = rs.getDouble("sales_total");
-                 java.sql.Date saleDate = rs.getDate("sale_date");
+                 String saleDate = rs.getString("sale_date");
     	         
                  // Create new Item Class
                  Sales sale = new Sales(totalSales,saleDate);

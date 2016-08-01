@@ -93,8 +93,6 @@ public class AgileCafe362 extends Application {
     
     //Used for billing scene
     private Stage tyStage;
-    // List of items to edit/delete stage
-    private Stage editMenuItems = new Stage();;
     
     //Used for edit settings scene
     TextField changeTR_TF; //Change Tax Rate text field
@@ -121,7 +119,7 @@ public class AgileCafe362 extends Application {
         
         for(Sales sale : salesList)
         {         
-            java.sql.Date saleDate = sale.getSaleDate();
+            String saleDate = sale.getSaleDate();
             double total = sale.getTotal();
             System.out.print("OUTPUT: "+saleDate+" "+total+"\n");
         } 
@@ -160,6 +158,7 @@ public class AgileCafe362 extends Application {
         
         primaryStage.setTitle("Agile's Cafe Menu");
         primaryStage.setScene(mainScene);
+        mainScene.getStylesheets().add("css/adminMenu.css");
         primaryStage.show();
     }
     
@@ -233,6 +232,7 @@ public class AgileCafe362 extends Application {
         menuSection.setPadding(new Insets(20,5,20,50));
         ScrollPane menuScrollPane = new ScrollPane();
         menuScrollPane.setContent(menuSection);
+        
         mainPane.setCenter(menuScrollPane);
     }
     
@@ -305,6 +305,7 @@ public class AgileCafe362 extends Application {
             {
                 buildCartScene();
             }
+            
     }
     
     private void setComboBoxHandler(){
@@ -428,6 +429,7 @@ public class AgileCafe362 extends Application {
         //Display the scene
         cartScene = new Scene(cartBorderPane,1100,680);
         theStage.setScene(cartScene);
+        cartScene.getStylesheets().add("css/adminMenu.css");
         theStage.setTitle("Shopping Cart - Agile's Cafe");
     }
     
@@ -610,8 +612,8 @@ public class AgileCafe362 extends Application {
         //Adds labels and buttons to the display
         topVBox.getChildren().addAll(titleLabel,totalLbl, buttonHBox);
         
-        Scene billingScene = new Scene(ccBorderPane,1000,600);
-        Scene payNowScene = new Scene(cashBorderPane,1000,600);
+        Scene billingScene = new Scene(ccBorderPane,600,600);
+        Scene payNowScene = new Scene(cashBorderPane,600,600);
         
         //Create credit card form
         GridPane ccGrid = new GridPane();
@@ -669,6 +671,7 @@ public class AgileCafe362 extends Application {
         
         theStage.setTitle("Payment Information");
         theStage.setScene(billingScene);
+        billingScene.getStylesheets().add("css/adminMenu.css");
     }
     
     //When user submits payment, the "Thank You" page is shown
@@ -765,6 +768,7 @@ public class AgileCafe362 extends Application {
         logInScene = new Scene(grid,500,500); 
         logInStage.setTitle("Admin Login Page");
         logInStage.setScene(logInScene);
+        logInScene.getStylesheets().add("css/adminMenu.css");
         logInStage.initModality(Modality.APPLICATION_MODAL);
         logInStage.showAndWait();
     }
@@ -916,8 +920,7 @@ public class AgileCafe362 extends Application {
                 
                 // Save items after edit
                 editItem.close();
-                adminEditMenuItems();
-                editMenuItems.show();
+                adminEditMenuItems(); 
                 
                 start(theStage);
                 // Load cart items again
@@ -945,6 +948,9 @@ public class AgileCafe362 extends Application {
     
     public void adminEditMenuItems()
     { 
+        
+        // List of items to edit/delete stage
+        Stage editMenuItems = new Stage();
         int BTN_SIZE = 160;
         editMenuItems.setTitle("Edit Items");
         editMenuItems.initModality(Modality.APPLICATION_MODAL);
@@ -961,7 +967,7 @@ public class AgileCafe362 extends Application {
         addBtnBox.getChildren().add(itemBox); 
         addBtnBox.setPadding(new Insets(7));
         // Add item action 
-        addBtn.setOnAction(e->addNewItem());
+        addBtn.setOnAction(e->addNewItem(editMenuItems));
        
         int index = 0;
         int currentCol = index;
@@ -1067,7 +1073,7 @@ public class AgileCafe362 extends Application {
         editMenuItems.setScene(scene);
         editMenuItems.show();
     }
-    public void addNewItem()
+    public void addNewItem(Stage editMenuItemsStage)
     {
         Stage newItemStage = new Stage();
         GridPane grid = new GridPane();
@@ -1182,8 +1188,9 @@ public class AgileCafe362 extends Application {
                             Item item = new Item(itemId,name,desc,type,price,image_path,0);
                             // Now add to list
                             itemsList.add(item);
-                            start(theStage); 
-                            editMenuItems.hide();
+                            start(theStage);  
+                            newItemStage.hide();
+                            editMenuItemsStage.hide();
                             adminEditMenuItems();
                             // Cart stuff here
                         }
@@ -1211,6 +1218,7 @@ public class AgileCafe362 extends Application {
         ); 
         Scene scene = new Scene(grid,400,300);
         newItemStage.setScene(scene);
+        newItemStage.setTitle("Add New Item");
         scene.getStylesheets().add("css/adminMenu.css");
         newItemStage.show(); 
         
@@ -1295,7 +1303,7 @@ public class AgileCafe362 extends Application {
         Scene menuScene = new Scene(adminMenuVBox,310,260);
 
         menuScene.getStylesheets().add("css/adminMenu.css"); 
-        adminMenu.setScene(menuScene);
+        adminMenu.setScene(menuScene); 
         adminMenu.setTitle("Administrator Menu");
         adminMenu.show(); 
         
@@ -1345,10 +1353,10 @@ public class AgileCafe362 extends Application {
         for(int i =0; i<salesList.size();i++){
             salesVBox.getChildren().add(new Text("Date: "+salesList.get(i).getSaleDate()+"  Total: "+Double.toString(salesList.get(i).getTotal())));
         }
-        
         holdGraphsHBox.getChildren().addAll(chart,salesVBox);
         Scene graphScene = new Scene(graphScrollPane,1100,600);
         viewReportsStage.initModality(Modality.APPLICATION_MODAL);
+        graphScene.getStylesheets().add("css/adminMenu.css");
         viewReportsStage.setScene(graphScene);
         viewReportsStage.show();
     }
@@ -1382,6 +1390,7 @@ public class AgileCafe362 extends Application {
         
         settingsStage.initModality(Modality.APPLICATION_MODAL);
         settingsStage.setScene(SettingsScene);
+        SettingsScene.getStylesheets().add("css/adminMenu.css");
         settingsStage.show();
     }
     
@@ -1398,12 +1407,13 @@ public class AgileCafe362 extends Application {
         
         Stage addonsStage = new Stage();
         GridPane grid = new GridPane();
-        Button addBtn = new Button("New addon");
+        Button addBtn = new Button("Add Addon");
+        addBtn.setId("Button_addBtn");
         addBtn.setOnAction(e->{addonsStage.hide();addAddon(index);});
         grid.add(addBtn,3, 0);
-         
         
-        int addonIndex = 1;
+        VBox verticalLayout = new VBox(); 
+        int addonIndex = 0;
         for(addOn addon : addonList)
         {
             Label name = new Label(addon.getName());
@@ -1418,18 +1428,19 @@ public class AgileCafe362 extends Application {
             GridPane.setMargin(deleteBtn, new Insets(0,0,0,10));
             
             // On editing button
-            int passAddonIndex = addonIndex-1;
+            int passAddonIndex = addonIndex;
             int itemIndex = index;
             editBtn.setOnAction(e->{addonsStage.hide();editAddon(passAddonIndex,itemIndex);});
             deleteBtn.setOnAction(e->{
                 boolean confirmDelete = confirmAddonDelete();
                 if (confirmDelete)
                 { 
-                    addonList.remove(passAddonIndex-1); 
+                    addonList.remove(passAddonIndex); 
                     grid.getChildren().remove(name);  
                     grid.getChildren().remove(price);
                     grid.getChildren().remove(editBtn); 
                     grid.getChildren().remove(deleteBtn);
+                    
                     start(theStage);
                     
                     SQL_DB mysqlDB = new SQL_DB();
@@ -1442,14 +1453,21 @@ public class AgileCafe362 extends Application {
                     {
                         System.out.print("Error connecting");
                     }  
-                    // deleted addon 
-
+                    // deleted addon                     
+                    addonsStage.hide();
+                    manageAddons(itemIndex);
                 }
             });
             addonIndex++;
         }
-        grid.setPadding(new Insets(10));
-        Scene scene = new Scene(grid,300,300);
+        grid.setPadding(new Insets(10));  
+        grid.setVgap(5);
+        addBtn.setAlignment(Pos.TOP_RIGHT);
+        verticalLayout.getChildren().addAll(addBtn,grid);
+        verticalLayout.setPadding(new Insets(5));
+        Scene scene = new Scene(verticalLayout,300,300);
+        addonsStage.setTitle("Manage Addons");
+        scene.getStylesheets().add("css/adminMenu.css");
         addonsStage.setScene(scene);
         addonsStage.show();
     }
@@ -1532,9 +1550,7 @@ public class AgileCafe362 extends Application {
         grid.add(priceTF, 1,1);
         
         grid.add(save,1,2);
-        grid.setPadding(new Insets(10));
-        
-       
+        grid.setPadding(new Insets(10)); 
         save.setOnAction(e->{
                 
                 String getName = nameTF.getText();
@@ -1582,9 +1598,13 @@ public class AgileCafe362 extends Application {
                     showErrorMessage("Incomplete Form","Please make sure name and price are filled before saving");
                 }
         });
+        grid.setVgap(8);
+        grid.setPadding(new Insets(10));
         
-        Scene scene = new Scene(grid,200,200);
+        Scene scene = new Scene(grid,215,250);
+        scene.getStylesheets().add("css/adminMenu.css");
         addAddonStage.setScene(scene);
+        addAddonStage.setTitle("Add Addon");
         addAddonStage.show();
     }
     public void showErrorMessage(String title, String desc)
