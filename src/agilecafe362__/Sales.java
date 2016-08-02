@@ -8,7 +8,7 @@ package agilecafe362__;
 import java.sql.Date;
 
 /*********************************************************************
-* Class Name: Cart
+* Class Name: Sales
 * Programmer: Ahmad
 * Description: Stores the sale total and date for each order
 * and retrieves them

@@ -16,7 +16,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 /*********************************************************************
-* Class Name: SQL_DB (MySQL Database) 
+* Class Name: Item 
 * Programmer: Binh, Kevin and Ahmad
 * Description: Stores the item attributes such as name, description,
 * price, etc. It also contains the list of addons that the item

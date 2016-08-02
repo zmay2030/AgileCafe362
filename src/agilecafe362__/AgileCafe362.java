@@ -58,14 +58,17 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType; 
     
 /*************************
-*  Module name: AgileCafe362        Description: Responsible for building/displaying the GUI and for facilitating  
-*  Date: 8/1/16                                  user interaction between the program.
-*  Programmers: Ahmad, Kevin                     Important functions: 
-*  Data structures: ArrayList                    -init(), which loads information from the database into the program.
-*                                                -start(), initiates the program.
-*                                                -buildCartScene(), displays the main menu.
-*                                                -displaySummaryItems(), displays only the items in the cart onto another page.
-*                                                -ShowAdminMenu(), shows the admin menu where the admin can add/edit/delete items/addons.
+*  Module name: AgileCafe362        
+*  Description: Responsible for building/displaying 
+*  the GUI and for facilitating user interaction between the program.
+*  Programmers: Ahmad, Kevin                     
+*  Data structures: ArrayList                    
+* Important functions: 
+*   -init(), which loads information from the database into the program.
+*   -start(), initiates the program.
+*   -buildCartScene(), displays the main menu.
+*   -displaySummaryItems(), displays only the items in the cart onto another page.
+*   -ShowAdminMenu(), shows the admin menu where the admin can add/edit/delete items/addons.
 **************************/
 public class AgileCafe362 extends Application {
     //Used as a reference to primary stage
