@@ -97,7 +97,7 @@ public class Item {
         }
         
         public void setAddonLabelInfo(){
-            String tempText="With ";
+            String tempText="Addons:\n";
             if(!this.getAddonList().isEmpty()){
                 for(int i=0;i<this.getAddonList().size();i++)
                 {

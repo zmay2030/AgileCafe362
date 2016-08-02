@@ -309,10 +309,25 @@ public class AgileCafe362 extends Application {
             if(((Control)e.getSource()).getId().compareTo(cart.getCartItems().get(i).idLbl.getText())==0)
             {
                 cart.getCartItems().get(i).quantityOrderedInCart=cart.getCartItems().get(i).cb.getValue();
-                calcCartTotals();
+                cart.calcCartTotals();
+                updateTotalsLabels();
             }
         }
         
+    }
+    
+    public void updateTotalsLabels(){
+        double totalC=0;
+        double subtotalC=0;
+        //Sets the text for the subtotal, tax rate, and total labels,
+        //and also sets the precision of the values.
+        Double toBeTruncated = new Double(cart.getTotal());
+        totalC = new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+        toBeTruncated = new Double(cart.getSubTotal());
+        subtotalC= new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+        subtotalLabel.setText("Subtotal:   "+subtotalC);
+        totalLabel.setText("Total: "+totalC);
+        taxRateLabel.setText("Tax rate:    "+Double.toString(cart.getTaxRate()*100)+"%");
     }
     
     //Extract the quantity ordered in the main menu and add to cart
@@ -395,7 +410,8 @@ public class AgileCafe362 extends Application {
         //Diplays the items from cart into summary page.
         displaySummaryItems();
         //Calculates totals and sets appropriate labels
-        calcCartTotals();
+        cart.calcCartTotals();
+        updateTotalsLabels();
         
         //Create bottom box for total summary
         VBox total_VBox = new VBox();
@@ -503,46 +519,6 @@ public class AgileCafe362 extends Application {
         }
         //Rebuilds the main menu
         start(theStage);
-    }
-    
-    //Calculates totals and sets appropriate labels
-    private void calcCartTotals(){
-        double totalC;
-        double subtotalC=0;
-        for(int i=0;i<cart.getCartItems().size();i++){
-            subtotalC+= cart.getCartItems().get(i).getPrice()* cart.getCartItems().get(i).quantityOrderedInCart;
-        }
-        for(int i=0;i<cart.getCartItems().size();i++)
-        {
-            for(int m=0;m<cart.getCartItems().get(i).getAddonList().size();m++)
-            {
-                if(cart.getCartItems().get(i).getAddonList().get(m).checkBox.isSelected())
-                {
-                    for(int j=0;j<cart.getCartItems().get(i).getAddonList().size();j++)
-                    {
-                        if(cart.getCartItems().get(i).getAddOnList().get(j).isChecked()){
-                        subtotalC+=cart.getCartItems().get(i).getAddonList().get(j).getPrice()*cart.getCartItems().get(i).quantityOrderedInCart;
-                        }
-                    }
-                }
-
-            }
-        }
-        
-        totalC=subtotalC+(subtotalC*cart.getTaxRate());
-        
-        cart.setSubTotal(subtotalC);
-        cart.setTotal(totalC);
-        //Sets the text for the subtotal, tax rate, and total labels,
-        //and also sets the precision of the values.
-        Double toBeTruncated = new Double(totalC);
-        totalC = new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
-        toBeTruncated = new Double(subtotalC);
-        subtotalC= new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
-        subtotalLabel.setText("Subtotal:   "+subtotalC);
-        totalLabel.setText("Total: "+totalC);
-        taxRateLabel.setText("Tax rate:    "+Double.toString(cart.getTaxRate()*100)+"%");
-        
     }
     
     //Event handler for when user clicks "Remove" in the cart scene.

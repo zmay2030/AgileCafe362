@@ -27,6 +27,8 @@ public class Cart {
     public ArrayList<Item> getCartItems(){
         return cartItems;
     }
+    
+    //Not only clears the vector, but also resets the spinbox, combobox, etc for future use.
     public void clear(){
         for(int i=0; i< cartItems.size();i++){
             cartItems.get(i).setAddonListUnchecked();
@@ -38,6 +40,30 @@ public class Cart {
             cartItems.get(i).spinBox.setMaxWidth(65);
         }
         cartItems.clear();
+    }
+    
+    //
+    public void calcCartTotals(){
+        double totalC;
+        double subtotalC=0;
+        //Calculate subtotal
+        for(int i=0;i<cartItems.size();i++)
+        {
+            subtotalC+= cartItems.get(i).getPrice()* cartItems.get(i).quantityOrderedInCart;
+            
+            for(int j=0;j<cartItems.get(i).getAddonList().size();j++)
+            {
+                if(cartItems.get(i).getAddonList().get(j).checkBox.isSelected())
+                {
+                        subtotalC+= cartItems.get(i).getAddonList().get(j).getPrice()*cartItems.get(i).quantityOrderedInCart;
+                }
+            }
+        }
+
+        //Calculate total
+        totalC=subtotalC+(subtotalC*this.getTaxRate());
+        this.setSubTotal(subtotalC);
+        this.setTotal(totalC);     
     }
     
     public void setTaxRate(double taxRate){
@@ -57,5 +83,6 @@ public class Cart {
     }
     
     public void setSubTotal(double subTotal){ this.subTotal = subTotal; }
+    
     public void setTotal(double total) { this.total=total; }
 }
