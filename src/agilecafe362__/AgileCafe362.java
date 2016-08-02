@@ -121,8 +121,8 @@ public class AgileCafe362 extends Application {
     public void init() throws Exception {
         //init() runs before application starts
         //Connect to database
-        SQL_DB mysqlDB = new SQL_DB();
-        mysqlDB.connect(); 
+        SQL_DB mysqlDB = SQL_DB.getInstance();
+        mysqlDB.connect();
         
         //Query info from database into application
         this.itemsList = mysqlDB.getAllItems();
@@ -157,8 +157,8 @@ public class AgileCafe362 extends Application {
 
         //Close mysql connection  
         //Save info into database
-        SQL_DB mysqlDB = new SQL_DB();
-        mysqlDB.connect(); 
+        SQL_DB mysqlDB = SQL_DB.getInstance();
+        mysqlDB.connect();
         mysqlDB.saveAllItems(itemsList);
         //Save info from application into database
     }
@@ -674,7 +674,7 @@ public class AgileCafe362 extends Application {
     private void payNowButtonHandler()
     {
         //NOTE: Store sale info into database here!
-        SQL_DB mysqlDB = new SQL_DB();
+        SQL_DB mysqlDB = SQL_DB.getInstance();
         try{
             mysqlDB.connect(); 
         }catch(Exception e)
@@ -1163,7 +1163,7 @@ public class AgileCafe362 extends Application {
                      
                     String image_path = fullFileName;
                     
-                    SQL_DB mysqlDB = new SQL_DB();
+                    SQL_DB mysqlDB = SQL_DB.getInstance();
                     try{
                         mysqlDB.connect();
                         // Check if fields are not empty 
@@ -1431,7 +1431,7 @@ public class AgileCafe362 extends Application {
                     
                     start(theStage);
                     
-                    SQL_DB mysqlDB = new SQL_DB();
+                    SQL_DB mysqlDB = SQL_DB.getInstance();
                     try{
                         mysqlDB.connect();
                         // Check if fields are not empty 
@@ -1556,7 +1556,7 @@ public class AgileCafe362 extends Application {
                 }
                 if(getPrice != -1 && getName!="")
                 { 
-                    SQL_DB mysqlDB = new SQL_DB();
+                    SQL_DB mysqlDB = SQL_DB.getInstance();
                     try{
                         mysqlDB.connect();
                         // Check if fields are not empty 

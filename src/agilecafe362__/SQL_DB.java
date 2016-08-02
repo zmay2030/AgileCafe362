@@ -15,8 +15,10 @@ public class SQL_DB  {
     // Username and pass 
     static final String USER = "agilecafe";
     static final String PASS = "Cpsc362@";
+    private static SQL_DB sqlInstance;
     
     private Connection conn;
+    private SQL_DB()  {  }
     public void connect() throws Exception {
            this.conn = null; 
     	   try{
@@ -38,6 +40,12 @@ public class SQL_DB  {
     	       
     	     
     	   }//end try
+    }
+    public static SQL_DB getInstance(){
+        if(sqlInstance == null)
+            sqlInstance = new SQL_DB();
+        
+        return sqlInstance;
     }
     public void addAddonsList(Item item)
     { 
