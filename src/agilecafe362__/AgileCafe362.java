@@ -108,6 +108,15 @@ public class AgileCafe362 extends Application {
     //Used for graph
     ArrayList<Sales> salesList;
     
+    //Elements for edit menus item stage
+    ComboBox typeComboBox;
+    TextField nameTF;
+    TextField descTF;
+    TextField priceTF;
+    TextField typeTF;
+    Stage newItemStage;
+    Stage editMenuItemsStage;
+    
     @Override
     public void init() throws Exception {
         //init() runs before application starts
@@ -566,7 +575,7 @@ public class AgileCafe362 extends Application {
         HBox radioHBox = new HBox();
         radioHBox.setSpacing(30);
         Label titleLabel = new Label("Payment Information");
-        titleLabel.setPadding(new Insets(0,0,0,380));
+        titleLabel.setPadding(new Insets(0,0,0,165));
         titleLabel.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,20));
         Double toBeTruncated = cart.getTotal();
         double total = new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
@@ -633,7 +642,7 @@ public class AgileCafe362 extends Application {
         VBox pnVBox = new VBox();
         pnVBox.setAlignment(Pos.CENTER);
         cashBorderPane.setCenter(pnVBox);
-        Text confirmText = new Text("Please see cashier to pay in cash. \n"+" Press submit to submit the order.\n");
+        Text confirmText = new Text("Please see cashier to pay in cash. \n"+" Press 'Submit Order' to submit the order.\n");
         Button confirmPayNowBtn = new Button("Submit Order");
         confirmPayNowBtn.setOnAction(e->payNowButtonHandler());
         pnVBox.getChildren().addAll(confirmText,confirmPayNowBtn);
@@ -811,7 +820,7 @@ public class AgileCafe362 extends Application {
         Label itemPrice = new Label("Price: ");
         Label itemDesc = new Label("Description: "); 
         Label itemType = new Label("Type: ");
-        ComboBox typeComboBox = new ComboBox();
+        typeComboBox = new ComboBox();
         typeComboBox.getItems().add(0, "Food");
         typeComboBox.getItems().add(1, "Beverage"); 
         typeComboBox.setValue(item.typeTranslate(item.getType()));
@@ -1058,7 +1067,7 @@ public class AgileCafe362 extends Application {
     }
     public void addNewItem(Stage editMenuItemsStage)
     {
-        Stage newItemStage = new Stage();
+        newItemStage = new Stage();
         GridPane grid = new GridPane();
         newItemStage.initModality(Modality.APPLICATION_MODAL);
         
@@ -1068,15 +1077,15 @@ public class AgileCafe362 extends Application {
         Label itemDesc = new Label("Description: "); 
         Label itemType = new Label("Type: ");
         Label itemImg  = new Label("Upload Image: "); 
-        ComboBox typeComboBox = new ComboBox();
+        typeComboBox = new ComboBox();
         typeComboBox.getItems().add(0, "Food");
         typeComboBox.getItems().add(1, "Beverage");  
         typeComboBox.setValue("Food");
         // Textfields
-        TextField nameTF = new TextField ();
-        TextField priceTF = new TextField ();
-        TextField descTF  = new TextField ();
-        TextField typeTF    = new TextField();
+         nameTF = new TextField ();
+         priceTF = new TextField ();
+         descTF  = new TextField ();
+         typeTF    = new TextField();
        
         // upload button and submit button
         Button uploadBtn = new Button("Browse Files");
@@ -1110,30 +1119,41 @@ public class AgileCafe362 extends Application {
         grid.setVgap(10);
         // on upload
          // ON UPLOAD 
-        final FileChooser fileChooser = new FileChooser();
-        uploadBtn.setOnAction(
-            new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(final ActionEvent e) {
-                    List<File> list =
-                        fileChooser.showOpenMultipleDialog(newItemStage);
-                    if (list != null) {
-                        for (File file : list) { 
-                            grid.getChildren().remove(uploadBtn);
-                            Label fileName = new Label(String.valueOf(file));
-                            grid.add(fileName,1,0);
-                           
-                            imageFileNameToUpload = file;
-                        }
-                    }
-                }
-            });
+        
+        uploadBtn.setOnAction( e-> fileChooserHandler(e,newItemStage,grid));
         // on saving  
          
-        submitBtn.setOnAction(e->{ 
+        submitBtn.setOnAction(e-> submitBtnHandler() ); 
+        Scene scene = new Scene(grid,400,300);
+        newItemStage.setScene(scene);
+        newItemStage.setTitle("Add New Item");
+        scene.getStylesheets().add("css/adminMenu.css");
+        newItemStage.show(); 
+        
+    }
+    
+    //Handlers the file chooser button on the edit items page
+    public void fileChooserHandler(ActionEvent e, Stage stage, GridPane grid){
+        //Takes in: Stage = newItemsStage, grid = grid
+        final FileChooser fileChooser = new FileChooser();
+        List<File> list =
+            fileChooser.showOpenMultipleDialog(stage);
+        if (list != null) {
+            for (File file : list) { 
+                grid.getChildren().remove(((Control)e.getSource()));
+                Label fileName = new Label(String.valueOf(file));
+                grid.add(fileName,1,0);
+
+                imageFileNameToUpload = file;
+            }
+        }
+    }
+    
+    //Used when user submits a new item by pressing "Save"
+    public void submitBtnHandler(){
                 String name = nameTF.getText();
                 String desc = descTF.getText();
-                int    type = typeComboBox.getSelectionModel().getSelectedIndex();
+                int type = typeComboBox.getSelectionModel().getSelectedIndex();
                 double price = -1;
                 try{
                     price = Double.parseDouble(priceTF.getText());
@@ -1197,15 +1217,8 @@ public class AgileCafe362 extends Application {
                         showErrorMessage("Incomplete form","Please make sure the form is completely filled out before proceeding");
                     }
                 }
-            }
-        ); 
-        Scene scene = new Scene(grid,400,300);
-        newItemStage.setScene(scene);
-        newItemStage.setTitle("Add New Item");
-        scene.getStylesheets().add("css/adminMenu.css");
-        newItemStage.show(); 
-        
     }
+    
     public void confirmItemDelete(int index, Stage editMenuItems)
     {
         Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -1327,14 +1340,22 @@ public class AgileCafe362 extends Application {
         chart.setMinHeight(550);
         //----------------END CREATE PIE CHART-------------------
         Text salesTitleText = new Text("Sales History");
+        Text dateTxt = new Text("Date");
+        Text totalTxt = new Text("Total");
+        HBox categoryHBox = new HBox(45);
+        categoryHBox.setPadding(new Insets(0,0,0,15));
+        categoryHBox.setAlignment(Pos.CENTER);
+        categoryHBox.getChildren().addAll(dateTxt, totalTxt);
+        
         salesTitleText.setFont(Font.font("Arial",FontWeight.BOLD,25));
         VBox salesVBox = new VBox();
         salesVBox.setAlignment(Pos.CENTER);
         salesVBox.setPadding(new Insets(0,0,0,100));
         salesVBox.setSpacing(10);
-        salesVBox.getChildren().add(salesTitleText);
+        salesVBox.getChildren().addAll(salesTitleText, categoryHBox);
+        
         for(int i =0; i<salesList.size();i++){
-            salesVBox.getChildren().add(new Text("Date: "+salesList.get(i).getSaleDate()+"  Total: "+Double.toString(salesList.get(i).getTotal())));
+            salesVBox.getChildren().add(new Text(salesList.get(i).getSaleDate()+"         "+Double.toString(salesList.get(i).getTotal())));
         }
         holdGraphsHBox.getChildren().addAll(chart,salesVBox);
         Scene graphScene = new Scene(graphScrollPane,1100,600);
