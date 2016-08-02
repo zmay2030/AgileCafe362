@@ -89,7 +89,7 @@ public class AgileCafe362 extends Application {
     private final Label totalLabel = new Label();
     private BorderPane cartBorderPane;
     private Boolean isCartSceneBuilt = false;
-    private final Cart cart = new Cart();
+    private final Cart cart = Cart.getInstance();
     
     //Used for billing scene
     private Stage tyStage; 
@@ -420,7 +420,7 @@ public class AgileCafe362 extends Application {
         //Calculates totals and sets appropriate labels
         cart.calcCartTotals();
         updateTotalsLabels();
-        
+ 
         //Create bottom box for total summary
         VBox total_VBox = new VBox();
         int font_size = 20;

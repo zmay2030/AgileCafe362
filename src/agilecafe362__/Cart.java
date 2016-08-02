@@ -12,16 +12,24 @@ import javafx.scene.control.Spinner;
  * @author Dragon
  */
 public class Cart {
+    private static Cart cart;
     private double taxRate;
     private final ArrayList<Item> cartItems;
     private double subTotal;
     private double total;
     
-    public Cart(){
-    cartItems = new ArrayList<>();
-    subTotal = 0;
-    total = 0;
-    taxRate = .1;
+    private Cart(){
+        cartItems = new ArrayList<>();
+        subTotal = 0;
+        total = 0;
+        taxRate = .1;
+    }
+    
+    public static Cart getInstance(){
+        if(cart == null)
+            cart = new Cart();
+        
+        return cart;
     }
     
     public ArrayList<Item> getCartItems(){
