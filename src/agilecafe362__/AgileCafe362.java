@@ -1503,9 +1503,12 @@ public class AgileCafe362 extends Application {
                     showErrorMessage("Incomplete Form","Please make sure name and price are filled before saving");
                 }
         });
-        
-        Scene scene = new Scene(grid,200,200);
+        grid.setVgap(5);
+        grid.setHgap(5);
+        Scene scene = new Scene(grid,220,200);
+        scene.getStylesheets().add("css/adminMenu.css");
         editAddonStage.setScene(scene);
+        editAddonStage.setTitle("Edit Addons");
         editAddonStage.show();
     }
     public void addAddon(int itemIndex)
