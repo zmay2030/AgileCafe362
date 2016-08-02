@@ -1,6 +1,6 @@
 .root{
     -fx-font-size: 12;  
-    -fx-background: #e5f7f9;
+    -fx-background: rgb(246,246,246);
 }
 #viewReportsBtn
 {

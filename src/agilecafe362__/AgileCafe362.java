@@ -655,6 +655,7 @@ public class AgileCafe362 extends Application {
         theStage.setTitle("Payment Information");
         theStage.setScene(billingScene);
         billingScene.getStylesheets().add("css/adminMenu.css");
+        payNowScene.getStylesheets().add("css/adminMenu.css");
     }
     
     //When user submits payment, the "Thank You" page is shown
