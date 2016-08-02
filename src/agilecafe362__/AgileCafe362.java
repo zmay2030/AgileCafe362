@@ -56,7 +56,17 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType; 
-
+    
+/*************************
+*  Module name: AgileCafe362        Description: Responsible for building/displaying the GUI and for facilitating  
+*  Date: 8/1/16                                  user interaction between the program.
+*  Programmers: Ahmad, Kevin                     Important functions: 
+*  Data structures: ArrayList                    -init(), which loads information from the database into the program.
+*                                                -start(), initiates the program.
+*                                                -buildCartScene(), displays the main menu.
+*                                                -displaySummaryItems(), displays only the items in the cart onto another page.
+*                                                -ShowAdminMenu(), shows the admin menu where the admin can add/edit/delete items/addons.
+**************************/
 public class AgileCafe362 extends Application {
     //Used as a reference to primary stage
     Stage theStage; 
@@ -117,6 +127,13 @@ public class AgileCafe362 extends Application {
     Stage newItemStage;
     Stage editMenuItemsStage;
     
+    
+    /*************************
+    *  Function name: Init        Description: Connects to the database, loads sale summary info,    
+    *  Date: 8/1/16                          loads the items from the database, along with the
+    *  Programmers: Ahmad                    item's list of addons. All info are loaded into a list.
+    *  Data structures: ArrayList            This is the first thing that runs when the application starts.
+    **************************/
     @Override
     public void init() throws Exception {
         //init() runs before application starts
@@ -151,6 +168,12 @@ public class AgileCafe362 extends Application {
         mysqlDB.closeConn();
     }
     
+    /*************************
+    *  Function name: stop        Description: Connects to the database, saves sale summary info,    
+    *  Date: 8/1/16                          saves the items into the database, along with the
+    *  Programmers: Ahmad                    item's list of addons. All info are saved into a database.
+    *  Data structures: ArrayList            This function is called when the user closes the application.
+    **************************/
     @Override
     public void stop() throws Exception {
         //stop() runs after application stops
@@ -163,6 +186,12 @@ public class AgileCafe362 extends Application {
         //Save info from application into database
     }
     
+    /*************************
+    *  Function name: start       Description: This is the entry point of the JavaFX application.   
+    *  Date: 8/1/16                          This function is called when the user starts the application.
+    *  Programmers: Kevin, Ahmad             This function builds the main menu, and sets up the primary stage.                    
+    *  Data structures: NONE                 
+    **************************/
     @Override
     public void start(Stage primaryStage) {
         theStage = primaryStage;
@@ -175,6 +204,12 @@ public class AgileCafe362 extends Application {
         primaryStage.show();
     }
     
+    /*************************
+    *  Function name: buildMainMenuStage       Description: This function is responsible for building the main menu and  
+    *  Date: 8/1/16                                       calling a function to display the items from the itemsList and addonList.
+    *  Programmers: Kevin, Ahmad                          The user interacts w/ the main menu on this window (stage).                   
+    *  Data structures: Layout containers                
+    **************************/
     private void buildMainMenuStage(){
         
         //Layout for Main Menu -> BorderPane layout
@@ -258,6 +293,12 @@ public class AgileCafe362 extends Application {
         mainPane.setCenter(menuScrollPane);
     }
     
+    /*************************
+    *  Function name: createSectionMenu        Description: This function is responsible for creating the sections of the  
+    *  Date: 8/1/16                                       menu. The menu is separated by its "type" such as food or beverage.
+    *  Programmers: Kevin                                 The items and its addons are added to their appropriate display.               
+    *  Data structures: itemsList, addonList               
+    **************************/
     private void createSectionMenu(GridPane grid, int typeNum){
         //Constrains the column size
         ColumnConstraints colimg = new ColumnConstraints(60);
@@ -288,6 +329,12 @@ public class AgileCafe362 extends Application {
         }
     }
     
+    /*************************
+    *  Function name: addToCartHandler        Description: This function is called when the user presses the "Add to Cart" button.  
+    *  Date: 8/1/16                                      The function calls another function which actually builds the cart page.
+    *  Programmers: Kevin                                             
+    *  Data structures: NONE               
+    **************************/
     private void addToCartHandler(){
             loadQuantityToCart();
             //If stage hasn't been built, then load quantity to cart, and build cart stage as usual.
@@ -302,14 +349,25 @@ public class AgileCafe362 extends Application {
             
     }
     
+    /*************************
+    *  Function name: setComboBoxHandler        Description: This function is responsible for creating a handler for each combo box  
+    *  Date: 8/1/16                                        in the cart summary page for each item.
+    *  Programmers: Kevin                                             
+    *  Data structures: itemsList               
+    **************************/
     private void setComboBoxHandler(){
         for(int i=0;i<itemsList.size();i++)
         {
            itemsList.get(i).cb.setOnAction(e->comboBoxHandler(e));
         }
     }
-    //In cart stage, this handles the event when someone changes quantity using combo box, and 
-    //automatically updates the summary amount labels
+    
+    /*************************
+    *  Function name: comboBoxHandler        Description: In cart stage, this handles the event when someone changes quantity using combo box, and 
+    *  Date: 8/1/16                                     automatically updates the summary amount labels.
+    *  Programmers: Kevin                               
+    *  Data structures: cartItems                       
+    **************************/
     public void comboBoxHandler(ActionEvent e)
     {
         for(int i=0;i<cart.getCartItems().size();i++)
@@ -324,9 +382,15 @@ public class AgileCafe362 extends Application {
         
     }
     
+    /*************************
+    *  Function name: updateTotalsLabels        Description: This function is responsible for updating the total and subtotal labels 
+    *  Date: 8/1/16                                        in the cart summary page. Before calling this function, the programmer
+    *  Programmers: Kevin                                  is expected to have calculated the total and subtotal.
+    *  Data structures: NONE               
+    **************************/
     public void updateTotalsLabels(){
-        double totalC=0;
-        double subtotalC=0;
+        double totalC;
+        double subtotalC;
         //Sets the text for the subtotal, tax rate, and total labels,
         //and also sets the precision of the values.
         Double toBeTruncated = new Double(cart.getTotal());
@@ -338,7 +402,13 @@ public class AgileCafe362 extends Application {
         taxRateLabel.setText("Tax rate:    "+Double.toString(cart.getTaxRate()*100)+"%");
     }
     
-    //Extract the quantity ordered in the main menu and add to cart
+    /*************************
+    *  Function name: loadQuantityToCart        Description: Extract the quantity ordered in the main menu and add to cart.
+    *  Date: 8/1/16                                        This function is supposed to be called after the user presses
+    *  Programmers: Kevin                                  "Add to Cart"
+    *  Data structures: itemsList, cartItems               
+    **************************/
+    //
     private void loadQuantityToCart(){
         //If cart stage hasn't been built or if cart is empty, add the items to the cart.
         if(isCartSceneBuilt==false || cart.getCartItems().isEmpty())
@@ -373,6 +443,12 @@ public class AgileCafe362 extends Application {
         }
     }
     
+    /*************************
+    *  Function name: loadQuantityToCart        Description: Extract the quantity ordered in the main menu and add to cart.
+    *  Date: 8/1/16                                        This function is supposed to be called after the user presses
+    *  Programmers: Kevin                                  "Add to Cart"
+    *  Data structures: itemsList, cartItems               
+    **************************/
     private void buildCartScene(){
         //Create layouts to organize elements
         cartBorderPane = new BorderPane();
@@ -445,6 +521,7 @@ public class AgileCafe362 extends Application {
         theStage.setTitle("Shopping Cart - Agile's Cafe");
     }
     
+    //Called when the user checks out the cart
     private void checkoutButtonHandler(){
         if(cart.getCartItems().isEmpty()){
             errorEmptyCartStage();
@@ -515,6 +592,7 @@ public class AgileCafe362 extends Application {
 
     }
     
+    //When user clisk the back button, this fucntion handles that event.
     private void backButtonHandler() {
         for(int i=0;i<itemsList.size();i++)
         {
@@ -691,6 +769,7 @@ public class AgileCafe362 extends Application {
         start(theStage);
     }
     
+    //Builds the admin window
     private void buildLogInStage(){
         
         //Set up grid
@@ -770,6 +849,7 @@ public class AgileCafe362 extends Application {
         errorEmptyCartStage.showAndWait();
     }
 
+    //Checks and displays error message if user enters wrong username/password
     private void errorLogin(Stage logInStage){
 
         if (userTextField.getText().equals("123") 
@@ -787,6 +867,7 @@ public class AgileCafe362 extends Application {
         }
     }
 
+    //The window of the edit items menu
     public void editItemByIndex(int index)
     {
         Stage editItem = new Stage();
@@ -912,6 +993,7 @@ public class AgileCafe362 extends Application {
 
     }
     
+    //Renames the label after an edit has been made.
     public void renameLabels(Item item){
         for(int i=0; i<itemsList.size();i++){
             if(item.getItemID()==itemsList.get(i).getItemID()){
@@ -922,6 +1004,7 @@ public class AgileCafe362 extends Application {
         }
     }
     
+    //Displays the view of all the items to edit, along with their options (delete, add, edit)
     public void adminEditMenuItems()
     { 
         
@@ -1049,6 +1132,8 @@ public class AgileCafe362 extends Application {
         editMenuItems.setScene(scene);
         editMenuItems.show();
     }
+    
+    //The window that displays when the user clicks to add a new item
     public void addNewItem(Stage editMenuItemsStage)
     {
         newItemStage = new Stage();
@@ -1203,6 +1288,7 @@ public class AgileCafe362 extends Application {
                 }
     }
     
+    //Asks for confirmation when user clicks the delete button on an item
     public void confirmItemDelete(int index, Stage editMenuItems)
     {
         Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -1225,6 +1311,8 @@ public class AgileCafe362 extends Application {
         }
         start(theStage);
     }
+    
+    //Asks for confirmation when user clicks the delete button on an addon
     public boolean confirmAddonDelete()
     {
         Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -1240,6 +1328,8 @@ public class AgileCafe362 extends Application {
             return false;
         }
     }
+    
+    //Displays the admin menu after the user logs in
     public void showAdminMenu()
     {  
         Stage adminMenu = new Stage();
@@ -1349,6 +1439,7 @@ public class AgileCafe362 extends Application {
         viewReportsStage.show();
     }
     
+    //Displays the settings window when the admin clicks on the edit settings button.
     public void editSettingsHandler(){
         Stage settingsStage = new Stage();
         settingsStage.setTitle("Edit Settings");
@@ -1382,12 +1473,14 @@ public class AgileCafe362 extends Application {
         settingsStage.show();
     }
     
+    //handles the event when the user clicks teh apply changes button.
     public void applyChangesHandler(){
         //Note: Needs error checking.
         cart.setTaxRate(Double.parseDouble(changeTR_TF.getText()));
         statusLbl.setText("Changes Applied!");
     }
     
+    //Displays the manage addon window where the user can choose to manage addons
     public void manageAddons(int index)
     { 
         Item item = itemsList.get(index);
@@ -1459,6 +1552,8 @@ public class AgileCafe362 extends Application {
         addonsStage.setScene(scene);
         addonsStage.show();
     }
+    
+    //The function that edits the addon and changes the view to reflect that change.
     public void editAddon(int addonIndex,int itemIndex)
     {
         Item item = itemsList.get(itemIndex);
@@ -1519,6 +1614,8 @@ public class AgileCafe362 extends Application {
         editAddonStage.setTitle("Edit Addons");
         editAddonStage.show();
     }
+    
+    //When the user adds an addon, the GUI is changed to reflect that.
     public void addAddon(int itemIndex)
     {
         Item item = itemsList.get(itemIndex);
@@ -1598,6 +1695,8 @@ public class AgileCafe362 extends Application {
         addAddonStage.setTitle("Add Addon");
         addAddonStage.show();
     }
+    
+    //Used to create a generic error message
     public void showErrorMessage(String title, String desc)
     {
         Alert alert = new Alert(AlertType.ERROR);
@@ -1606,6 +1705,8 @@ public class AgileCafe362 extends Application {
 
         alert.showAndWait();
     }
+    
+    //Calls when the user clicks in order to open a file.
     private void openFile(File file) {
         try {
             desktop.open(file);
@@ -1616,6 +1717,8 @@ public class AgileCafe362 extends Application {
                 );
         }
     }
+    
+    //Used to create a generic information message to tell the user what has happened.
     private void showInformation(String title,String desc)
     {
         Alert alert = new Alert(AlertType.INFORMATION);  
@@ -1624,5 +1727,7 @@ public class AgileCafe362 extends Application {
 
         alert.showAndWait();
     }
+    
+    //Only used to launch the JavaFX application.
     public static void main(String[] args) { launch(args); }   
 }
