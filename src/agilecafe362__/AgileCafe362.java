@@ -213,9 +213,15 @@ public class AgileCafe362 extends Application {
         //Creates section labels
         Label food = new Label("Food");
         Label bev = new Label("Beverage");
-        food.setFont(Font.font("Arial", FontWeight.BOLD, 30));
-        bev.setFont(Font.font("Arial",FontWeight.BOLD,30));
-        
+        food.setId("typeLabel");
+        bev.setId("typeLabel");
+        VBox foodBox = new VBox(food);
+        VBox bevBox  = new VBox(bev);
+        foodBox.setId("typeLabelBox");
+        bevBox.setId("typeLabelBox");
+//        food.setFont(Font.font("Arial", FontWeight.BOLD, 30));
+//        bev.setFont(Font.font("Arial",FontWeight.BOLD,30));
+//        
         //Creates center section where the menu items are displayed
         VBox menuSection = new VBox();
         menuSection.setSpacing(20);
@@ -224,15 +230,17 @@ public class AgileCafe362 extends Application {
         //Creates title of the menu
         HBox menuBoxTop = new HBox();
         menuBoxTop.setPadding(new Insets(0,25,15,25));
-        Label menuTitle = new Label("Agile's Cafe Menu");
+        VBox menuTitleBox = new VBox();
+        menuTitleBox.setId("menuTitleBox");
+        menuTitleBox.setPrefWidth(380);
+        menuTitleBox.setPrefHeight(60);
         menuBoxTop.setAlignment(Pos.CENTER);
-        menuTitle.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,40));
-        menuBoxTop.getChildren().add(menuTitle);
-        mainPane.setTop(menuBoxTop);
-        
+//        menuTitle.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,40));
+        menuBoxTop.getChildren().add(menuTitleBox);
+        mainPane.setTop(menuBoxTop); 
         //Displays "Food" and "Beverage" Labels
-        foodMenuGrid.add(food,0,0,2,1);
-        bevMenuGrid.add(bev,0,0,2,1);
+        foodMenuGrid.add(foodBox,0,0,4,1);
+        bevMenuGrid.add(bevBox,0,0,4,1); 
         //foodMenuGrid.setGridLinesVisible(true);
         //bevMenuGrid.setGridLinesVisible(true);
         

@@ -1,6 +1,7 @@
 .root{
-    -fx-font-size: 12;  
-    -fx-background: #DCCBA7 ;
+    -fx-font-size: 12;   
+     
+    -fx-background-color: radial-gradient(ellipse farthest-corner at center, #F9D698 0%, #D49437 100%);
 }
 #viewReportsBtn
 {
@@ -39,7 +40,7 @@
 #itemBox
 { 
     -fx-background-color: #EADEB4;
-    -fx-border-style: solid;-fx-border-color:#e5f7f9;
+    -fx-border-style: solid;-fx-border-color:#eaccaa;
     -fx-border-width:2;
 }
 #editItemBtn,#deleteItem
@@ -55,7 +56,7 @@
     -fx-background-color: #5b3101; 
     -fx-padding-top:20px;  
     -fx-cursor: hand;    
-    -fx-border-style: solid;-fx-border-color:#e5f7f9;
+    -fx-border-style: solid;-fx-border-color:#eaccaa;
     -fx-border-width: 1;
     -fx-text-fill:#fff;
 }
@@ -70,11 +71,27 @@
     -fx-cursor: hand;
     -fx-font-size:12px;
     -fx-text-fill:#fff;
-    -fx-border-style: solid;-fx-border-color:#e5f7f9;
+    -fx-border-style: solid;-fx-border-color:#eaccaa;
     -fx-border-width: 1;
 }
 .button:hover
 {
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
     
+}
+#typeLabel
+{ 
+    -fx-font-size: 25px; 
+    -fx-padding:5;
+}
+#typeLabelBox
+{
+    -fx-background-color: #EADEB4;
+}
+#menuTitleBox 
+{
+    -fx-font-family:'serif'; 
+    -fx-font-size:25;
+    -fx-font-weight:bold;
+    -fx-background-image: url('../images/agilecafetitle.png') no-repeat;
 }
