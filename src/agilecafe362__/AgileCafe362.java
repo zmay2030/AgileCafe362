@@ -198,7 +198,6 @@ public class AgileCafe362 extends Application {
     @Override
     public void start(Stage primaryStage) {
         theStage = primaryStage;
-        //theStage.setFullScreen(true);
         buildMainMenuStage();
         
         primaryStage.setTitle("Agile's Cafe Menu");
@@ -217,7 +216,8 @@ public class AgileCafe362 extends Application {
         
         //Layout for Main Menu -> BorderPane layout
         mainPane = new BorderPane();
-        mainScene = new Scene(mainPane, 1000, 680);
+        mainPane.setId("mainPane");
+        mainScene = new Scene(mainPane, 1000, 680, Color.BEIGE);
         
         //Create "Add to Cart" Button
         addCartButton = new Button("Add to Cart");
@@ -247,6 +247,10 @@ public class AgileCafe362 extends Application {
         bevMenuGrid.setHgap(10);
         foodMenuGrid.getColumnConstraints().add(new ColumnConstraints(550));
         bevMenuGrid.getColumnConstraints().add(new ColumnConstraints(550));
+        foodMenuGrid.getStylesheets().add("css/adminMenu.css");
+        bevMenuGrid.getStylesheets().add("css/adminMenu.css");
+        foodMenuGrid.setId("foodGrid");
+        bevMenuGrid.setId("bevGrid");
         
         //Creates section labels
         Label food = new Label("Food");
@@ -292,6 +296,7 @@ public class AgileCafe362 extends Application {
         menuSection.setPadding(new Insets(20,5,20,50));
         ScrollPane menuScrollPane = new ScrollPane();
         menuScrollPane.setContent(menuSection);
+
         
         mainPane.setCenter(menuScrollPane);
     }
@@ -640,11 +645,13 @@ public class AgileCafe362 extends Application {
         HBox radioHBox = new HBox();
         radioHBox.setSpacing(30);
         Label titleLabel = new Label("Payment Information");
+        titleLabel.setId("TitleLbl");
         titleLabel.setPadding(new Insets(0,0,0,165));
         titleLabel.setFont(Font.font("Arial",FontWeight.EXTRA_BOLD,20));
         Double toBeTruncated = cart.getTotal();
         double total = new BigDecimal(toBeTruncated).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
         totalLbl = new Label("Total to be charged: $"+total);
+        totalLbl.setId("totalLbl");
         totalLbl.setFont(Font.font("Arial",FontWeight.BOLD,15));
         ccBorderPane.setTop(topVBox);
         
@@ -729,6 +736,7 @@ public class AgileCafe362 extends Application {
         theStage.setTitle("Payment Information");
         theStage.setScene(billingScene);
         billingScene.getStylesheets().add("css/adminMenu.css");
+        payNowScene.getStylesheets().add("css/adminMenu.css");
     }
     
     //When user submits payment, the "Thank You" page is shown

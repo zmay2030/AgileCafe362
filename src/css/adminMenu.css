@@ -95,3 +95,22 @@
     -fx-font-weight:bold;
     -fx-background-image: url('../images/agilecafetitle.png') no-repeat;
 }
+
+#TitleLbl
+{
+    -fx-font-family:'serif'; 
+    -fx-font-size:25;
+    -fx-font-weight:bold;
+}
+
+#totalLbl
+{
+    -fx-font-family:'serif'; 
+    -fx-font-size:15;
+    -fx-font-weight:bold;
+}
+
+#mainPane
+{
+    -fx-background-color: beige;
+}
